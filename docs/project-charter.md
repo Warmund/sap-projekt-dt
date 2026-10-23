@@ -9,6 +9,8 @@
 | ------ | --------------- | --------------- | ------- |
 | xx     | Mar, 11th 2016  | Initial Version | 0.1     |
 | Agent  | Oct, 16th 2026  | Template adapted to SAP (LH references replaced), project name set | 0.2 |
+| Agent  | Oct, 23rd 2026  | Technical constraints added (stack, local Docker operation, mock data instead of GTS API; see docs/infrastructure.md) | 0.3 |
+| Agent  | Oct, 23rd 2026  | Non-goal added: no real e-mail sending in the MVP | 0.4 |
 
 ## 1 Project Purpose or Justification
 
@@ -62,6 +64,9 @@ The project is successful if the following goals have been achieved:
 - XX
 - XX
 - XX
+- Technical constraint: no API connection to SAP GTS in this project; the dashboard and workflow run on mock data (agreed in meeting 1).
+- Technical constraint: the solution is a single Next.js full-stack application (UI5 Web Components for React, Prisma, PostgreSQL), operated locally via Docker Compose; no cloud/BTP deployment. Details: `docs/infrastructure.md`.
+- Non-goal: no real e-mail sending in the MVP. Notifications to teams are only indicated by a (non-functional) "send mail" button.
 
 ## 3 Business Case
 
