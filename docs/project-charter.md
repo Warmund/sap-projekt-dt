@@ -11,6 +11,7 @@
 | Agent  | Oct, 16th 2026  | Template adapted to SAP (LH references replaced), project name set | 0.2 |
 | Agent  | Oct, 23rd 2026  | Technical constraints added (stack, local Docker operation, mock data instead of GTS API; see docs/infrastructure.md) | 0.3 |
 | Agent  | Oct, 23rd 2026  | Non-goal added: no real e-mail sending in the MVP | 0.4 |
+| Agent  | Oct, 25th 2026  | Meeting cadence and constraint for external-system queries recorded from SAP kickoff notes | 0.5 |
 
 ## 1 Project Purpose or Justification
 
@@ -67,6 +68,7 @@ The project is successful if the following goals have been achieved:
 - Technical constraint: no API connection to SAP GTS in this project; the dashboard and workflow run on mock data (agreed in meeting 1).
 - Technical constraint: the solution is a single Next.js full-stack application (UI5 Web Components for React, Prisma, PostgreSQL), operated locally via Docker Compose; no cloud/BTP deployment. Details: `docs/infrastructure.md`.
 - Non-goal: no real e-mail sending in the MVP. Notifications to teams are only indicated by a (non-functional) "send mail" button.
+- External-system queries are only permissible where they cannot be traced back to SAP; an address-existence check is an example mentioned in the SAP kickoff.
 
 ## 3 Business Case
 
@@ -132,6 +134,9 @@ The project is successful if the following goals have been achieved:
 
 The project manager and the stakeholders will agree on the project's governance structure.
 The following aspects of the project's governance are pre-defined at the time of the project initiation:
+
+- The project team meets on site every second Friday and holds an online meeting in the intervening weeks.
+- The final presentation will be given to SAP to collect feedback.
 
 > <Are there any specific agreements on the project governance that are known at project initiation?:
 >
