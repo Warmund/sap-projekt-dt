@@ -1,6 +1,6 @@
 # Infrastruktur
 
-> Status: Entwurf. Gilt für den MVP bzw. POC. Inhaltliche Themen (Workflow, Domänenmodell, Mail, Import, Auth) werden separat konsolidiert und stehen hier nicht.
+> Status: Entwurf. Gilt für den MVP bzw. POC. Inhaltliche Themen (Workflow, Domänenmodell, Mail, Import, Auth) werden in `docs/projektkonzept.md` konsolidiert. Der lokale Betrieb ist hier geplant; die Umgebung für die Abschlussdemo ist noch offen.
 
 ## Entscheidungen
 
@@ -11,7 +11,7 @@
 | API | Next.js Route Handlers und Server Actions |
 | ORM | **Prisma** (Schema, Migrationen, generierte Typen) |
 | Datenbank | **PostgreSQL** |
-| Betrieb / Deployment | Ein `docker compose up` startet alles |
+| Betrieb / Deployment | Lokal startet `docker compose up` den geplanten Stack; externes Demo-Hosting ist noch offen |
 | Entwicklung | DB im Container, App lokal mit `npm run dev` (siehe "Entwicklung und Start") |
 
 ## Versionen
@@ -41,6 +41,8 @@ Relevante Konventionen dieser Versionen:
 
 ## Überblick
 
+Das bearbeitbare Architekturdiagramm liegt unter [`docs/architektur-mvp.drawio`](architektur-mvp.drawio). Durchgezogene Verbindungen stellen den MVP dar; gestrichelte Verbindungen zeigen spätere Integrationsmöglichkeiten außerhalb des MVP.
+
 ```
 Browser ──► app (Next.js, :3000) ──► db (PostgreSQL, :5432)
                                       ▲
@@ -59,7 +61,7 @@ Der Browser spricht nur mit der Next.js-App. Nur der Server-Teil der App greift 
 
 Warum ein eigener `migrate`-Service: Der Standalone-Output von Next.js enthält nur die Dateien, die die App zur Laufzeit braucht. Die Prisma-CLI gehört nicht dazu. Statt sie in das schlanke App-Image nachzurüsten, läuft die Migration einmalig vor dem App-Start in einem eigenen Container. Schlägt sie fehl, startet die App nicht.
 
-Es gibt keinen Broker, keinen Mailserver und keine Workflow-Engine als eigenen Container. Der Mailversand ist im MVP bewusst nicht funktional: In der App gibt es nur einen Button zum Senden, es wird keine Mail verschickt.
+Es gibt keinen Broker, keinen Mailserver und keine Workflow-Engine als eigenen Container. Im MVP wird keine echte Mail verschickt. Eine Sendeaktion erzeugt stattdessen einen nachvollziehbaren Mock-Eintrag beziehungsweise eine sichtbare In-App-Aufgabe; Empfänger und Ereignisse werden mit dem Processflow festgelegt.
 
 ## Docker-Image (`Dockerfile`, Multi-Stage)
 
@@ -138,11 +140,11 @@ Voraussetzungen: Docker Desktop (oder ein anderer Docker-Engine-Host) mit Compos
 
 ## Nicht im Scope (MVP)
 
-- Kubernetes, Cloud-Deployment, SAP BTP
+- Kubernetes sowie produktives Cloud- oder SAP-BTP-Deployment; ein externes Hosting ausschließlich für die Abschlussdemo bleibt als Option offen
 - Separates Backend, Microservices, Message Broker
 - Hochverfügbarkeit, Backups, Monitoring
 - TLS und Reverse Proxy (läuft lokal bzw. in der Demo über HTTP)
-- Echter Mailversand (SMTP, Mailserver). Mails werden nur als Button angedeutet.
+- Echter Mailversand (SMTP, Mailserver). Benachrichtigungen werden lediglich als protokollierter Mock beziehungsweise In-App-Aufgabe simuliert.
 
 ## Noch offen
 

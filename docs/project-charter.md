@@ -1,210 +1,195 @@
 # Project Charter
 
 **Project Name:** Workflow und Datenbank für sanktionierte Geschäftspartner (SAP SE, Export Control)
-**Author:** <Author>
+
+**Author:** Projektteam der Frankfurt University of Applied Sciences
+
+**Status:** Arbeitsstand, 27.10.2026
 
 ## Change log
 
-| Author | Date            | Change          | Version |
-| ------ | --------------- | --------------- | ------- |
-| xx     | Mar, 11th 2016  | Initial Version | 0.1     |
-| Agent  | Oct, 16th 2026  | Template adapted to SAP (LH references replaced), project name set | 0.2 |
-| Agent  | Oct, 23rd 2026  | Technical constraints added (stack, local Docker operation, mock data instead of GTS API; see docs/infrastructure.md) | 0.3 |
-| Agent  | Oct, 23rd 2026  | Non-goal added: no real e-mail sending in the MVP | 0.4 |
-| Agent  | Oct, 25th 2026  | Meeting cadence and constraint for external-system queries recorded from SAP kickoff notes | 0.5 |
+| Author | Date | Change | Version |
+| --- | --- | --- | --- |
+| Agent | 16.10.2026 | Template auf das SAP-Projekt angepasst und Projektnamen gesetzt | 0.2 |
+| Agent | 23.10.2026 | Technische Randbedingungen, lokalen Docker-Betrieb und Mock-Daten statt GTS-API ergänzt | 0.3 |
+| Agent | 23.10.2026 | Nichtziel ergänzt: kein echter E-Mail-Versand im MVP | 0.4 |
+| Agent | 25.10.2026 | Meetingrhythmus und Einschränkung für externe Systemabfragen aus dem SAP-Kick-off aufgenommen | 0.5 |
+| Agent | 27.10.2026 | Charter anhand aller Mitschriften und Jettes vorgeschlagener Deliverables und Timeline vollständig konsolidiert | 0.6 |
+| Agent | 27.10.2026 | Bearbeitbares Architekturdiagramm als Bestandteil der Solution-Design-Dokumentation ergänzt | 0.7 |
 
 ## 1 Project Purpose or Justification
 
-> <Please describe briefly the goal(s) of the project>
+SAP Export Control prüft Geschäftspartner gegen relevante Sanktionslisten. Wird ein Geschäftspartner gesperrt, müssen abhängig von Produkten und Verträgen mehrere interne Folgeaktivitäten ausgeführt werden. Die heutige Koordination über E-Mails und getrennte Excel-Dateien verursacht Medienbrüche, unklare Zuständigkeiten, eingeschränkte Transparenz und Risiken für die Datenqualität.
 
-The aim of the project is ….
+Das Projekt konzipiert und entwickelt einen demonstrierbaren Stand-alone-MVP, der den Workflow der Folgeaktivitäten und ein zentrales Register für sanktionierte Geschäftspartner verbindet. Der MVP soll die fachliche Idee sichtbar und testbar machen und als Grundlage für die Diskussion einer späteren SAP-integrierten Lösung dienen.
 
 ### 1.1 Project Statement of Work
 
-> <Please provide a narrative description of products, services or results to be delivered by the project. This description has to include:
->
-> - The Product scope description, i.e. the characteristics of the product, service or result that the project will deliver
-> - The business need, i.e. the market demand, the cost reduction, the product improvement, the customer benefit, the legal requirement, the governmental regulation, or the environmental consideration that justifies the project
-> - The alignment with strategic plan of SAP SE or the business unit (Export Control)>
+Das Projekt umfasst zwei fachliche Säulen:
 
-After the project there will be…
-For this … will be established.
-On top … will be built and staffed.
+1. workflowartige Kommunikation zwischen Export Control und beteiligten Teams mit Aufgaben, Benachrichtigungen, Rückmeldungen sowie Transparenz über offene und erledigte Schritte;
+2. eine zentrale Datenbank für sanktionierte Geschäftspartner mit Sperrdatum, Sperrgrund, Status, Zuständigkeiten, Suche und Dashboard.
 
-Key-Deliverables of the project:
+Key Deliverables:
 
-- XX
-- XX
-- XX
-- XX
-- …
+- mit SAP abgestimmtes Processflow-Diagramm;
+- Solution Design einschließlich konzeptioneller SAP-Zielanbindung;
+- priorisierter Product Backlog;
+- implementierte Workflow-Lösung und Datenbank mit synthetischen Mock-Daten;
+- Statistik beziehungsweise Dashboard;
+- Testfälle, Testergebnisse und dokumentierte Korrekturen;
+- technische Dokumentation und Endanwenderdokumentation.
+
+Der MVP verwendet keine echte SAP-GTS-Verbindung und keine echten SAP-, Kunden-, Sanktions- oder personenbezogenen Daten. Eine spätere Integration wird lediglich konzeptionell beschrieben.
 
 ### 1.2 Measurable Project Objectives and Related Success Criteria
 
-> <please describe how the success of the project can be measured, e.g. cost reduction by x%, improvement of CPI by y%>
+Das Projekt gilt als erfolgreich, wenn:
 
-The project is successful if the following goals have been achieved:
+- der Processflow die automatischen und manuellen Schritte, Benachrichtigungen, Rückmeldungen, gegebenenfalls erforderliche Vier-Augen-Prüfungen und die Abschlussinformation beschreibt;
+- das Solution Design den festgelegten Technologie-Stack, den Stand-alone-MVP und die für eine spätere SAP-Umgebung benötigten Integrationen dokumentiert;
+- Workflow und Datenbank mit synthetischen Mock-Daten demonstrierbar implementiert sind;
+- offene und erledigte Folgeaktivitäten nachvollziehbar angezeigt und bearbeitet werden können;
+- das Dashboard die noch mit SAP zu vereinbarenden Kennzahlen ausgibt; als Beispiele wurden Zeitraum, Sperrgrund und Land genannt;
+- definierte Testfälle durchgeführt und ihre Ergebnisse dokumentiert sind;
+- technische Dokumentation und Endanwenderdokumentation zum Projektabschluss vorliegen.
 
-- XX
-- XX
-- XX
+Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion sind bislang nicht vereinbart.
 
 ### 1.3 Other Success Criteria
 
-> <Please describe other non-measurable success criteria>
+- Der MVP vermittelt ein SAP-nahes und für die Abschlusspräsentation verständliches Zielbild.
+- Export Control und beteiligte Teams können Zuständigkeiten und Bearbeitungsstände nachvollziehen.
+- Nicht implementierte produktive Integrationen sind klar von der demonstrierten Lösung abgegrenzt.
+- Offene fachliche Entscheidungen werden transparent dokumentiert und nicht durch unbelegte Annahmen ersetzt.
+- SAP erhält bei der Abschlusspräsentation Gelegenheit zu Feedback.
 
 ## 2 Assumptions and Constraints
 
-> <Please describe relevant assumptions and constraints for the project, e.g.
->
-> - A hard deadline that has to be met
-> - A budget constraint
-> - A staffing constraint
-> - Non Goals>
-
-- XX
-- XX
-- XX
-- Technical constraint: no API connection to SAP GTS in this project; the dashboard and workflow run on mock data (agreed in meeting 1).
-- Technical constraint: the solution is a single Next.js full-stack application (UI5 Web Components for React, Prisma, PostgreSQL), operated locally via Docker Compose; no cloud/BTP deployment. Details: `docs/infrastructure.md`.
-- Non-goal: no real e-mail sending in the MVP. Notifications to teams are only indicated by a (non-functional) "send mail" button.
-- External-system queries are only permissible where they cannot be traced back to SAP; an address-existence check is an example mentioned in the SAP kickoff.
+- Die gemeinsame Umsetzung ist ein schneller, demonstrierbarer MVP beziehungsweise POC, keine produktive SAP-Lösung.
+- Es gibt im MVP keine API-Verbindung zu SAP GTS; eine spätere Verbindung wird im Solution Design betrachtet.
+- Es werden ausschließlich synthetische Mock-Daten verwendet.
+- Der technische Stack ist Next.js 16 mit TypeScript, UI5 Web Components for React, Prisma 7 und PostgreSQL 18.
+- Die lokale Ausführung wird mit Docker Compose geplant. Die endgültige Demo- beziehungsweise Hostingumgebung ist noch offen.
+- Echter E-Mail-Versand ist kein Bestandteil des MVP. Benachrichtigungen werden testbar simuliert und protokolliert beziehungsweise als In-App-Aufgaben angezeigt.
+- Kubernetes, SAP BTP, Microservices, Hochverfügbarkeit, Backups und Monitoring sind nicht Bestandteil des MVP.
+- Externe Systemabfragen sind laut Kick-off nur zulässig, wenn Informationen nicht auf SAP zurückgeführt werden können; die konkrete Auslegung muss SAP noch klären.
+- Jettes Timeline ist eine Planungsbaseline und ausdrücklich nicht als unveränderlicher harter Terminplan zu verstehen.
+- Das voraussichtliche Projektende Ende Januar 2027 muss noch bestätigt werden.
 
 ## 3 Business Case
 
-> <Please explain the logic of the business case for the project. Typically the business case is driven by one or more of the following:
->
-> - Market demand
-> - Organizational need, e.g. reduction of overhead cost requires better automation of a process
-> - Customer need
-> - Technological advance
-> - Legal requirements, e.g. enhanced data protection requirements
-> - Regulatory requirements, e.g. new or changed sanctions regulations (EU, US, UN)
-> - Reduction of ecological impact>
->
-> - Estimates for business benefits
-> - Estimates for project costs
-> - Estimates for future operations costs
-> - If a WiRe has already been calculated, please include here as a link>
+Das Vorhaben adressiert eine organisatorische und regulatorische Notwendigkeit. Sanktionierte Geschäftspartner dürfen abhängig vom jeweiligen Fall nicht weiter beliefert oder vertraglich bedient werden. Die erforderlichen Folgeaktivitäten betreffen mehrere Teams, werden heute aber überwiegend per E-Mail und über getrennte Excel-Dateien koordiniert.
+
+Ein zentrales Register mit Workflowunterstützung soll:
+
+- den Bearbeitungsstand transparent machen;
+- Zuständigkeiten und offene Aufgaben sichtbar halten;
+- Medienbrüche und manuelle Abstimmung reduzieren;
+- die Aktualität und Vollständigkeit der Informationen verbessern;
+- Account Executives und beteiligte Teams auskunftsfähiger machen;
+- eine spätere Automatisierung und SAP-Integration fachlich vorbereiten.
+
+Schätzungen zu monetärem Nutzen, Projektkosten und späteren Betriebskosten liegen noch nicht vor. Für öffentliches Demo-Hosting wurden in einer Recherche je nach Anbieter kostenlose bis kostenpflichtige Varianten untersucht; eine Entscheidung wurde nicht getroffen.
 
 ## 4 High-level Risks
 
-> <Please outline the top risks of this project. Focus on project specific risks instead of generic risks that apply to all projects.>
-
-- Organisational Risks
-- Environmental Risks
-- Financial Risks
-- Technical Risks
-- Functional Risks
-- Schedule Risks
-- Etc.
+| Risiko | Auswirkung |
+| --- | --- |
+| Processflow, Automatisierungsgrad und Vier-Augen-Prinzip sind noch nicht abgestimmt | Unvollständige oder falsche Workflowimplementierung |
+| Beteiligte Teams und Empfängergruppen sind nicht vollständig bekannt | Lücken in Aufgabenverteilung und Kommunikation |
+| ETS-Kategorien, Statuswerte und Berechtigungen sind noch nicht spezifiziert | Nacharbeit an Datenmodell, UI und Autorisierung |
+| MVP und spätere GTS-Zielarchitektur werden verwechselt | Falsche Erwartungen an Funktionsumfang und Integrationsgrad |
+| Ausgangsdaten aus mehreren Excel-Dateien sind nicht zuverlässig | Schwache Datenqualität und unklare fachliche Regeln |
+| Umgang mit SAP-stämmigen Informationen in externen Systemen ist nicht geklärt | Datenschutz-, Vertraulichkeits- und Freigaberisiko |
+| Hostingentscheidung steht aus | Späte technische Anpassungen, Kosten oder Betriebsaufwand |
+| Softwareentwicklung hat noch nicht begonnen | Terminrisiko für Implementierung, Test und Dokumentation bis Ende Januar |
+| Projektende und Abnahmerollen sind nicht bestätigt | Unsicherheit bei Planung und formaler Abnahme |
 
 ## 5 Stakeholders and Governance
 
 ### 5.1 Project Sponsor
 
-> <Please name the stakeholder who is the customer or the main beneficiary of this project and thus usually responsible for the business case>
+Der Project Sponsor ist noch nicht benannt. SAP SE, Export Control ist Projektpartner und primärer fachlicher Nutznießer.
 
 ### 5.2 Project Owner
 
-> <Please name the stakeholder who is main responsible for IT subjects of the project.>
+Der für IT-Themen verantwortliche Project Owner ist noch nicht benannt. Für eine spätere produktive Lösung müssen SAP-GTS-, Integrations-, Security-, Datenschutz- und Betriebsverantwortliche eingebunden werden.
 
 ### 5.3 Project Manager(s)
 
-> <Please name the stakeholders who is responsible to ensure a successful and timely completion of the project. In case there are a business project manager and an IT project manager, name both>
+Die Projektleitung und eine mögliche Trennung zwischen fachlicher und technischer Projektleitung sind noch nicht dokumentiert.
 
 ### 5.4 Other Relevant Stakeholders
 
-> <Which other groups inside and outside SAP SE are positively or negatively impacted by the project?> Examples:
->
-> - SAP Employees
-> - SAP Works council
-> - Process (Domain) Owner of impacted processes
-> - Supplier of the existing solution
-> - Potential suppliers of a new solution
-> - Functional Department
-> - Users
-> - Client
-> - Public Authorities
-> - Workers' participation
-> - Legislative Authorities
-> - Unions>
+- SAP-Kontakte: Jette Bork-W., Tobias Bahr und Nina S. Hahn;
+- Export Control;
+- betroffene Fach-, Produkt- und Cloud-Teams;
+- Teams für S-User beziehungsweise Service-Portal-Zugänge;
+- Account Executives;
+- Data Quality; in einer Mitschrift wird Natascha genannt, genaue Rolle und Nachname sind offen;
+- SAP GTS und später zu beteiligende IT-/Integrationsteams;
+- Projektteam der Frankfurt University of Applied Sciences;
+- sanktionierte Geschäftspartner als indirekt Betroffene.
 
 ### 5.5 Project Governance
 
-The project manager and the stakeholders will agree on the project's governance structure.
-The following aspects of the project's governance are pre-defined at the time of the project initiation:
-
-- The project team meets on site every second Friday and holds an online meeting in the intervening weeks.
-- The final presentation will be given to SAP to collect feedback.
-
-> <Are there any specific agreements on the project governance that are known at project initiation?:
->
-> - Review Board
-> - Pre-assigned attendees and their roles and responsibilities
-> - Part of a Program?
-> - Is the project part of a program with a defined governance structure?
->
-> Description of the individual function>
+- Das Projektteam trifft sich jeden zweiten Freitag vor Ort bei SAP.
+- In den dazwischenliegenden Wochen findet ein Online-Termin statt.
+- Der Processflow wird gemeinsam mit SAP erarbeitet.
+- Jette hat einen Donnerstags-Call zur Detailabstimmung und eine Präsentation am darauffolgenden Freitag angekündigt; konkrete Daten sind nicht dokumentiert.
+- Die Abschlusspräsentation findet bei SAP mit anschließender Feedbackrunde statt.
+- Projektentscheidungen und Änderungen werden in einem Entscheidungslog dokumentiert.
+- Freigabegremium, formale Abnahme und Rollenverteilung sind noch zu klären.
 
 ## 6 High Level Milestone Plan
 
-The following timeline is a very high level view valid at the initiation of the project. It will be refined during planning phase. Based on the scope refinement and the results of the assessments done in the planning phase the actual project plan can deviate significantly from this high level milestone plan. A reliable project plan will only be available after the results of the planning phase are approved.
+Die folgende Timeline wurde von Jette als unverbindlicher Vorschlag und Anhaltspunkt übermittelt. Die Jahreszahlen ergeben sich aus dem Projektstart im Oktober 2026.
 
-| Project Phase            | Start        | End        |
-| ------------------------ | ------------ | ---------- |
-| Initialization           | <start date> | <end date> |
-|                          | <start date> | <end date> |
-|                          | <start date> | <end date> |
-| Preparation              | <start date> | <end date> |
-|                          | <start date> | <end date> |
-|                          | <start date> | <end date> |
-| Implementation & Closure | <start date> | <end date> |
-|                          | <start date> | <end date> |
-|                          | <start date> | <end date> |
-
-If a hard deadline has to be met because of external dependencies this deadline is listed in section 2, Assumptions and Constraints.
+| Project Phase | Start | End |
+| --- | --- | --- |
+| Initialization und SAP-Kick-off | 23.10.2026 | 23.10.2026 |
+| Prozessklärung und Processflow | Noch festzulegen | Mitte November 2026 |
+| Solution Design und Product Backlog | Noch festzulegen | Anfang Dezember 2026 |
+| Implementierung von Workflow und Datenbank | Noch festzulegen | Ende Januar 2027 |
+| Tests und Korrekturen | Noch festzulegen | Ende Januar 2027 |
+| Statistik und Dashboard | Noch festzulegen | Ende Januar 2027 |
+| Technische und Endanwenderdokumentation | Noch festzulegen | Voraussichtlich Ende Januar 2027 |
+| Abschlusspräsentation und Feedback | Noch festzulegen | Voraussichtlich Ende Januar 2027 |
 
 ## 7 Project Team
 
 ### 7.1 Organization Chart
 
-Chart
-
-Statement about staffing / team members (if applicable)
+Eine verbindliche Organisation und Berichtsstruktur ist noch nicht dokumentiert. Fachlich arbeitet das Hochschul-Projektteam mit SAP Export Control zusammen. Eine Mitschrift nennt Lisa und Max als Projektmitarbeitende; die Zuordnung und vollständige Teamliste sind noch zu bestätigen.
 
 ### 7.2 Pre-assigned Resources
 
-> <list all resources that are pre-assigned to the project; list only resources with more than 0,5 FTE>
+Belastbare FTE-Angaben und Einsatzzeiträume liegen nicht vor.
 
-The following resources are pre-assigned to the project. Note that this lists only pre-assigned resources that are planned to be part of the project team at time of project initiation. The project's staffing plan will be developed as part of the project planning process.
-
-| Name   | Dep. | Role | Start        | End        | FTE |
-| ------ | ---- | ---- | ------------ | ---------- | --- |
-| <Name> |      |      | <start date> | <end date> |     |
-| <Name> |      |      | <start date> | <end date> |     |
-| <Name> |      |      | <start date> | <end date> |     |
-| <Name> |      |      | <start date> | <end date> |     |
+| Name/Gruppe | Organisation | Rolle | Zeitraum | FTE |
+| --- | --- | --- | --- | --- |
+| Projektteam | Frankfurt University of Applied Sciences | Konzeption und Umsetzung | Oktober 2026 bis voraussichtlich Januar 2027 | Noch offen |
+| Jette Bork-W., Tobias Bahr, Nina S. Hahn | SAP SE | Fachliche Kontakte | Projektlaufzeit | Noch offen |
+| Lisa und Max | Noch zu bestätigen | Laut Mitschrift Projektmitarbeitende | Noch zu bestätigen | Noch offen |
 
 ## 8 Other Agreements
 
-none <change if required>
+- Zentrale konsolidierte Informationsbasis ist `docs/projektkonzept.md`.
+- GitHub Issues im Repository `patrick-pag/sap-projekt-dt` dienen als Issue- und Spezifikationsablage.
+- Ausführliche technische Planung bleibt in `docs/infrastructure.md` dokumentiert.
+- Hostingoptionen und Preisstände sind in `docs/research/hosting-mvp-2026-10-25.md` dokumentiert.
+- Anforderungen, die weder aus SAP-Input noch aus vorhandenen Projektquellen hervorgehen, bleiben offen und werden nicht erfunden.
 
 ## 9 Project authorization
 
-This document formally authorizes the project "Workflow und Datenbank für sanktionierte Geschäftspartner" to implement the scope described in section 1.1.
+Diese Charter beschreibt und legitimiert den derzeit bekannten Arbeitsumfang des Projekts „Workflow und Datenbank für sanktionierte Geschäftspartner“. Eine formale Autorisierung durch benannte Sponsor-, Owner- und Projektleitungsrollen ist noch ausstehend.
 
-A project management plan will be developed and submitted for approval. This plan will include: scope statement, schedule, cost estimate, budget and provisions for scope, resource, schedule, communications, quality, risk, procurement and stakeholder management as well as project control. The project will be implemented according to the following standards: PMBOK, <applicable SAP / Frankfurt UAS project guidelines – to be clarified with SAP>.
+Die Umsetzung erfolgt auf Grundlage des abgestimmten Processflows, des Solution Designs und des Product Backlogs. Anwendbare SAP- beziehungsweise Hochschulrichtlinien, Budget, Ressourcenplanung, Qualitätsgrenzen und formale Abnahmebedingungen sind noch zu klären.
 
-<Name Sponsor> is the main sponsor of this project. She/he is responsible for developing the business case as well as assigning the required resources from the business side.
-
-<Name Project Owner> is the main responsible for IT subjects of the project. She/he will assign the required IT resources and supervise the correct implementation of all applicable IT standards.
-
-<Name PMs> is appointed as project manager of the project. She/he is hereby authorized to interface with management as required, negotiate for resources, delegate responsibilities within the project framework, and communicate with all contractors and management as required to ensure a successful and timely completion of the project.
-
-| Role                  | Date | Signature |
-| --------------------- | ---- | --------- |
-| Project Sponsor       |      |           |
-| Project Owner         |      |           |
-| Project Manager (IT)  |      |           |
-| Product Owner (BU)    |      |           |
+| Role | Name | Date | Signature |
+| --- | --- | --- | --- |
+| Project Sponsor | Noch nicht benannt | Offen | Offen |
+| Project Owner | Noch nicht benannt | Offen | Offen |
+| Project Manager (IT) | Noch nicht benannt | Offen | Offen |
+| Product Owner (BU) | Noch nicht benannt | Offen | Offen |

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-10-27T00:00:00.000Z" agent="Codex" version="26.0.16" type="device">
+  <diagram id="mvp-architektur" name="MVP-Architektur">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Geplante MVP-Architektur – Workflow und Datenbank für sanktionierte Geschäftspartner" style="text;html=1;align=center;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#1D2D3E;" vertex="1" parent="1">
+          <mxGeometry x="190" y="20" width="1220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Stand: 27.10.2026 · Sollarchitektur, noch nicht implementiert" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#556B82;" vertex="1" parent="1">
+          <mxGeometry x="480" y="60" width="640" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="browser" value="&lt;b&gt;Browser&lt;/b&gt;&lt;br&gt;Fachanwender" style="shape=mxgraph.mockup.misc.user2;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fillColor=#EAF3F8;strokeColor=#0A6ED1;fontColor=#1D2D3E;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="220" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="env" value="&lt;b&gt;Konfiguration&lt;/b&gt;&lt;br&gt;.env / Secrets&lt;br&gt;nicht im Git" style="shape=document;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fillColor=#FFF4CE;strokeColor=#E6A700;fontColor=#5C4600;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="50" y="520" width="170" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="compose" value="&lt;b&gt;Lokale MVP-Laufzeit · Docker Compose&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;externes Hosting der Abschlussdemo ist noch offen&lt;/font&gt;" style="swimlane;html=1;whiteSpace=wrap;startSize=48;horizontal=1;rounded=1;fillColor=#F5F6F7;swimlaneFillColor=#FFFFFF;strokeColor=#5B738B;fontColor=#1D2D3E;fontSize=16;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="280" y="100" width="1050" height="680" as="geometry" />
+        </mxCell>
+
+        <mxCell id="app" value="&lt;b&gt;app · Next.js 16 / Node.js 24&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;ein Fullstack-Container, kein separates Backend&lt;/font&gt;" style="swimlane;html=1;whiteSpace=wrap;startSize=50;horizontal=1;rounded=1;fillColor=#EAF3F8;swimlaneFillColor=#FFFFFF;strokeColor=#0A6ED1;fontColor=#1D2D3E;fontSize=15;" vertex="1" parent="compose">
+          <mxGeometry x="35" y="70" width="640" height="555" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ui" value="&lt;b&gt;UI-Schicht&lt;/b&gt;&lt;br&gt;UI5 Web Components for React · Fiori&lt;br&gt;Dashboard · Suche · Formulare" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fillColor=#D1E8FF;strokeColor=#0A6ED1;fontColor=#1D2D3E;fontSize=13;" vertex="1" parent="app">
+          <mxGeometry x="35" y="75" width="570" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="server" value="&lt;b&gt;Next.js-Serverschicht&lt;/b&gt;&lt;br&gt;Server Components · Route Handlers · Server Actions&lt;br&gt;Sessionprüfung und Autorisierung vor dem Datenzugriff" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fillColor=#E8F5E9;strokeColor=#30914C;fontColor=#1D2D3E;fontSize=13;" vertex="1" parent="app">
+          <mxGeometry x="35" y="185" width="570" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="domain" value="&lt;b&gt;Fachlogik in lib/&lt;/b&gt;&lt;br&gt;Geschäftspartner · Sanktionsfälle · Workflowaufgaben&lt;br&gt;Rückmeldungen · Audit Trail · Dashboard-Auswertungen&lt;br&gt;&lt;font color=&quot;#6A6D70&quot;&gt;SanctionSource als Mock und spätere GTS-Nahtstelle&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fillColor=#F3E8FF;strokeColor=#8E44AD;fontColor=#1D2D3E;fontSize=13;" vertex="1" parent="app">
+          <mxGeometry x="35" y="305" width="570" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="notifications" value="&lt;b&gt;Benachrichtigungssimulation&lt;/b&gt;&lt;br&gt;Mock-Protokoll + In-App-Aufgaben&lt;br&gt;kein SMTP / kein Mailserver" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fillColor=#FFF4CE;strokeColor=#E6A700;fontColor=#5C4600;fontSize=12;" vertex="1" parent="app">
+          <mxGeometry x="35" y="445" width="245" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="prisma" value="&lt;b&gt;Prisma 7&lt;/b&gt;&lt;br&gt;Client + pg-Adapter" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fillColor=#EAF3F8;strokeColor=#5B738B;fontColor=#1D2D3E;fontSize=13;" vertex="1" parent="app">
+          <mxGeometry x="330" y="445" width="275" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="db" value="&lt;b&gt;db · PostgreSQL 18&lt;/b&gt;&lt;br&gt;&lt;br&gt;Geschäftspartner&lt;br&gt;Sanktionsfälle&lt;br&gt;Aufgaben · Audit · Mock-Logs&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;intern :5432&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#D5E8D4;strokeColor=#30914C;fontColor=#1D2D3E;fontSize=13;" vertex="1" parent="compose">
+          <mxGeometry x="745" y="100" width="250" height="205" as="geometry" />
+        </mxCell>
+        <mxCell id="migrate" value="&lt;b&gt;migrate · einmalig&lt;/b&gt;&lt;br&gt;prisma migrate deploy&lt;br&gt;prisma db seed&lt;br&gt;synthetische Mock-Daten" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fillColor=#FFE6CC;strokeColor=#D46B08;fontColor=#5C2E00;fontSize=13;" vertex="1" parent="compose">
+          <mxGeometry x="745" y="375" width="250" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="volume" value="&lt;b&gt;Named Volume pgdata&lt;/b&gt;&lt;br&gt;lokale Persistenz" style="shape=folder;tabWidth=55;tabHeight=18;tabPosition=left;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fillColor=#F5F5F5;strokeColor=#6A6D70;fontColor=#1D2D3E;fontSize=12;" vertex="1" parent="compose">
+          <mxGeometry x="770" y="545" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="scope-note" value="&lt;b&gt;Bewusst nicht als eigener Dienst:&lt;/b&gt;&lt;br&gt;Backend · Workflow-Engine · Worker · Broker · Mailserver" style="shape=note;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacingLeft=10;fillColor=#F5F5F5;strokeColor=#A8A8A8;fontColor=#4A4A4A;fontSize=12;" vertex="1" parent="compose">
+          <mxGeometry x="705" y="625" width="310" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="future" value="&lt;b&gt;Spätere Zielintegration · nicht Bestandteil des MVP&lt;/b&gt;" style="swimlane;html=1;whiteSpace=wrap;startSize=40;horizontal=1;rounded=1;dashed=1;dashPattern=8 4;fillColor=#F5F5F5;swimlaneFillColor=#FAFAFA;strokeColor=#A8A8A8;fontColor=#4A4A4A;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="280" y="825" width="1050" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="gts" value="&lt;b&gt;SAP GTS&lt;/b&gt;&lt;br&gt;führendes System für Sperren&lt;br&gt;API noch zu klären" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;dashed=1;fillColor=#F5F5F5;strokeColor=#6A6D70;fontColor=#4A4A4A;fontSize=13;" vertex="1" parent="future">
+          <mxGeometry x="100" y="70" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="oidc" value="&lt;b&gt;SAP Identity / OIDC&lt;/b&gt;&lt;br&gt;SSO und produktive Rollen&lt;br&gt;noch zu klären" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;dashed=1;fillColor=#F5F5F5;strokeColor=#6A6D70;fontColor=#4A4A4A;fontSize=13;" vertex="1" parent="future">
+          <mxGeometry x="430" y="70" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="sap-env" value="&lt;b&gt;SAP-Betriebsumgebung&lt;/b&gt;&lt;br&gt;Security · Datenschutz · Freigaben&lt;br&gt;noch zu entscheiden" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;dashed=1;fillColor=#F5F5F5;strokeColor=#6A6D70;fontColor=#4A4A4A;fontSize=13;" vertex="1" parent="future">
+          <mxGeometry x="760" y="70" width="250" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-browser-ui" value="HTTP :3000" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#0A6ED1;fontColor=#0A6ED1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="browser" target="ui">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ui-server" value="Aktionen / Daten" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5B738B;fontColor=#4A4A4A;labelBackgroundColor=#FFFFFF;" edge="1" parent="app" source="ui" target="server">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-server-domain" value="Fachanwendung" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5B738B;fontColor=#4A4A4A;labelBackgroundColor=#FFFFFF;" edge="1" parent="app" source="server" target="domain">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-domain-notifications" value="Ereignisse" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#E6A700;fontColor=#5C4600;labelBackgroundColor=#FFFFFF;" edge="1" parent="app" source="domain" target="notifications">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-domain-prisma" value="Lese-/Schreibzugriff" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#5B738B;fontColor=#4A4A4A;labelBackgroundColor=#FFFFFF;" edge="1" parent="app" source="domain" target="prisma">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-prisma-db" value="PostgreSQL-Protokoll" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#30914C;fontColor=#256F3A;labelBackgroundColor=#FFFFFF;" edge="1" parent="compose" source="prisma" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-migrate-db" value="Schema + Seed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#D46B08;fontColor=#8F4700;labelBackgroundColor=#FFFFFF;" edge="1" parent="compose" source="migrate" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-db-volume" value="persistiert" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#6A6D70;fontColor=#4A4A4A;labelBackgroundColor=#FFFFFF;" edge="1" parent="compose" source="db" target="volume">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-env-app" value="Umgebungsvariablen" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#E6A700;fontColor=#5C4600;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="env" target="app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-env-db" value="DB-Konfiguration" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#E6A700;fontColor=#5C4600;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="env" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-gts-domain" value="künftige API über SanctionSource" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=8 4;strokeColor=#6A6D70;fontColor=#4A4A4A;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="gts" target="domain">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-oidc-server" value="künftiges OIDC / SSO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=8 4;strokeColor=#6A6D70;fontColor=#4A4A4A;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="oidc" target="server">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
