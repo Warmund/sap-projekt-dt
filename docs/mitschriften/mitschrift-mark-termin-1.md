@@ -1,4 +1,4 @@
-# Zusammenfassung des Mark-Mitschrift: SAP-Kick-off vom 23.10.2026
+# Zusammenfassung Mark-Mitschrift: SAP-Kick-off vom 23.10.2026
 
 ## Projektteam
 
