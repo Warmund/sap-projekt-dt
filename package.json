@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@ui5/webcomponents-fiori": "2.28.1",
     "@ui5/webcomponents-react": "2.28.2",
     "next": "16.4.3",
     "react": "19.3.1",
