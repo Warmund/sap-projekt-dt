@@ -25,7 +25,7 @@ Das Projekt soll einen demonstrierbaren Stand-alone-MVP entwickeln, der zwei Asp
 1. eine workflowartige Kommunikation mit Aufgaben, Benachrichtigungen, Rückmeldungen und einer transparenten Übersicht über offene und erledigte Schritte;
 2. ein zentrales Register für sanktionierte Geschäftspartner mit Suche, Statusübersicht, Statistik und Dashboard.
 
-Der MVP arbeitet ausschließlich mit synthetischen Mock-Daten. Eine echte Integration mit SAP GTS oder anderen SAP-Systemen wird nicht implementiert, aber als spätere Zielarchitektur im Solution Design betrachtet. Der technische Stack ist auf Next.js, UI5 Web Components for React, Prisma und PostgreSQL festgelegt. Der spätere Demo-Betrieb – lokal oder gehostet – ist noch offen.
+Der MVP arbeitet ausschließlich mit synthetischen Mock-Daten. Eine echte Integration mit SAP GTS oder anderen SAP-Systemen wird nicht implementiert, aber als spätere Zielarchitektur im Solution Design betrachtet. Der technische Stack ist auf Next.js, UI5 Web Components for React, Prisma und PostgreSQL festgelegt. Für die Demo ist ein direktes Deployment auf Vercel mit externem PostgreSQL geplant.
 
 ## 3. Ausgangslage und fachlicher Kontext
 
@@ -193,7 +193,7 @@ Verschiedene Berechtigungsstufen sind gefordert. Die vollständigen Rollen, Rech
 | Serverzugriff | Next.js Route Handlers und Server Actions |
 | ORM | Prisma 7 |
 | Datenbank | PostgreSQL 18 |
-| Lokaler Betrieb | Docker Compose |
+| Deployment | Vercel mit extern verwaltetem PostgreSQL |
 | Paketmanager | npm mit Node.js 24 LTS |
 
 Die ausführliche technische Planung steht in [infrastructure.md](infrastructure.md). Der Stack ist festgelegt; die dort beschriebenen Dateien und Komponenten sind zum Stand 27.10.2026 jedoch noch Planung und nicht im Repository implementiert.
@@ -211,7 +211,7 @@ Browser -> Next.js-Anwendung -> PostgreSQL
 
 Frontend und Backend bleiben für den MVP in einer Fullstack-Anwendung. Das reduziert die Zahl der Dienste, vermeidet eine separate API-Client- und CORS-Konfiguration und erlaubt gemeinsame Typen. Fachlogik soll von React und Next.js getrennt in `lib/` liegen, damit eine spätere Auslagerung möglich bleibt.
 
-Geplant sind ein PostgreSQL-Dienst, ein einmalig laufender Migrationsdienst und die Next.js-Anwendung. Prisma-Migrationen und idempotente Seed-Daten sollen Datenbankschema und Mock-Daten reproduzierbar bereitstellen. Im MVP sind weder Broker noch separater Worker oder Mailserver vorgesehen.
+Geplant sind die Next.js-Anwendung auf Vercel und eine extern verwaltete PostgreSQL-Datenbank. Migrationen werden vor dem Deployment separat ausgeführt. Prisma-Migrationen und idempotente Seed-Daten sollen Datenbankschema und Mock-Daten reproduzierbar bereitstellen. Im MVP sind weder Broker noch separater Worker oder Mailserver vorgesehen.
 
 ### 8.3 Technische Konventionen
 
@@ -221,21 +221,12 @@ Geplant sind ein PostgreSQL-Dienst, ein einmalig laufender Migrationsdienst und 
 - `proxy.ts` dient höchstens groben Session-Weiterleitungen, nicht der fachlichen Autorisierung.
 - Workflowaktionen laufen im MVP direkt in der auslösenden Aktion; Hintergrundjobs sind nicht vorgesehen.
 - Konfiguration und Secrets werden über Umgebungsvariablen bereitgestellt und nicht eingecheckt.
-- Der lokale Entwicklungsmodus sieht PostgreSQL im Container und die App mit Hot Reload auf dem Host vor.
-- Der Demo-Modus soll den geplanten Stack vollständig containerisiert starten können.
+- Lokal läuft die App mit Hot Reload und derselben Datenbank wie die Demo.
+- Die Demo wird direkt auf Vercel deployt; Entwicklung und Demo nutzen eine gemeinsame Datenbank. Schemaänderungen und Resets werden im Team abgestimmt.
 
 ### 8.4 Hosting und Demo-Umgebung
 
-Die endgültige Zielumgebung für die Demo ist offen. Der lokale Docker-Compose-Betrieb ist technisch geplant. Für eine öffentlich erreichbare Demo wurden folgende Alternativen untersucht:
-
-| Option | Einordnung laut Recherche vom 25.10.2026 |
-| --- | --- |
-| Render | Empfehlung für eine öffentlich vorführbare Demo; verwaltetes PostgreSQL und TLS, grob 20–30 USD monatlich mit Reserve |
-| Hetzner Cloud | Günstiger Server, aber eigener Betrieb von Updates, Firewall, TLS und Backups erforderlich |
-| Railway | Schnell einzurichten, aber stärker nutzungsabhängige und weniger vorhersehbare Kosten |
-| Vercel plus Marketplace-Postgres | Für einen kleinen studentischen Next.js-MVP potenziell kostenlos; Docker-Compose und Migrationsablauf müssten angepasst werden |
-
-Details, Preisstände und Primärquellen stehen in [research/hosting-mvp-2026-10-25.md](research/hosting-mvp-2026-10-25.md). Die Recherche stellt keine Freigabe dar, echte SAP- oder personenbezogene Daten bei einem externen Anbieter zu speichern.
+Die Demo soll direkt auf Vercel laufen; PostgreSQL wird bei einem externen Anbieter betrieben. Anbieter, Tarif, Datenbankversion und Zugriffsschutz sind noch zu klären. Die frühere [Hosting-Recherche](research/hosting-mvp-2026-10-25.md) dokumentiert den damaligen Vergleich; die Entscheidung für Vercel ersetzt ihre Empfehlung. Es werden ausschließlich synthetische Mock-Daten verwendet.
 
 ## 9. Deliverables und Timeline
 
@@ -333,7 +324,7 @@ Projekt-Sponsor, Project Owner, Projektleitung, Freigabegremium und verbindliche
 | Ungeklärte Aussage zur Nutzung SAP-stämmiger Informationen in externen Systemen | Datenschutz-, Vertraulichkeits- oder Freigaberisiko |
 | Offene Demo-/Hosting-Entscheidung | Späte technische Anpassungen oder ungeplante Kosten |
 | Ambitionierte Umsetzung bis Ende Januar | Zeitrisiko für Implementierung, Test und Dokumentation |
-| Derzeit ausschließlich dokumentarischer Repository-Stand | Sämtliche Software-, Datenbank-, Container- und Testartefakte müssen noch erstellt werden |
+| Derzeit ausschließlich dokumentarischer Repository-Stand | Sämtliche Software-, Datenbank-, Deployment- und Testartefakte müssen noch erstellt werden |
 
 ## 16. Offene Punkte
 
@@ -378,7 +369,7 @@ Zum 27.10.2026 enthält das Repository ausschließlich Dokumentation. Noch nicht
 - Next.js-Anwendung und UI-Komponenten;
 - `package.json`, Lockfile und TypeScript-/Next.js-Konfiguration;
 - Prisma-Schema, Migrationen, Seed-Skript und Datenbankmodelle;
-- Dockerfile, Compose-Datei und Umgebungsvariablen-Vorlage;
+- Vercel-Deploymentkonfiguration und Umgebungsvariablen-Vorlage;
 - Workflow-, Benachrichtigungs-, Authentifizierungs- und Dashboard-Code;
 - automatisierte Tests, Testfälle und Testergebnisse;
 - CI-Pipeline.

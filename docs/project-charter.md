@@ -16,6 +16,13 @@
 | Agent | 25.10.2026 | Meetingrhythmus und Einschränkung für externe Systemabfragen aus dem SAP-Kick-off aufgenommen | 0.5 |
 | Agent | 27.10.2026 | Charter anhand aller Mitschriften und Jettes vorgeschlagener Deliverables und Timeline vollständig konsolidiert | 0.6 |
 | Agent | 27.10.2026 | Bearbeitbares Architekturdiagramm als Bestandteil der Solution-Design-Dokumentation ergänzt | 0.7 |
+| Agent | 29.10.2026 | Architektur-Spec #50 in vier abhängige Umsetzungstickets #51–#54 aufgeteilt und GitHub-Projekt 2 (sap-project-infra) zugeordnet | 1.4 |
+| Agent | 29.10.2026 | Eine gemeinsame Datenbank für Entwicklung und Demo zur Vereinfachung festgelegt; Architektur-Spec vorbereitet | 1.3 |
+| Agent | 29.10.2026 | Demo-Zugang ohne Vercel-Konto und automatisches Deployment vom Hauptbranch festgelegt | 1.2 |
+| Agent | 29.10.2026 | SAP-Zugriff auf die Demo, getrennte gemeinsame Entwicklungsdatenbank und möglichst kostenlosen Datenbanktarif festgelegt | 1.1 |
+| Agent | 29.10.2026 | Demo-Zugriff für ausgewählte Personen und möglichst kostenloser Vercel-Tarif als Architekturziele ergänzt | 1.0 |
+| Agent | 29.10.2026 | Vercel und externes PostgreSQL als geplante Demo-Infrastruktur statt Docker Compose festgelegt | 0.9 |
+| Agent | 29.10.2026 | Requirements-Backlog als GitHub-Issues und PI-/Sprint-Planung im GitHub-Projekt festgelegt; fachliche Abstimmungsfragen erhalten ein eigenes Label | 0.8 |
 
 ## 1 Project Purpose or Justification
 
@@ -70,7 +77,8 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Es gibt im MVP keine API-Verbindung zu SAP GTS; eine spätere Verbindung wird im Solution Design betrachtet.
 - Es werden ausschließlich synthetische Mock-Daten verwendet.
 - Der technische Stack ist Next.js 16 mit TypeScript, UI5 Web Components for React, Prisma 7 und PostgreSQL 18.
-- Die lokale Ausführung wird mit Docker Compose geplant. Die endgültige Demo- beziehungsweise Hostingumgebung ist noch offen.
+- Die Internet-Demo soll dem Projektteam und ausgewählten SAP-Ansprechpersonen zugänglich sein; Vercel soll möglichst im kostenlosen Tarif genutzt werden. Ein Vercel-Konto darf für Besucher nicht erforderlich sein; die konkrete Zugriffsschutzlösung ist offen. Änderungen am Hauptbranch sollen automatisch deployt werden.
+- Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant; Anbieter und Tarif sind noch offen; auch für die Datenbank wird möglichst ein kostenloser Tarif angestrebt. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
 - Echter E-Mail-Versand ist kein Bestandteil des MVP. Benachrichtigungen werden testbar simuliert und protokolliert beziehungsweise als In-App-Aufgaben angezeigt.
 - Kubernetes, SAP BTP, Microservices, Hochverfügbarkeit, Backups und Monitoring sind nicht Bestandteil des MVP.
 - Externe Systemabfragen sind laut Kick-off nur zulässig, wenn Informationen nicht auf SAP zurückgeführt werden können; die konkrete Auslegung muss SAP noch klären.
@@ -99,6 +107,7 @@ Schätzungen zu monetärem Nutzen, Projektkosten und späteren Betriebskosten li
 | Processflow, Automatisierungsgrad und Vier-Augen-Prinzip sind noch nicht abgestimmt | Unvollständige oder falsche Workflowimplementierung |
 | Beteiligte Teams und Empfängergruppen sind nicht vollständig bekannt | Lücken in Aufgabenverteilung und Kommunikation |
 | ETS-Kategorien, Statuswerte und Berechtigungen sind noch nicht spezifiziert | Nacharbeit an Datenmodell, UI und Autorisierung |
+| Änderungen oder Resets der gemeinsamen Datenbank beeinträchtigen die Demo | Entwicklungsarbeiten und Vorführungen müssen abgestimmt werden |
 | MVP und spätere GTS-Zielarchitektur werden verwechselt | Falsche Erwartungen an Funktionsumfang und Integrationsgrad |
 | Ausgangsdaten aus mehreren Excel-Dateien sind nicht zuverlässig | Schwache Datenqualität und unklare fachliche Regeln |
 | Umgang mit SAP-stämmigen Informationen in externen Systemen ist nicht geklärt | Datenschutz-, Vertraulichkeits- und Freigaberisiko |
@@ -177,6 +186,7 @@ Belastbare FTE-Angaben und Einsatzzeiträume liegen nicht vor.
 
 - Zentrale konsolidierte Informationsbasis ist `docs/projektkonzept.md`.
 - GitHub Issues im Repository `patrick-pag/sap-projekt-dt` dienen als Issue- und Spezifikationsablage.
+- Das GitHub-Projekt `patrick-pag/projects/1` ist die operative PI-/Sprint-Planung: PI 1 enthält die sechs Sprints SPR-01 bis SPR-06. Einträge, die in SAP-Calls fachlich geklärt werden müssen, tragen das Label `fachliche-frage`.
 - Ausführliche technische Planung bleibt in `docs/infrastructure.md` dokumentiert.
 - Hostingoptionen und Preisstände sind in `docs/research/hosting-mvp-2026-10-25.md` dokumentiert.
 - Anforderungen, die weder aus SAP-Input noch aus vorhandenen Projektquellen hervorgehen, bleiben offen und werden nicht erfunden.
