@@ -16,6 +16,7 @@
 | Agent | 25.10.2026 | Meetingrhythmus und Einschränkung für externe Systemabfragen aus dem SAP-Kick-off aufgenommen | 0.5 |
 | Agent | 27.10.2026 | Charter anhand aller Mitschriften und Jettes vorgeschlagener Deliverables und Timeline vollständig konsolidiert | 0.6 |
 | Agent | 27.10.2026 | Bearbeitbares Architekturdiagramm als Bestandteil der Solution-Design-Dokumentation ergänzt | 0.7 |
+| Agent | 29.10.2026 | Issue #51: Next.js-Grundgerüst mit UI5 vorbereitet; Startseite auf Nutzerwunsch vollständig ohne sichtbare Inhalte | 1.5 |
 | Agent | 29.10.2026 | Architektur-Spec #50 in vier abhängige Umsetzungstickets #51–#54 aufgeteilt und GitHub-Projekt 2 (sap-project-infra) zugeordnet | 1.4 |
 | Agent | 29.10.2026 | Eine gemeinsame Datenbank für Entwicklung und Demo zur Vereinfachung festgelegt; Architektur-Spec vorbereitet | 1.3 |
 | Agent | 29.10.2026 | Demo-Zugang ohne Vercel-Konto und automatisches Deployment vom Hauptbranch festgelegt | 1.2 |

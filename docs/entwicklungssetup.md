@@ -1,6 +1,6 @@
 # Entwicklungssetup
 
-Dieses Dokument beschreibt den aktuellen Stand und die Einrichtung auf einem weiteren Rechner. Die Next.js-Anwendung selbst ist noch nicht eingerichtet.
+Dieses Dokument beschreibt den aktuellen Stand und die Einrichtung auf einem weiteren Rechner. Das Next.js-Grundgerüst aus Issue #51 zeigt bewusst eine vollständig leere Oberfläche. UI5 ist über den ThemeProvider eingebunden.
 
 ## Voraussetzungen
 
@@ -39,3 +39,23 @@ codex mcp get ui5-wcr
 Auf macOS oder Linux im ersten Befehl `npx` statt `npx.cmd` verwenden. Der Server wird beim Start über npm geladen; dafür muss Node.js im `PATH` verfügbar sein. Codex anschließend neu starten. Der Server liefert Dokumentation und APIs für UI5 Web Components for React. `@latest` kann eine andere Version als das Projektpaket liefern; bei Bedarf lässt sich die Serverversion an die installierte UI5-React-Version anpassen.
 
 Ein Next.js-DevTools-MCP-Server ist bisher nicht eingerichtet.
+
+## Anwendung starten und prüfen
+
+Mit Node.js 24 im Projektverzeichnis:
+
+```bash
+npm ci
+npm run dev
+```
+
+Die leere Oberfläche ist unter http://localhost:3000 erreichbar. Datenbank und Umgebungsvariablen sind für dieses Grundgerüst nicht erforderlich. Die konkreten Paketversionen sind in der Lockdatei fixiert.
+
+```bash
+npm run typecheck
+npm run build
+npx playwright install chromium
+npm test
+```
+
+Der Browser-Test startet selbst einen lokalen Entwicklungsserver und prüft die leere Seite und Laufzeitfehler. Für einen Produktionsstart nach dem Build: `npm start`. Unter Windows kann bei gesperrten PowerShell-Skripten `npm.cmd` beziehungsweise `npx.cmd` verwendet werden.
