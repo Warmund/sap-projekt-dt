@@ -16,6 +16,7 @@
 | Agent | 25.10.2026 | Meetingrhythmus und Einschränkung für externe Systemabfragen aus dem SAP-Kick-off aufgenommen | 0.5 |
 | Agent | 27.10.2026 | Charter anhand aller Mitschriften und Jettes vorgeschlagener Deliverables und Timeline vollständig konsolidiert | 0.6 |
 | Agent | 27.10.2026 | Bearbeitbares Architekturdiagramm als Bestandteil der Solution-Design-Dokumentation ergänzt | 0.7 |
+| Agent | 29.10.2026 | Vercel Web Analytics für Seitenaufrufe im zentralen Anwendungslayout aufgenommen | 1.7 |
 | Agent | 29.10.2026 | Technisches Grundgerüst um UI5-ShellBar mit dem Namen SAP-Project-DT ergänzt; Inhaltsfläche bleibt leer | 1.6 |
 | Agent | 29.10.2026 | Issue #51: Next.js-Grundgerüst mit UI5 vorbereitet; Startseite auf Nutzerwunsch vollständig ohne sichtbare Inhalte | 1.5 |
 | Agent | 29.10.2026 | Architektur-Spec #50 in vier abhängige Umsetzungstickets #51–#54 aufgeteilt und GitHub-Projekt 2 (sap-project-infra) zugeordnet | 1.4 |
@@ -82,7 +83,7 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Die Internet-Demo soll dem Projektteam und ausgewählten SAP-Ansprechpersonen zugänglich sein; Vercel soll möglichst im kostenlosen Tarif genutzt werden. Ein Vercel-Konto darf für Besucher nicht erforderlich sein; die konkrete Zugriffsschutzlösung ist offen. Änderungen am Hauptbranch sollen automatisch deployt werden.
 - Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant; Anbieter und Tarif sind noch offen; auch für die Datenbank wird möglichst ein kostenloser Tarif angestrebt. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
 - Echter E-Mail-Versand ist kein Bestandteil des MVP. Benachrichtigungen werden testbar simuliert und protokolliert beziehungsweise als In-App-Aufgaben angezeigt.
-- Kubernetes, SAP BTP, Microservices, Hochverfügbarkeit, Backups und Monitoring sind nicht Bestandteil des MVP.
+- Kubernetes, SAP BTP, Microservices, Hochverfügbarkeit, Backups und Betriebsmonitoring sind nicht Bestandteil des MVP. Vercel Web Analytics wird für Seitenaufrufe eingebunden.
 - Externe Systemabfragen sind laut Kick-off nur zulässig, wenn Informationen nicht auf SAP zurückgeführt werden können; die konkrete Auslegung muss SAP noch klären.
 - Jettes Timeline ist eine Planungsbaseline und ausdrücklich nicht als unveränderlicher harter Terminplan zu verstehen.
 - Das voraussichtliche Projektende Ende Januar 2027 muss noch bestätigt werden.

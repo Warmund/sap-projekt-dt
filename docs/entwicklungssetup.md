@@ -16,7 +16,7 @@ Das Repository klonen beziehungsweise auf den aktuellen Stand bringen und im Pro
 npm ci
 ```
 
-Damit werden die Versionen aus `package-lock.json` installiert, darunter `@ui5/webcomponents-react` und `@ui5/webcomponents-fiori` für die ShellBar. `node_modules` wird nicht eingecheckt. Die Paketdateien und Skills müssen erst im verwendeten Branch committed und gepusht sein, bevor sie auf einem anderen Rechner verfügbar sind.
+Damit werden die Versionen aus `package-lock.json` installiert, darunter `@ui5/webcomponents-react` und `@ui5/webcomponents-fiori` für die ShellBar sowie `@vercel/analytics`. Analytics ist im zentralen Next.js-Layout eingebunden und wird mit `npm ci` ebenfalls installiert. `node_modules` wird nicht eingecheckt. Die Paketdateien und Skills müssen erst im verwendeten Branch committed und gepusht sein, bevor sie auf einem anderen Rechner verfügbar sind.
 
 ## Skills
 
