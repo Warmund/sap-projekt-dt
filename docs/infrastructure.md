@@ -18,7 +18,7 @@
 | API | Next.js Route Handlers und Server Actions |
 | ORM | **Prisma** (Schema, Migrationen, generierte Typen) |
 | Authentifizierung | **Better Auth**; individuelle Demo-Anmeldung mit Benutzername und Passwort |
-| Datenbank | **PostgreSQL** |
+| Datenbank | **PostgreSQL** bei Neon; Ressource `sap-project-dt-db` im kostenlosen Tarif mit Vercel-Projekt `project-dt-sap` verbunden, Better-Auth-Migration angewendet |
 | Betrieb / Deployment | Direktes Deployment auf Vercel; PostgreSQL bei einem externen Anbieter |
 | Entwicklung | App lokal mit `npm run dev`, gemeinsame Datenbank für Entwicklung und Demo |
 

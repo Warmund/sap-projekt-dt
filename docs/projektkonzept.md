@@ -226,7 +226,7 @@ Geplant sind die Next.js-Anwendung auf Vercel und eine extern verwaltete Postgre
 
 ### 8.4 Hosting und Demo-Umgebung
 
-Die Demo soll direkt auf Vercel laufen; PostgreSQL wird bei einem externen Anbieter betrieben. Anbieter, Tarif, Datenbankversion und Zugriffsschutz sind noch zu klären. Die frühere [Hosting-Recherche](research/hosting-mvp-2026-10-25.md) dokumentiert den damaligen Vergleich; die Entscheidung für Vercel ersetzt ihre Empfehlung. Es werden ausschließlich synthetische Mock-Daten verwendet.
+Die Demo soll direkt auf Vercel laufen; PostgreSQL wird bei Neon betrieben. Eine Datenbankressource im kostenlosen Tarif ist mit der Anwendung verbunden, und die Better-Auth-Migration wurde angewendet. Datenbankversion und vollständiger Zugriffsschutz sind noch zu prüfen. Die frühere [Hosting-Recherche](research/hosting-mvp-2026-10-25.md) dokumentiert den damaligen Vergleich; die Entscheidung für Vercel ersetzt ihre Empfehlung. Es werden ausschließlich synthetische Mock-Daten verwendet.
 
 ## 9. Deliverables und Timeline
 
@@ -308,7 +308,7 @@ Projekt-Sponsor, Project Owner, Projektleitung, Freigabegremium und verbindliche
 - Die Daten sind synthetisch; reale SAP-Daten sind nicht freigegeben.
 - SAP GTS bleibt in einer späteren Zielarchitektur das führende System für Sperren.
 - Der festgelegte technische Stack bleibt Next.js, UI5 Web Components, Prisma und PostgreSQL.
-- Datenbankanbieter, genaue Rollen, Verwaltung der Demo-Zugänge und CI sind noch offen.
+- Datenbankversion, genaue Rollen, Verwaltung der Demo-Zugänge und CI sind noch offen.
 - Die vorgeschlagene Timeline ist eine Planungsbaseline und kein bestätigter harter Terminplan.
 - Anforderungen, die weder aus Jettes Nachricht noch aus den bestehenden Dokumenten hervorgehen, werden nicht erfunden, sondern als offen behandelt.
 

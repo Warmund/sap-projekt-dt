@@ -10,6 +10,9 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 30.10.2026 | Login-Gestaltung an SAP-Vorlage angelehnt: SAP-Logo, responsive Anmeldekarte und deaktivierter SSO-Button als Platzhalter; keine SSO-Anbindung im MVP | 2.4 |
+| Agent | 30.10.2026 | Neon-Datenbank mit Vercel und lokaler Entwicklung verbunden; Better-Auth-Migration angewendet | 2.3 |
+| Agent | 30.10.2026 | Neon-PostgreSQL-Ressource im kostenlosen Tarif eingerichtet; Verbindung und Auth-Migration werden vorbereitet | 2.2 |
 | Agent | 30.10.2026 | Better-Auth-Anmeldung und PostgreSQL-Migration vorbereitet; Datenbankeinrichtung und vollständiger Login-Test stehen aus | 2.1 |
 | Agent | 30.10.2026 | Better Auth als Authentifizierungsbibliothek für die individuelle Demo-Anmeldung festgelegt | 2.0 |
 | Agent | 30.10.2026 | Benutzername und Passwort als Anmeldeverfahren für individuelle Demo-Zugänge festgelegt | 1.9 |
@@ -85,8 +88,8 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Es werden ausschließlich synthetische Mock-Daten verwendet.
 - Der technische Stack ist Next.js 16 mit TypeScript, UI5 Web Components for React, Prisma 7 und PostgreSQL 18.
 - Die Internet-Demo soll dem Projektteam und ausgewählten SAP-Ansprechpersonen zugänglich sein; Vercel soll möglichst im kostenlosen Tarif genutzt werden. Ein Vercel-Konto darf für Besucher nicht erforderlich sein; die konkrete Zugriffsschutzlösung ist offen. Änderungen am Hauptbranch sollen automatisch deployt werden.
-- Für den MVP ist eine individuelle App-Anmeldung mit Benutzername und Passwort, Better Auth und einer SAP-nah gestalteten Login-Oberfläche vorgesehen. Echtes SAP-SSO bleibt eine spätere Integrationsmöglichkeit.
-- Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant; Anbieter und Tarif sind noch offen; auch für die Datenbank wird möglichst ein kostenloser Tarif angestrebt. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
+- Für den MVP ist eine individuelle App-Anmeldung mit Benutzername und Passwort, Better Auth und einer SAP-nah gestalteten Login-Oberfläche mit SAP-Logo und responsiver Anmeldekarte vorgesehen. Ein deaktivierter SSO-Button dient als sichtbarer Platzhalter ohne Funktion. Echtes SAP-SSO bleibt eine spätere Integrationsmöglichkeit.
+- Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant. Eine Neon-Ressource im kostenlosen Tarif wurde mit dem Vercel-Projekt `project-dt-sap` und der lokalen Entwicklung verbunden; die Better-Auth-Migration wurde angewendet. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
 - Echter E-Mail-Versand ist kein Bestandteil des MVP. Benachrichtigungen werden testbar simuliert und protokolliert beziehungsweise als In-App-Aufgaben angezeigt.
 - Kubernetes, SAP BTP, Microservices, Hochverfügbarkeit, Backups und Betriebsmonitoring sind nicht Bestandteil des MVP. Vercel Web Analytics wird für Seitenaufrufe eingebunden.
 - Externe Systemabfragen sind laut Kick-off nur zulässig, wenn Informationen nicht auf SAP zurückgeführt werden können; die konkrete Auslegung muss SAP noch klären.

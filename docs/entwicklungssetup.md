@@ -129,7 +129,7 @@ npx prisma migrate deploy
 
 Ein Demo-Konto wird ausschließlich lokal durch ein Teammitglied angelegt. Vor `npm run create-demo-user` die Umgebungsvariablen `DEMO_USERNAME`, `DEMO_NAME`, `DEMO_EMAIL` und `DEMO_PASSWORD` im Terminal setzen; Better Auth benötigt beim Anlegen auch Name und E-Mail. Für die Demo synthetische Werte verwenden. Kein öffentliches Registrierungsformular ist aktiviert. Zur Anmeldung werden Benutzername und Passwort benötigt. Zugangsdaten sicher übermitteln und nach der Einrichtung aus der Terminalumgebung entfernen. Zum Entziehen den Benutzer über die Datenbankverwaltung löschen; dabei werden seine Sitzungen entfernt.
 
-Entwicklung und Demo verwenden dieselbe Datenbank. Migrationen, Benutzeränderungen und Resets müssen im Team abgestimmt werden. Die Einrichtung der Datenbank, das Anlegen eines Demo-Kontos und ein vollständiger Login-Test stehen noch aus.
+Entwicklung und Demo verwenden dieselbe Datenbank. Migrationen, Benutzeränderungen und Resets müssen im Team abgestimmt werden. Die Better-Auth-Migration wurde auf der Neon-Datenbank angewendet. Kontoerstellung und Anmeldung wurden mit einem anschließend entfernten Testkonto geprüft; das persönliche Demo-Konto muss noch angelegt werden.
 
 ```bash
 npm run typecheck
