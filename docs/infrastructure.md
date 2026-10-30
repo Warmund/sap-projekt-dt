@@ -17,6 +17,7 @@
 | UI | **UI5 Web Components for React** (`@ui5/webcomponents-react`), SAP Design System (Fiori) |
 | API | Next.js Route Handlers und Server Actions |
 | ORM | **Prisma** (Schema, Migrationen, generierte Typen) |
+| Authentifizierung | **Better Auth**; individuelle Demo-Anmeldung mit Benutzername und Passwort |
 | Datenbank | **PostgreSQL** |
 | Betrieb / Deployment | Direktes Deployment auf Vercel; PostgreSQL bei einem externen Anbieter |
 | Entwicklung | App lokal mit `npm run dev`, gemeinsame Datenbank für Entwicklung und Demo |
@@ -41,7 +42,7 @@ Relevante Konventionen dieser Versionen:
 ## Begründung der Fullstack-Entscheidung
 
 - Ein Projekt und gemeinsame Typen für UI und API. Es gibt kein CORS, keine Cookie-Verdrahtung zwischen zwei Diensten und keinen doppelten API-Client.
-- Auth, Rollen und Admin-Seite lassen sich mit einer Auth-Bibliothek und `proxy.ts` umsetzen. Das spätere SSO kommt als OIDC-Provider dazu, ohne dass der Rest umgebaut werden muss. Welche Bibliothek, wird mit dem Thema Auth entschieden.
+- Better Auth ist für die Anmeldung vorgesehen. Rollen und deren serverseitige Prüfung werden noch fachlich geklärt. Eine spätere SAP-SSO-Anbindung über OIDC ist zu prüfen; ihr genauer Integrationsaufwand ist noch offen.
 - Dashboard, Suche, Mock-Mail, Import und Workflow-Aktionen sind alle mit Server Components, Route Handlers und Server Actions abbildbar.
 - Wird direkt auf Vercel deployt; serverseitige Funktionen laufen auf Vercel.
 - Eine Trennung in Frontend und API lohnt sich erst, wenn mehrere Clients die API nutzen oder SAP einen eigenen Backend-Dienst (z. B. auf BTP) verlangt. Beides ist aktuell nicht gefordert.

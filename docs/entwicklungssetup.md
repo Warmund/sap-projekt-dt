@@ -16,7 +16,7 @@ Das Repository klonen beziehungsweise auf den aktuellen Stand bringen und im Pro
 npm ci
 ```
 
-Damit werden die Versionen aus `package-lock.json` installiert, darunter `@ui5/webcomponents-react` und `@ui5/webcomponents-fiori` für die ShellBar. `node_modules` wird nicht eingecheckt. Die Paketdateien und Skills müssen erst im verwendeten Branch committed und gepusht sein, bevor sie auf einem anderen Rechner verfügbar sind.
+Damit werden die Versionen aus `package-lock.json` installiert, darunter `@ui5/webcomponents-react` und `@ui5/webcomponents-fiori` für die ShellBar sowie `@vercel/analytics`. Analytics ist im zentralen Next.js-Layout eingebunden und wird mit `npm ci` ebenfalls installiert. `node_modules` wird nicht eingecheckt. Die Paketdateien und Skills müssen erst im verwendeten Branch committed und gepusht sein, bevor sie auf einem anderen Rechner verfügbar sind.
 
 ## Skills
 
@@ -115,7 +115,21 @@ npm ci
 npm run dev
 ```
 
-Die Oberfläche ist unter http://localhost:3000 erreichbar. Datenbank und Umgebungsvariablen sind für dieses Grundgerüst nicht erforderlich. Die konkreten Paketversionen sind in der Lockdatei fixiert.
+Die Anwendung ist unter http://localhost:3000 erreichbar. Für die Anmeldung sind eine PostgreSQL-Datenbank und die folgenden Umgebungsvariablen erforderlich. Die konkreten Paketversionen sind in der Lockdatei fixiert.
+
+## Demo-Login einrichten
+
+Die gemeinsame PostgreSQL-Datenbank muss zuerst bereitgestellt werden. `.env.example` nach `.env` kopieren und `DATABASE_URL`, `BETTER_AUTH_URL` und ein zufälliges `BETTER_AUTH_SECRET` mit mindestens 32 Zeichen setzen; dieselben Werte für das Deployment geschützt in Vercel hinterlegen. Zugangsdaten und Secrets niemals einchecken. Auf Vercel muss `BETTER_AUTH_URL` auf die tatsächliche HTTPS-Adresse der Demo zeigen.
+
+Anschließend die versionierte Migration gezielt auf die gemeinsame Datenbank anwenden:
+
+```bash
+npx prisma migrate deploy
+```
+
+Ein Demo-Konto wird ausschließlich lokal durch ein Teammitglied angelegt. Vor `npm run create-demo-user` die Umgebungsvariablen `DEMO_USERNAME`, `DEMO_NAME`, `DEMO_EMAIL` und `DEMO_PASSWORD` im Terminal setzen; Better Auth benötigt beim Anlegen auch Name und E-Mail. Für die Demo synthetische Werte verwenden. Kein öffentliches Registrierungsformular ist aktiviert. Zur Anmeldung werden Benutzername und Passwort benötigt. Zugangsdaten sicher übermitteln und nach der Einrichtung aus der Terminalumgebung entfernen. Zum Entziehen den Benutzer über die Datenbankverwaltung löschen; dabei werden seine Sitzungen entfernt.
+
+Entwicklung und Demo verwenden dieselbe Datenbank. Migrationen, Benutzeränderungen und Resets müssen im Team abgestimmt werden. Die Einrichtung der Datenbank, das Anlegen eines Demo-Kontos und ein vollständiger Login-Test stehen noch aus.
 
 ```bash
 npm run typecheck

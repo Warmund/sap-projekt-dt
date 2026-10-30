@@ -180,7 +180,7 @@ Weitere Kennzahlen und Filter sind noch nicht festgelegt. Als Deliverable genüg
 
 ### 7.4 Rollen und Berechtigungen
 
-Verschiedene Berechtigungsstufen sind gefordert. Die vollständigen Rollen, Rechte und Benutzergruppen sind noch nicht spezifiziert. Genannte fachliche Beteiligte sind Export Control, betroffene Fach- und Produktteams sowie Account Executives. Eine Authentifizierungsbibliothek ist noch nicht ausgewählt; eine spätere SAP-Integration könnte OIDC beziehungsweise SSO erfordern.
+Verschiedene Berechtigungsstufen sind gefordert. Die vollständigen Rollen, Rechte und Benutzergruppen sind noch nicht spezifiziert. Genannte fachliche Beteiligte sind Export Control, betroffene Fach- und Produktteams sowie Account Executives. Für die Demo sind individuelle App-Zugänge mit Benutzername und Passwort über Better Auth und eine SAP-nah gestaltete Login-Seite vorgesehen. Eine spätere SAP-Integration könnte OIDC beziehungsweise SSO erfordern.
 
 ## 8. Solution Design
 
@@ -308,7 +308,7 @@ Projekt-Sponsor, Project Owner, Projektleitung, Freigabegremium und verbindliche
 - Die Daten sind synthetisch; reale SAP-Daten sind nicht freigegeben.
 - SAP GTS bleibt in einer späteren Zielarchitektur das führende System für Sperren.
 - Der festgelegte technische Stack bleibt Next.js, UI5 Web Components, Prisma und PostgreSQL.
-- Hosting, Authentifizierungsbibliothek, genaue Rollen und CI sind noch offen.
+- Datenbankanbieter, genaue Rollen, Verwaltung der Demo-Zugänge und CI sind noch offen.
 - Die vorgeschlagene Timeline ist eine Planungsbaseline und kein bestätigter harter Terminplan.
 - Anforderungen, die weder aus Jettes Nachricht noch aus den bestehenden Dokumenten hervorgehen, werden nicht erfunden, sondern als offen behandelt.
 
