@@ -10,6 +10,7 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 30.10.2026 | Todo-Demo und Dynamic-Page-Inhalt auf Nutzerwunsch entfernt; oberer Anwendungsbalken bleibt bestehen | 2.6 |
 | Agent | 30.10.2026 | Startseite als Fiori Dynamic Page mit persönlicher Todo-Demo, Statusfiltern, Prioritäten und Fortschritt gestaltet; Aufgaben bleiben pro Projektzugang im lokalen Browser, ohne gemeinsame Aufgaben-Datenbank | 2.5 |
 | Agent | 30.10.2026 | Login-Gestaltung an SAP-Vorlage angelehnt: SAP-Logo, responsive Anmeldekarte und deaktivierter SSO-Button als Platzhalter; keine SSO-Anbindung im MVP | 2.4 |
 | Agent | 30.10.2026 | Neon-Datenbank mit Vercel und lokaler Entwicklung verbunden; Better-Auth-Migration angewendet | 2.3 |
@@ -90,7 +91,7 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Der technische Stack ist Next.js 16 mit TypeScript, UI5 Web Components for React, Prisma 7 und PostgreSQL 18.
 - Die Internet-Demo soll dem Projektteam und ausgewählten SAP-Ansprechpersonen zugänglich sein; Vercel soll möglichst im kostenlosen Tarif genutzt werden. Ein Vercel-Konto darf für Besucher nicht erforderlich sein; die konkrete Zugriffsschutzlösung ist offen. Änderungen am Hauptbranch sollen automatisch deployt werden.
 - Für den MVP ist eine individuelle App-Anmeldung mit Benutzername und Passwort, Better Auth und einer SAP-nah gestalteten Login-Oberfläche mit SAP-Logo und responsiver Anmeldekarte vorgesehen. Ein deaktivierter SSO-Button dient als sichtbarer Platzhalter ohne Funktion. Echtes SAP-SSO bleibt eine spätere Integrationsmöglichkeit.
-- Die Startseite demonstriert das Fiori-Dynamic-Page-Layout mit einklappbarem Kopf und einer persönlichen Todo-App. Aufgaben können angelegt, abgehakt, gesucht, nach Status gefiltert und gelöscht werden. Die Speicherung erfolgt pro Projektzugang in diesem Browser; sie ersetzt weder den fachlichen Workflow noch eine gemeinsame serverseitige Aufgabenverwaltung. Gestaltungsreferenz ist Fiori Design Web 1.154; die technische Umsetzung bleibt bei UI5 Web Components for React 2.28.
+- Die Startseite zeigt vorerst nur den oberen Anwendungsbalken; die Todo-Demo wurde auf Nutzerwunsch entfernt.
 - Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant. Eine Neon-Ressource im kostenlosen Tarif wurde mit dem Vercel-Projekt `project-dt-sap` und der lokalen Entwicklung verbunden; die Better-Auth-Migration wurde angewendet. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
 - Echter E-Mail-Versand ist kein Bestandteil des MVP. Benachrichtigungen werden testbar simuliert und protokolliert beziehungsweise als In-App-Aufgaben angezeigt.
 - Kubernetes, SAP BTP, Microservices, Hochverfügbarkeit, Backups und Betriebsmonitoring sind nicht Bestandteil des MVP. Vercel Web Analytics wird für Seitenaufrufe eingebunden.
