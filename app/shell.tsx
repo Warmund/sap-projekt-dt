@@ -5,6 +5,7 @@ import { ShellBar } from "@ui5/webcomponents-react/ShellBar";
 import { Button } from "@ui5/webcomponents-react/Button";
 import "@ui5/webcomponents-icons/dist/log.js";
 import { authClient } from "../lib/auth-client";
+import { Todos } from "./todos";
 
 export function Shell() {
   const [signingOut, setSigningOut] = useState(false);
@@ -21,6 +22,6 @@ export function Shell() {
         } catch { setError("Abmelden derzeit nicht möglich. Bitte versuche es erneut."); setSigningOut(false); }
       }}>Abmelden</Button>
     </header>
-    <main>{error && <p role="alert">{error}</p>}</main>
+    <main className="workspace-main">{error && <p role="alert">{error}</p>}<Todos /></main>
   </ThemeProvider>;
 }

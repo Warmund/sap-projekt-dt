@@ -74,3 +74,13 @@ main {
 .workspace-shell ui5-shellbar { flex: 1; min-width: 0; box-shadow: none; }
 .workspace-shell > ui5-button { flex-shrink: 0; }
 @media (max-width: 760px) { .workspace-shell { padding-right: 0.5rem; } }
+
+.workspace-main { background: var(--sapBackgroundColor, #f5f6f7); font-family: var(--sapFontFamily, "72", Arial, sans-serif); }
+.todo-page { box-sizing: border-box; max-width: 48rem; margin: 0 auto; padding: 2rem 1.5rem; }
+.todo-header { display: grid; gap: 0.25rem; margin-bottom: 1.25rem; }
+.todo-card { display: grid; gap: 1rem; padding: 1.25rem; background: var(--sapTile_Background, #fff); border-radius: var(--sapTile_BorderCornerRadius, 1rem); box-shadow: var(--sapContent_Shadow0); }
+.todo-add { display: flex; gap: 0.5rem; }
+.todo-input { flex: 1; min-width: 0; }
+.todo-row { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 0.5rem; }
+.todo-done { text-decoration: line-through; opacity: 0.6; }
+@media (max-width: 600px) { .todo-page { padding: 1rem; } .todo-add { flex-direction: column; } }
