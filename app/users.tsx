@@ -136,9 +136,9 @@ export function Users() {
                   <Option value="user">Nutzer</Option>
                   <Option value="admin">Admin</Option>
                 </Select>
-                <Button design="Transparent" icon="delete" tooltip={`${user.name} löschen`}
+                <Button design="Negative" icon="delete" tooltip={`${user.name} löschen`}
                   accessibleName={`${user.name} löschen`} disabled={updatingUserId === user.id}
-                  onClick={() => setDeletingUser(user)} />
+                  onClick={() => setDeletingUser(user)}>Löschen</Button>
               </div>
             </TableCell>
           </TableRow>)}
