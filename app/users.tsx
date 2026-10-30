@@ -10,6 +10,7 @@ import { FormItem } from "@ui5/webcomponents-react/FormItem";
 import { Input } from "@ui5/webcomponents-react/Input";
 import { Label } from "@ui5/webcomponents-react/Label";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
+import { MessageBox } from "@ui5/webcomponents-react/MessageBox";
 import { Option } from "@ui5/webcomponents-react/Option";
 import { Select } from "@ui5/webcomponents-react/Select";
 import { Table } from "@ui5/webcomponents-react/Table";
@@ -17,9 +18,11 @@ import { TableCell } from "@ui5/webcomponents-react/TableCell";
 import { TableHeaderCell } from "@ui5/webcomponents-react/TableHeaderCell";
 import { TableHeaderRow } from "@ui5/webcomponents-react/TableHeaderRow";
 import { TableRow } from "@ui5/webcomponents-react/TableRow";
+import { TableRowAction } from "@ui5/webcomponents-react/TableRowAction";
 import { Text } from "@ui5/webcomponents-react/Text";
 import { Title } from "@ui5/webcomponents-react/Title";
 import { authClient } from "../lib/auth-client";
+import "@ui5/webcomponents-icons/dist/delete.js";
 
 type User = { id: string; name: string; email: string; username?: string | null; role?: string | null };
 
@@ -29,6 +32,7 @@ export function Users() {
   const [success, setSuccess] = useState("");
   const [pending, setPending] = useState(false);
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
 
   async function loadUsers() {
     const all: User[] = [];
@@ -84,6 +88,24 @@ export function Users() {
     finally { setUpdatingUserId(null); }
   }
 
+  async function deleteUser(action: string | undefined) {
+    if (action !== "Delete" || !deletingUser) {
+      setDeletingUser(null);
+      return;
+    }
+    const user = deletingUser;
+    setDeletingUser(null);
+    setError(""); setSuccess("");
+    setUpdatingUserId(user.id);
+    try {
+      const result = await authClient.admin.removeUser({ userId: user.id });
+      if (result.error) { setError("Der Nutzer konnte nicht gelöscht werden."); return; }
+      setSuccess(`Nutzer ${user.name} wurde gelöscht.`);
+      await loadUsers();
+    } catch { setError("Nutzerverwaltung ist derzeit nicht verfügbar."); }
+    finally { setUpdatingUserId(null); }
+  }
+
   return <DynamicPage hidePinButton className="app-page"
     titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Nutzer verwalten</Title>}
       subheading={<Text>{users.length} Nutzer im System</Text>} />}>
@@ -104,7 +126,9 @@ export function Users() {
             <TableHeaderCell width="35%" importance={1}>E-Mail</TableHeaderCell>
             <TableHeaderCell width="25%">Rolle</TableHeaderCell>
           </TableHeaderRow>}>
-          {users.map((user) => <TableRow key={user.id} rowKey={user.id}>
+          {users.map((user) => <TableRow key={user.id} rowKey={user.id}
+            actions={<TableRowAction icon="delete" text="Löschen" invisible={updatingUserId === user.id}
+              onClick={() => setDeletingUser(user)} />}>
             <TableCell><Text>{user.name}</Text></TableCell>
             <TableCell><Text>{user.username || "—"}</Text></TableCell>
             <TableCell><Text>{user.email}</Text></TableCell>
@@ -143,5 +167,10 @@ export function Users() {
         </form>
       </section>
     </div>
+    <MessageBox open={!!deletingUser} type="Confirm" titleText="Nutzer löschen"
+      actions={["Cancel", "Delete"]} emphasizedAction="Delete"
+      onClose={(action) => void deleteUser(action)}>
+      {deletingUser ? `Möchtest du ${deletingUser.name} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.` : ""}
+    </MessageBox>
   </DynamicPage>;
 }
