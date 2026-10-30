@@ -2,6 +2,23 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@ui5/webcomponents-react/Button";
+import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
+import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
+import { Form } from "@ui5/webcomponents-react/Form";
+import { FormGroup } from "@ui5/webcomponents-react/FormGroup";
+import { FormItem } from "@ui5/webcomponents-react/FormItem";
+import { Input } from "@ui5/webcomponents-react/Input";
+import { Label } from "@ui5/webcomponents-react/Label";
+import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
+import { Option } from "@ui5/webcomponents-react/Option";
+import { Select } from "@ui5/webcomponents-react/Select";
+import { Table } from "@ui5/webcomponents-react/Table";
+import { TableCell } from "@ui5/webcomponents-react/TableCell";
+import { TableHeaderCell } from "@ui5/webcomponents-react/TableHeaderCell";
+import { TableHeaderRow } from "@ui5/webcomponents-react/TableHeaderRow";
+import { TableRow } from "@ui5/webcomponents-react/TableRow";
+import { Text } from "@ui5/webcomponents-react/Text";
+import { Title } from "@ui5/webcomponents-react/Title";
 import { authClient } from "../lib/auth-client";
 
 type User = { id: string; name: string; email: string; username?: string | null; role?: string | null };
@@ -11,6 +28,7 @@ export function Users() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [pending, setPending] = useState(false);
+  const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
 
   async function loadUsers() {
     const all: User[] = [];
@@ -33,12 +51,19 @@ export function Users() {
     event.preventDefault();
     const form = event.currentTarget;
     const values = new FormData(form);
+    const name = String(values.get("name"));
+    const username = String(values.get("username"));
+    const email = String(values.get("email"));
+    const password = String(values.get("password"));
+    if (username.length < 3 || password.length < 8) {
+      setError("Benutzername muss mindestens 3 Zeichen und Passwort mindestens 8 Zeichen enthalten.");
+      return;
+    }
     setError(""); setSuccess(""); setPending(true);
     try {
       const result = await authClient.admin.createUser({
-        name: String(values.get("name")), email: String(values.get("email")),
-        password: String(values.get("password")), role: values.get("role") === "admin" ? "admin" : "user",
-        data: { username: String(values.get("username")) },
+        name, email, password, role: values.get("role") === "admin" ? "admin" : "user",
+        data: { username },
       });
       if (result.error) { setError("Nutzer konnte nicht angelegt werden. Prüfe die Angaben und ob Benutzername und E-Mail bereits vergeben sind."); return; }
       form.reset();
@@ -48,20 +73,75 @@ export function Users() {
     finally { setPending(false); }
   }
 
-  return <section className="user-admin">
-    <h1>Nutzer verwalten</h1>
-    {error && <p role="alert">{error}</p>}{success && <p role="status">{success}</p>}
-    <table><thead><tr><th>Name</th><th>Benutzername</th><th>E-Mail</th><th>Rolle</th></tr></thead>
-      <tbody>{users.map((user) => <tr key={user.id}><td>{user.name}</td><td>{user.username}</td><td>{user.email}</td><td>{user.role ?? "user"}</td></tr>)}</tbody>
-    </table>
-    <h2>Neuen Nutzer hinzufügen</h2>
-    <form className="user-form" onSubmit={createUser}>
-      <label>Name<input name="name" required /></label>
-      <label>Benutzername<input name="username" required minLength={3} autoComplete="off" /></label>
-      <label>E-Mail<input name="email" type="email" required /></label>
-      <label>Passwort<input name="password" type="password" required minLength={8} autoComplete="new-password" /></label>
-      <label>Rolle<select name="role" defaultValue="user"><option value="user">Nutzer</option><option value="admin">Admin</option></select></label>
-      <Button type="Submit" design="Emphasized" disabled={pending}>Nutzer hinzufügen</Button>
-    </form>
-  </section>;
+  async function updateRole(userId: string, role: string) {
+    setError(""); setSuccess(""); setUpdatingUserId(userId);
+    try {
+      const result = await authClient.admin.updateUser({ userId, data: { role: role === "admin" ? "admin" : "user" } });
+      if (result.error) { setError("Die Rolle konnte nicht geändert werden."); return; }
+      setSuccess("Rolle wurde geändert.");
+      await loadUsers();
+    } catch { setError("Nutzerverwaltung ist derzeit nicht verfügbar."); }
+    finally { setUpdatingUserId(null); }
+  }
+
+  return <DynamicPage hidePinButton className="app-page"
+    titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Nutzer verwalten</Title>}
+      subheading={<Text>{users.length} Nutzer im System</Text>} />}>
+    <div className="user-admin">
+      {error && <MessageStrip design="Negative" onClose={() => setError("")}>{error}</MessageStrip>}
+      {success && <MessageStrip design="Positive" onClose={() => setSuccess("")}>{success}</MessageStrip>}
+      <section className="user-admin-section" aria-labelledby="user-list-title">
+        <div className="user-admin-section-heading">
+          <div>
+            <Title id="user-list-title" level="H2" size="H4">Nutzerliste</Title>
+            <Text>Rollen und Zugriffsrechte direkt in der Liste verwalten.</Text>
+          </div>
+        </div>
+        <Table accessibleName="Nutzerliste" alternateRowColors overflowMode="Popin" noDataText="Noch keine Nutzer vorhanden."
+          headerRow={<TableHeaderRow sticky>
+            <TableHeaderCell width="20%">Name</TableHeaderCell>
+            <TableHeaderCell width="20%" importance={2}>Benutzername</TableHeaderCell>
+            <TableHeaderCell width="35%" importance={1}>E-Mail</TableHeaderCell>
+            <TableHeaderCell width="25%">Rolle</TableHeaderCell>
+          </TableHeaderRow>}>
+          {users.map((user) => <TableRow key={user.id} rowKey={user.id}>
+            <TableCell><Text>{user.name}</Text></TableCell>
+            <TableCell><Text>{user.username || "—"}</Text></TableCell>
+            <TableCell><Text>{user.email}</Text></TableCell>
+            <TableCell>
+              <Select value={user.role === "admin" ? "admin" : "user"} disabled={updatingUserId === user.id}
+                accessibleName={`Rolle von ${user.name}`} onChange={(event) => void updateRole(user.id, event.target.value)}>
+                <Option value="user">Nutzer</Option>
+                <Option value="admin">Admin</Option>
+              </Select>
+            </TableCell>
+          </TableRow>)}
+        </Table>
+      </section>
+      <section className="user-admin-section" aria-labelledby="new-user-title">
+        <div className="user-admin-section-heading">
+          <div>
+            <Title id="new-user-title" level="H2" size="H4">Neuen Nutzer hinzufügen</Title>
+            <Text>Lege einen neuen Zugang für den Arbeitsbereich an.</Text>
+          </div>
+        </div>
+        <form onSubmit={createUser}>
+          <Form accessibleMode="Edit" layout="S1 M2 L2 XL2" className="user-form" accessibleName="Neuen Nutzer hinzufügen">
+            <FormGroup headerText="Zugangsdaten">
+              <FormItem labelContent={<Label required>Name</Label>}><Input name="name" required /></FormItem>
+              <FormItem labelContent={<Label required>Benutzername</Label>}><Input name="username" required /></FormItem>
+              <FormItem labelContent={<Label required>E-Mail</Label>}><Input name="email" type="Email" required /></FormItem>
+              <FormItem labelContent={<Label required>Passwort</Label>}><Input name="password" type="Password" required /></FormItem>
+              <FormItem labelContent={<Label>Rolle</Label>}>
+                <Select name="role" value="user"><Option value="user">Nutzer</Option><Option value="admin">Admin</Option></Select>
+              </FormItem>
+            </FormGroup>
+          </Form>
+          <div className="user-form-actions">
+            <Button type="Submit" design="Emphasized" disabled={pending}>Nutzer hinzufügen</Button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </DynamicPage>;
 }
