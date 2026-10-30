@@ -1,5 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
+import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
 import { Title } from "@ui5/webcomponents-react/Title";
 import { Text } from "@ui5/webcomponents-react/Text";
 import { Input } from "@ui5/webcomponents-react/Input";
@@ -14,20 +16,13 @@ import "@ui5/webcomponents-fiori/dist/illustrations/NoTasks.js";
 import "@ui5/webcomponents-icons/dist/add.js";
 import "@ui5/webcomponents-icons/dist/delete.js";
 
-type Todo = { id: string; text: string; done: boolean };
+export type Todo = { id: string; text: string; done: boolean };
 type Filter = "all" | "open" | "done";
-const STORAGE_KEY = "todos";
 
-export function Todos() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+export function Todos({ todos, onChange: save }: { todos: Todo[]; onChange: (next: Todo[]) => void }) {
   const [draft, setDraft] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
 
-  useEffect(() => {
-    try { setTodos(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]")); } catch { /* ignore corrupt storage */ }
-  }, []);
-
-  const save = (next: Todo[]) => { setTodos(next); localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); };
   const add = () => {
     const text = draft.trim();
     if (!text) return;
@@ -38,11 +33,9 @@ export function Todos() {
   const openCount = todos.filter((t) => !t.done).length;
   const visible = todos.filter((t) => filter === "all" || (filter === "done") === t.done);
 
-  return <section className="todo-page">
-    <div className="todo-header">
-      <Title level="H2" size="H2">Meine Aufgaben</Title>
-      <Text>{openCount} offen · {todos.length - openCount} erledigt</Text>
-    </div>
+  return <DynamicPage hidePinButton className="app-page"
+    titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Aufgaben</Title>}
+      subheading={<Text>{openCount} offen · {todos.length - openCount} erledigt</Text>} />}>
     <div className="todo-card">
       <form className="todo-add" onSubmit={(e) => { e.preventDefault(); add(); }}>
         <Input className="todo-input" value={draft} placeholder="Neue Aufgabe hinzufügen" accessibleName="Neue Aufgabe"
@@ -67,5 +60,5 @@ export function Todos() {
           </ListItemCustom>)}
         </List>}
     </div>
-  </section>;
+  </DynamicPage>;
 }
