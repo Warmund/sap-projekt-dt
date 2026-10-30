@@ -32,6 +32,8 @@ export function Shell({ user }: { user: { name: string; email: string } }) {
   const [todos, setTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
+    // Restore browser-only data after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     try { setTodos(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]")); } catch { /* ignore corrupt storage */ }
   }, []);
   const saveTodos = (next: Todo[]) => { setTodos(next); localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); };

@@ -10,6 +10,8 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 30.10.2026 | Next.js- und TypeScript-ESLint-Regeln als ergänzende Prüfung in der GitHub Action festgelegt | 2.8 |
+| Agent | 30.10.2026 | GitHub Action für Typecheck bei Push auf main vorgesehen; Vercel-Deployment bleibt unabhängig vom Prüfergebnis | 2.7 |
 | Agent | 30.10.2026 | Todo-Demo und Dynamic-Page-Inhalt auf Nutzerwunsch entfernt; oberer Anwendungsbalken bleibt bestehen | 2.6 |
 | Agent | 30.10.2026 | Startseite als Fiori Dynamic Page mit persönlicher Todo-Demo, Statusfiltern, Prioritäten und Fortschritt gestaltet; Aufgaben bleiben pro Projektzugang im lokalen Browser, ohne gemeinsame Aufgaben-Datenbank | 2.5 |
 | Agent | 30.10.2026 | Login-Gestaltung an SAP-Vorlage angelehnt: SAP-Logo, responsive Anmeldekarte und deaktivierter SSO-Button als Platzhalter; keine SSO-Anbindung im MVP | 2.4 |
@@ -92,6 +94,7 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Die Internet-Demo soll dem Projektteam und ausgewählten SAP-Ansprechpersonen zugänglich sein; Vercel soll möglichst im kostenlosen Tarif genutzt werden. Ein Vercel-Konto darf für Besucher nicht erforderlich sein; die konkrete Zugriffsschutzlösung ist offen. Änderungen am Hauptbranch sollen automatisch deployt werden.
 - Für den MVP ist eine individuelle App-Anmeldung mit Benutzername und Passwort, Better Auth und einer SAP-nah gestalteten Login-Oberfläche mit SAP-Logo und responsiver Anmeldekarte vorgesehen. Ein deaktivierter SSO-Button dient als sichtbarer Platzhalter ohne Funktion. Echtes SAP-SSO bleibt eine spätere Integrationsmöglichkeit.
 - Die Startseite zeigt vorerst nur den oberen Anwendungsbalken; die Todo-Demo wurde auf Nutzerwunsch entfernt.
+- GitHub Actions prüft TypeScript und ESLint bei Push auf `main`. Das Vercel-Deployment läuft unabhängig vom Ergebnis; ein zusätzlicher Build in GitHub Actions ist nicht vorgesehen.
 - Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant. Eine Neon-Ressource im kostenlosen Tarif wurde mit dem Vercel-Projekt `project-dt-sap` und der lokalen Entwicklung verbunden; die Better-Auth-Migration wurde angewendet. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
 - Echter E-Mail-Versand ist kein Bestandteil des MVP. Benachrichtigungen werden testbar simuliert und protokolliert beziehungsweise als In-App-Aufgaben angezeigt.
 - Kubernetes, SAP BTP, Microservices, Hochverfügbarkeit, Backups und Betriebsmonitoring sind nicht Bestandteil des MVP. Vercel Web Analytics wird für Seitenaufrufe eingebunden.
