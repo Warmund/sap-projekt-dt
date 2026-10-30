@@ -11,6 +11,7 @@ import { Button } from "@ui5/webcomponents-react/Button";
 import { Avatar } from "@ui5/webcomponents-react/Avatar";
 import { UserMenu } from "@ui5/webcomponents-react/UserMenu";
 import { UserMenuAccount } from "@ui5/webcomponents-react/UserMenuAccount";
+import { UserMenuItem } from "@ui5/webcomponents-react/UserMenuItem";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
 import "@ui5/webcomponents-icons/dist/menu2.js";
 import "@ui5/webcomponents-icons/dist/home.js";
@@ -19,11 +20,12 @@ import "@ui5/webcomponents-icons/dist/question-mark.js";
 import { authClient } from "../lib/auth-client";
 import { Home } from "./home";
 import { Todos, type Todo } from "./todos";
+import { Users } from "./users";
 
-type View = "home" | "todos";
+type View = "home" | "todos" | "users";
 const STORAGE_KEY = "todos";
 
-export function Shell({ user }: { user: { name: string; email: string } }) {
+export function Shell({ user }: { user: { name: string; email: string; role: string } }) {
   const layoutRef = useRef<NavigationLayoutDomRef>(null);
   const [mode, setMode] = useState<"Auto" | "Collapsed" | "Expanded">("Auto");
   const [view, setView] = useState<View>("home");
@@ -72,12 +74,15 @@ export function Shell({ user }: { user: { name: string; email: string } }) {
       </SideNavigation>}>
       <main className="app-content">
         {error && <MessageStrip design="Negative" onClose={() => setError("")}>{error}</MessageStrip>}
-        {view === "home"
+        {view === "users" && user.role.split(",").includes("admin") ? <Users /> : view === "home"
           ? <Home name={user.name} todos={todos} onOpenTodos={() => setView("todos")} />
           : <Todos todos={todos} onChange={saveTodos} />}
       </main>
     </NavigationLayout>
     <UserMenu open={!!menuOpener} opener={menuOpener} onClose={() => setMenuOpener(null)} onSignOutClick={(e) => { e.preventDefault(); signOut(); }}
-      accounts={<UserMenuAccount titleText={user.name} subtitleText={user.email} avatarInitials={initials} selected />} />
+      accounts={<UserMenuAccount titleText={user.name} subtitleText={user.email} avatarInitials={initials} selected />}
+      onItemClick={() => { setMenuOpener(null); setView("users"); }}>
+      {user.role.split(",").includes("admin") && <UserMenuItem text="Nutzer verwalten" />}
+    </UserMenu>
   </ThemeProvider>;
 }

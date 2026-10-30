@@ -6,5 +6,5 @@ import { Shell } from "./shell";
 export default async function Home() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/login");
-  return <Shell user={{ name: session.user.name, email: session.user.email }} />;
+  return <Shell user={{ name: session.user.name, email: session.user.email, role: session.user.role ?? "user" }} />;
 }

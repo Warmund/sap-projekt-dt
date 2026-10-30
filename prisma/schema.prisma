@@ -17,6 +17,10 @@ model User {
   updatedAt       DateTime  @updatedAt
   username        String?   @unique
   displayUsername String?
+  role            String?   @default("user")
+  banned          Boolean?  @default(false)
+  banReason       String?
+  banExpires      DateTime?
   sessions        Session[]
   accounts        Account[]
 }
@@ -29,6 +33,7 @@ model Session {
   updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
+  impersonatedBy String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([userId])

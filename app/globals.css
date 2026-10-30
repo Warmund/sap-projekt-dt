@@ -4,6 +4,13 @@ html, body {
   background: #fff;
 }
 
+.user-admin { padding: 1.5rem; overflow-x: auto; }
+.user-admin table { border-collapse: collapse; width: 100%; text-align: left; }
+.user-admin th, .user-admin td { padding: 0.75rem; border-bottom: 1px solid #d1d5d8; }
+.user-form { display: grid; gap: 0.75rem; max-width: 28rem; }
+.user-form label { display: grid; gap: 0.25rem; }
+.user-form input, .user-form select { padding: 0.5rem; font: inherit; }
+
 .login-page {
   display: grid;
   place-items: center;
