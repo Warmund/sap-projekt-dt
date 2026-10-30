@@ -1,6 +1,12 @@
 # Entwicklungssetup
 
-Dieses Dokument beschreibt den aktuellen Stand und die Einrichtung auf einem weiteren Rechner. Das Next.js-Grundgerüst aus Issue #51 zeigt einen UI5-ShellBar-Header mit dem Namen „SAP-Project-DT“ über einer leeren Inhaltsfläche. UI5 ist über den ThemeProvider eingebunden.
+Dieses Dokument beschreibt den aktuellen Stand und die Einrichtung auf einem weiteren Rechner. Nach der Anmeldung zeigt die Startseite eine UI5 Dynamic Page mit ShellBar, einklappbarer Aufgabenübersicht und persönlicher Todo-App. UI5 ist über den ThemeProvider eingebunden.
+
+## Startseite und Todo-Demo
+
+Aufgaben lassen sich mit normaler oder hoher Priorität anlegen, abhaken, suchen, nach Status filtern und löschen. Kennzahlen und Fortschritt berechnen sich aus der aktuellen Liste. Beim ersten Besuch erscheinen synthetische Beispielaufgaben. Die Liste liegt unter `sap-project-todos:v1:<userId>` im lokalen Browserspeicher; sie wird nicht zwischen Geräten synchronisiert. Beim Löschen der Browserdaten geht sie verloren. Ein nicht verfügbarer oder ungültiger Speicher wird als Hinweis angezeigt.
+
+Die Gestaltung orientiert sich an [Fiori Design Web 1.154: Dynamic Page Layout](https://www.sap.com/design-system/fiori-design-web/v1-154/page-types/page-layouts/dynamic-page-layout). Diese Seite war bei der Umsetzung nicht direkt abrufbar; ergänzend wurden die lokalen SAP-Fiori-Richtlinien, die [offizielle Dynamic-Page-Dokumentation](https://ui5.github.io/webcomponents/components/fiori/DynamicPage/) und die Komponenten-APIs des UI5-React-MCP-Servers 2.28.2 verwendet. Die App nutzt weiterhin UI5 Web Components for React 2.28; SAPUI5 1.154 wird nicht als Laufzeit eingebunden.
 
 ## Voraussetzungen
 
@@ -138,4 +144,4 @@ npx playwright install chromium
 npm test
 ```
 
-Der Browser-Test startet selbst einen lokalen Entwicklungsserver und prüft den Anwendungstitel im Header, die leere Inhaltsfläche und Laufzeitfehler. Für einen Produktionsstart nach dem Build: `npm start`. Unter Windows kann bei gesperrten PowerShell-Skripten `npm.cmd` beziehungsweise `npx.cmd` verwendet werden.
+Die Browser-Tests starten selbst einen lokalen Entwicklungsserver und prüfen die Login-Weiterleitung und mobile Login-Darstellung. Für den zusätzlichen Todo-Test vor `npm test` die Umgebungsvariablen `TEST_USERNAME` und `TEST_PASSWORD` für ein dediziertes Demo-Konto setzen; ohne diese wird er übersprungen. Er prüft Anmeldung, Dynamic-Page-Kopf, Anlegen, Priorität, Speicherung nach Neuladen, Suche, Statusfilter, Abhaken, Löschen, mobile Darstellung und Abmelden. Der Testserver setzt `BETTER_AUTH_URL` auf seine lokale Adresse, damit die Origin-Prüfung auch beim Abmelden passt. Für einen Produktionsstart nach dem Build: `npm start`. Unter Windows kann bei gesperrten PowerShell-Skripten `npm.cmd` beziehungsweise `npx.cmd` verwendet werden.
