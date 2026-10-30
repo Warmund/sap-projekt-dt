@@ -18,7 +18,6 @@ import { TableCell } from "@ui5/webcomponents-react/TableCell";
 import { TableHeaderCell } from "@ui5/webcomponents-react/TableHeaderCell";
 import { TableHeaderRow } from "@ui5/webcomponents-react/TableHeaderRow";
 import { TableRow } from "@ui5/webcomponents-react/TableRow";
-import { TableRowAction } from "@ui5/webcomponents-react/TableRowAction";
 import { Text } from "@ui5/webcomponents-react/Text";
 import { Title } from "@ui5/webcomponents-react/Title";
 import { authClient } from "../lib/auth-client";
@@ -124,20 +123,23 @@ export function Users() {
             <TableHeaderCell width="20%">Name</TableHeaderCell>
             <TableHeaderCell width="20%" importance={2}>Benutzername</TableHeaderCell>
             <TableHeaderCell width="35%" importance={1}>E-Mail</TableHeaderCell>
-            <TableHeaderCell width="25%">Rolle</TableHeaderCell>
+            <TableHeaderCell width="25%">Rolle und Aktionen</TableHeaderCell>
           </TableHeaderRow>}>
-          {users.map((user) => <TableRow key={user.id} rowKey={user.id}
-            actions={<TableRowAction icon="delete" text="Löschen" invisible={updatingUserId === user.id}
-              onClick={() => setDeletingUser(user)} />}>
+          {users.map((user) => <TableRow key={user.id} rowKey={user.id}>
             <TableCell><Text>{user.name}</Text></TableCell>
             <TableCell><Text>{user.username || "—"}</Text></TableCell>
             <TableCell><Text>{user.email}</Text></TableCell>
             <TableCell>
-              <Select value={user.role === "admin" ? "admin" : "user"} disabled={updatingUserId === user.id}
-                accessibleName={`Rolle von ${user.name}`} onChange={(event) => void updateRole(user.id, event.target.value)}>
-                <Option value="user">Nutzer</Option>
-                <Option value="admin">Admin</Option>
-              </Select>
+              <div className="user-row-actions">
+                <Select value={user.role === "admin" ? "admin" : "user"} disabled={updatingUserId === user.id}
+                  accessibleName={`Rolle von ${user.name}`} onChange={(event) => void updateRole(user.id, event.target.value)}>
+                  <Option value="user">Nutzer</Option>
+                  <Option value="admin">Admin</Option>
+                </Select>
+                <Button design="Transparent" icon="delete" tooltip={`${user.name} löschen`}
+                  accessibleName={`${user.name} löschen`} disabled={updatingUserId === user.id}
+                  onClick={() => setDeletingUser(user)} />
+              </div>
             </TableCell>
           </TableRow>)}
         </Table>

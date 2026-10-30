@@ -10,6 +10,7 @@ html, body {
 .user-admin-section-heading > div { display: grid; gap: 0.25rem; }
 .user-admin-section-heading ui5-title { margin: 0; }
 .user-admin-section ui5-table { min-width: 42rem; }
+.user-row-actions { display: flex; align-items: center; gap: 0.5rem; }
 .user-form { width: 100%; }
 .user-form-actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
 @media (max-width: 600px) {
