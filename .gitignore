@@ -1,4 +1,5 @@
 node_modules/
+.vercel/
 lib/generated/
 .next/
 *.tsbuildinfo
@@ -7,3 +8,4 @@ lib/generated/
 playwright-report/
 test-results/
 .scratch/
+.vercel

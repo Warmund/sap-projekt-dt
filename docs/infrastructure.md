@@ -63,7 +63,25 @@ Der Browser spricht nur mit der Next.js-App. Nur der Server-Teil der App greift 
 
 Änderungen am Hauptbranch sollen automatisch das Demo-Deployment auf Vercel auslösen.
 
-Die Next.js-Anwendung wird direkt aus dem Git-Repository auf Vercel gebaut und deployt. Route Handlers und Server Actions laufen dort als Vercel Functions. Eine separat verwaltete PostgreSQL-Datenbank wird angebunden; der konkrete Anbieter und die Unterstützung für PostgreSQL 18 sind noch auszuwählen. Zugangsdaten werden als Vercel-Umgebungsvariablen gepflegt, getrennt für Production und Preview. Die lokale Entwicklung nutzt dieselbe Datenbank wie die Demo und startet mit `npm run dev`. Secrets gehören nicht ins Repository.
+Die Next.js-Anwendung wird über [`.github/workflows/deploy-vercel.yml`](../.github/workflows/deploy-vercel.yml) in GitHub Actions gebaut und als fertiges Artefakt auf Vercel deployt. Der Workflow läuft bei jedem Push sowie manuell über „Run workflow“, unabhängig von der bestehenden Typecheck-/Lint-Action. `main` deployt nach Production, andere Branches als Preview. Route Handlers und Server Actions laufen dort als Vercel Functions. PostgreSQL liegt bei Neon. Zugangsdaten werden als Vercel-Umgebungsvariablen gepflegt, getrennt für Production und Preview. Die lokale Entwicklung nutzt dieselbe Datenbank wie die Demo und startet mit `npm run dev`. Secrets gehören nicht ins Repository.
+
+### GitHub Actions für Vercel einrichten
+
+Unter GitHub → Settings → Secrets and variables → Actions diese Repository-Secrets anlegen:
+
+| Secret | Wert |
+|---|---|
+| `VERCEL_TOKEN` | Vercel-Token des Projektinhabers aus den Account Settings → Tokens |
+| `VERCEL_ORG_ID` | `orgId` aus `.vercel/project.json` |
+| `VERCEL_PROJECT_ID` | `projectId` aus `.vercel/project.json` für `project-dt-sap` |
+
+Die IDs lassen sich lokal mit `npx vercel link` ermitteln; dabei das bestehende Projekt `project-dt-sap` auswählen. `.vercel/` ist vom Git ausgeschlossen. Den Token nur als GitHub-Secret speichern, nicht im Repository oder in Logs.
+
+Der Workflow lädt mit `vercel pull` die Vercel-Konfiguration und Umgebungsvariablen des Ziels, baut mit `vercel build` (einschließlich Dependency-Installation und `postinstall: prisma generate`) und deployt mit `vercel deploy --prebuilt`. Auf `main` verwendet er die Production-Umgebung und `--prod`, auf anderen Branches die Preview-Umgebung ohne `--prod`. `DATABASE_URL`, `BETTER_AUTH_SECRET` und `BETTER_AUTH_URL` müssen im Vercel-Projekt für Production und Preview gesetzt sein. Migrationen führt diese Action nicht aus.
+
+Nach dem ersten erfolgreichen Action-Deployment die automatischen Deployments der Vercel-Git-Integration deaktivieren, damit Pushes keine doppelten Deployments auslösen. Das Deployment verwendet die Berechtigung des Token-Inhabers; es gewährt anderen keinen eigenen Vercel-Teamzugang. Ob fremde Commit-Autoren im privaten Repository im Hobby-Tarif akzeptiert werden, muss beim ersten entsprechenden Lauf geprüft werden; die Action garantiert keine Aufhebung der Tarifbeschränkung.
+
+Anleitung: [Vercel: GitHub Actions](https://vercel.com/kb/guide/how-can-i-use-github-actions-with-vercel).
 
 Prisma 7 benötigt bei jedem Deployment eine Client-Generierung, beispielsweise über `postinstall: prisma generate`. Versionierte Migrationen werden vor dem Anwendungsdeployment gezielt gegen die jeweilige Datenbank mit `npx prisma migrate deploy` ausgeführt, etwa aus CI oder manuell; der genaue Ablauf ist bei der Implementierung festzulegen. Mock-Daten werden nur bei Bedarf explizit mit `npx prisma db seed` geladen. Falls Preview-Deployments aktiviert werden, verwenden sie dieselbe Datenbank; automatische Migrationen und Resets aus Preview-Builds sind zu vermeiden. Für serverlose Zugriffe sind Verbindungs-Pooling und Verbindungslimits des gewählten Datenbankanbieters zu berücksichtigen.
 
