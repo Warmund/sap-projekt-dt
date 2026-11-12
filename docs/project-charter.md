@@ -4,12 +4,15 @@
 
 **Author:** Projektteam der Frankfurt University of Applied Sciences
 
-**Status:** Arbeitsstand, 27.10.2026
+**Status:** Arbeitsstand, 12.11.2026
 
 ## Change log
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 12.11.2026 | Deployment-Action auf jeden Push erweitert: main nach Production, andere Branches als Preview; VERCEL_TOKEN laut Nutzer hinterlegt | 3.3 |
+| Agent | 12.11.2026 | Vercel-Projekt per CLI verknüpft und beide Projekt-IDs als GitHub-Secrets hinterlegt; Token-Erstellung durch fehlende Berechtigung der CLI-Anmeldung blockiert | 3.2 |
+| Agent | 12.11.2026 | Production-Deployment über GitHub Actions mit Vercel-Token des Projektinhabers vorbereitet; Build in GitHub, Upload als Prebuilt-Artefakt, Secrets und Hobby-Eignung noch zu verifizieren | 3.1 |
 | Agent | 30.10.2026 | Die bestehenden vier Demo-Zugänge erhalten vorläufig die technische Admin-Rolle | 3.0 |
 | Agent | 30.10.2026 | Technische Admin-Rolle für Nutzerverwaltung mit Nutzerliste und Anlage weiterer Zugänge beschlossen | 2.9 |
 | Agent | 30.10.2026 | Next.js- und TypeScript-ESLint-Regeln als ergänzende Prüfung in der GitHub Action festgelegt | 2.8 |
@@ -96,7 +99,7 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Die Internet-Demo soll dem Projektteam und ausgewählten SAP-Ansprechpersonen zugänglich sein; Vercel soll möglichst im kostenlosen Tarif genutzt werden. Ein Vercel-Konto darf für Besucher nicht erforderlich sein; die konkrete Zugriffsschutzlösung ist offen. Änderungen am Hauptbranch sollen automatisch deployt werden.
 - Für den MVP ist eine individuelle App-Anmeldung mit Benutzername und Passwort, Better Auth und einer SAP-nah gestalteten Login-Oberfläche mit SAP-Logo und responsiver Anmeldekarte vorgesehen. Ein deaktivierter SSO-Button dient als sichtbarer Platzhalter ohne Funktion. Echtes SAP-SSO bleibt eine spätere Integrationsmöglichkeit.
 - Die Startseite zeigt vorerst nur den oberen Anwendungsbalken; die Todo-Demo wurde auf Nutzerwunsch entfernt.
-- GitHub Actions prüft TypeScript und ESLint bei Push auf `main`. Das Vercel-Deployment läuft unabhängig vom Ergebnis; ein zusätzlicher Build in GitHub Actions ist nicht vorgesehen.
+- GitHub Actions prüft TypeScript und ESLint bei Push auf `main`. Eine separate Action baut bei jedem Push oder manuellem Start die Artefakte und deployt sie über den Vercel-Token des Projektinhabers: `main` nach Production, andere Branches als Preview. Das Deployment bleibt unabhängig vom Prüfergebnis. Die GitHub-Secrets `VERCEL_ORG_ID` und `VERCEL_PROJECT_ID` sind eingerichtet. `VERCEL_TOKEN` wurde laut Nutzer ebenfalls hinterlegt; ein erfolgreicher Deployment-Test steht noch aus.
 - Eine technische Admin-Rolle darf Nutzer auflisten und weitere Demo-Zugänge einschließlich ihrer Rolle anlegen. Fachliche Rollen und Berechtigungen bleiben gesondert zu klären.
 - Die bestehenden Demo-Zugänge patrick, mark, paul und jonas haben vorläufig die technische Admin-Rolle.
 - Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant. Eine Neon-Ressource im kostenlosen Tarif wurde mit dem Vercel-Projekt `project-dt-sap` und der lokalen Entwicklung verbunden; die Better-Auth-Migration wurde angewendet. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
@@ -133,6 +136,7 @@ Schätzungen zu monetärem Nutzen, Projektkosten und späteren Betriebskosten li
 | Ausgangsdaten aus mehreren Excel-Dateien sind nicht zuverlässig | Schwache Datenqualität und unklare fachliche Regeln |
 | Umgang mit SAP-stämmigen Informationen in externen Systemen ist nicht geklärt | Datenschutz-, Vertraulichkeits- und Freigaberisiko |
 | Hostingentscheidung steht aus | Späte technische Anpassungen, Kosten oder Betriebsaufwand |
+| Deployment fremder Commits über GitHub Actions im Vercel-Hobby-Tarif noch nicht verifiziert | Deployment kann trotz gültigem Token an Tarifbeschränkungen scheitern |
 | Softwareentwicklung hat noch nicht begonnen | Terminrisiko für Implementierung, Test und Dokumentation bis Ende Januar |
 | Projektende und Abnahmerollen sind nicht bestätigt | Unsicherheit bei Planung und formaler Abnahme |
 
