@@ -4,12 +4,14 @@
 
 **Author:** Projektteam der Frankfurt University of Applied Sciences
 
-**Status:** Arbeitsstand, 12.11.2026
+**Status:** Arbeitsstand, 13.11.2026
 
 ## Change log
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 13.11.2026 | Separate Deployment-Action entfernt und bestehende Vercel-GitHub-Integration reaktiviert; Typecheck/Lint bleibt, Hobby-Autorenbeschränkung besteht fort | 3.6 |
+| Agent | 12.11.2026 | Vercel blockiert das CLI-Deployment von Pauls Merge wegen fehlender Autorenberechtigung; Owner-Token allein genügt nicht, nächster Lauf wartet hinter blockiertem Deployment | 3.5 |
 | Agent | 12.11.2026 | Automatische Vercel-Git-Deployments über vercel.json deaktiviert; GitHub Actions bleibt der Deployment-Weg, um doppelte Deployments zu vermeiden | 3.4 |
 | Agent | 12.11.2026 | Deployment-Action auf jeden Push erweitert: main nach Production, andere Branches als Preview; VERCEL_TOKEN laut Nutzer hinterlegt | 3.3 |
 | Agent | 12.11.2026 | Vercel-Projekt per CLI verknüpft und beide Projekt-IDs als GitHub-Secrets hinterlegt; Token-Erstellung durch fehlende Berechtigung der CLI-Anmeldung blockiert | 3.2 |
@@ -100,7 +102,7 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Die Internet-Demo soll dem Projektteam und ausgewählten SAP-Ansprechpersonen zugänglich sein; Vercel soll möglichst im kostenlosen Tarif genutzt werden. Ein Vercel-Konto darf für Besucher nicht erforderlich sein; die konkrete Zugriffsschutzlösung ist offen. Änderungen am Hauptbranch sollen automatisch deployt werden.
 - Für den MVP ist eine individuelle App-Anmeldung mit Benutzername und Passwort, Better Auth und einer SAP-nah gestalteten Login-Oberfläche mit SAP-Logo und responsiver Anmeldekarte vorgesehen. Ein deaktivierter SSO-Button dient als sichtbarer Platzhalter ohne Funktion. Echtes SAP-SSO bleibt eine spätere Integrationsmöglichkeit.
 - Die Startseite zeigt vorerst nur den oberen Anwendungsbalken; die Todo-Demo wurde auf Nutzerwunsch entfernt.
-- GitHub Actions prüft TypeScript und ESLint bei Push auf `main`. Eine separate Action baut bei jedem Push oder manuellem Start die Artefakte und deployt sie über den Vercel-Token des Projektinhabers: `main` nach Production, andere Branches als Preview. Das Deployment bleibt unabhängig vom Prüfergebnis. `vercel.json` deaktiviert automatische Deployments der Vercel-Git-Integration für Branches mit dieser Konfiguration, um doppelte Deployments zu vermeiden. Die GitHub-Secrets `VERCEL_ORG_ID` und `VERCEL_PROJECT_ID` sind eingerichtet. `VERCEL_TOKEN` wurde laut Nutzer ebenfalls hinterlegt; ein erfolgreicher Deployment-Test steht noch aus.
+- GitHub Actions prüft TypeScript und ESLint bei Push auf `main`. Deployments erfolgen unabhängig davon über die bestehende Vercel-GitHub-Integration mit `Warmund/sap-projekt-dt`: `main` nach Production, andere Branches als Preview. Die separate Deployment-Action wurde entfernt und `git.deploymentEnabled` wieder aktiviert. Die dafür zuvor angelegten GitHub-Secrets werden nicht mehr benötigt.
 - Eine technische Admin-Rolle darf Nutzer auflisten und weitere Demo-Zugänge einschließlich ihrer Rolle anlegen. Fachliche Rollen und Berechtigungen bleiben gesondert zu klären.
 - Die bestehenden Demo-Zugänge patrick, mark, paul und jonas haben vorläufig die technische Admin-Rolle.
 - Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant. Eine Neon-Ressource im kostenlosen Tarif wurde mit dem Vercel-Projekt `project-dt-sap` und der lokalen Entwicklung verbunden; die Better-Auth-Migration wurde angewendet. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
@@ -137,7 +139,7 @@ Schätzungen zu monetärem Nutzen, Projektkosten und späteren Betriebskosten li
 | Ausgangsdaten aus mehreren Excel-Dateien sind nicht zuverlässig | Schwache Datenqualität und unklare fachliche Regeln |
 | Umgang mit SAP-stämmigen Informationen in externen Systemen ist nicht geklärt | Datenschutz-, Vertraulichkeits- und Freigaberisiko |
 | Hostingentscheidung steht aus | Späte technische Anpassungen, Kosten oder Betriebsaufwand |
-| Deployment fremder Commits über GitHub Actions im Vercel-Hobby-Tarif noch nicht verifiziert | Deployment kann trotz gültigem Token an Tarifbeschränkungen scheitern |
+| Vercel-Hobby blockiert Deployments fremder Commit-Autoren im privaten Repository | Automatisches Deployment fremder Änderungen scheitert auch nach Rückkehr zur Git-Integration; Deployment Protection behebt diese Berechtigung nicht |
 | Softwareentwicklung hat noch nicht begonnen | Terminrisiko für Implementierung, Test und Dokumentation bis Ende Januar |
 | Projektende und Abnahmerollen sind nicht bestätigt | Unsicherheit bei Planung und formaler Abnahme |
 
