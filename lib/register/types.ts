@@ -1,4 +1,4 @@
-// Fachliche Typen des Sanktionsregisters (Prototyp mit synthetischen Mock-Daten).
+// Fachliche Typen des Sanktionsregisters.
 
 /** Sperrschritte nach der Vier-Augen-Freigabe. */
 export type StepKey = "suser" | "tickets" | "remote" | "cloud" | "notify";
@@ -25,11 +25,17 @@ export type BlockedPartner = {
   erpId: string;
   name: string;
   country: string;
+  region?: string;
+  spl?: boolean | null;
+  ruItConsultancyBan?: boolean | null;
+  ukraineCrisis?: boolean | null;
+  version?: number;
   ets: EtsCategory;
   sanctionsList: string;
   listReference?: string;
   /** Zeitpunkt der Sperre in SAP GTS (ISO). */
   gtsBlockedAt: string;
+  gtsDateOnly?: boolean;
   /** EC Member 1, sperrt in GTS. */
   enteredBy: string;
   /** EC Member 2, entscheidet im Register. */
@@ -55,7 +61,7 @@ export type CountryContact = {
   legalHead: string;
   commercialDirector: string;
   /** Zuletzt geprüft (ISO). */
-  lastChecked: string;
+  lastChecked: string | null;
 };
 
 export type OverallStatus = "Zur Freigabe" | "Sperrschritte laufen" | "Abgeschlossen" | "Sanktioniert ohne Sperre" | "Abgelehnt";

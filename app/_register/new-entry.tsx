@@ -38,7 +38,7 @@ export function RegisterNewEntry() {
 
   const g = filled ? GTS_SAMPLE : null;
 
-  const create = () => {
+  const create = async () => {
     if (!g) { setError("Bitte zuerst die Daten aus GTS übernehmen (im Prototyp simuliert)."); return; }
     const now = new Date().toISOString();
     const partner: BlockedPartner = {
@@ -52,8 +52,7 @@ export function RegisterNewEntry() {
         { at: now, by: "System", text: "Datensatz im Register angelegt" },
       ],
     };
-    addPartner(partner);
-    open("rg-detail", partner.id);
+    if (await addPartner(partner)) open("rg-detail");
   };
 
   return <DynamicPage hidePinButton className="app-page"

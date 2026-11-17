@@ -4,12 +4,15 @@
 
 **Author:** Projektteam der Frankfurt University of Applied Sciences
 
-**Status:** Arbeitsstand, 13.11.2026
+**Status:** Arbeitsstand, 17.11.2026
 
 ## Change log
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 17.11.2026 | Datenabgleich aller 50 CSV-Zeilen, wiederholbarer Import, Datenbank- und Browser-Tests erfolgreich; vorhandene Next.js-Sicherheitswarnung als offenes technisches Risiko aufgenommen | 3.9 |
+| Agent | 17.11.2026 | Kundenregister in bestehender Neon-Datenbank angelegt und 50 Kunden aus bereitgestellter Test-CSV importiert; persistente Registeransichten, Freigaben, Aufgaben und Audit angebunden, fehlende Fachangaben bleiben offen | 3.8 |
+| Agent | 13.11.2026 | Vercel meldet GitHub-Repository als öffentlich; frühere Hobby-Beschränkung für private Repositories ist damit für den aktuellen Stand nicht einschlägig | 3.7 |
 | Agent | 13.11.2026 | Separate Deployment-Action entfernt und bestehende Vercel-GitHub-Integration reaktiviert; Typecheck/Lint bleibt, Hobby-Autorenbeschränkung besteht fort | 3.6 |
 | Agent | 12.11.2026 | Vercel blockiert das CLI-Deployment von Pauls Merge wegen fehlender Autorenberechtigung; Owner-Token allein genügt nicht, nächster Lauf wartet hinter blockiertem Deployment | 3.5 |
 | Agent | 12.11.2026 | Automatische Vercel-Git-Deployments über vercel.json deaktiviert; GitHub Actions bleibt der Deployment-Weg, um doppelte Deployments zu vermeiden | 3.4 |
@@ -106,6 +109,8 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Eine technische Admin-Rolle darf Nutzer auflisten und weitere Demo-Zugänge einschließlich ihrer Rolle anlegen. Fachliche Rollen und Berechtigungen bleiben gesondert zu klären.
 - Die bestehenden Demo-Zugänge patrick, mark, paul und jonas haben vorläufig die technische Admin-Rolle.
 - Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant. Eine Neon-Ressource im kostenlosen Tarif wurde mit dem Vercel-Projekt `project-dt-sap` und der lokalen Entwicklung verbunden; die Better-Auth-Migration wurde angewendet. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
+- Das Sanktionsregister wird seit 17.11.2026 in derselben Neon-Datenbank wie die Anmeldung gespeichert. Die bereitgestellte Kunden-Test-CSV liefert 50 Datensätze mit 13 Spalten. CRM wird für die bestehende BP-ID-Ansicht verwendet; diese fachliche Zuordnung bleibt zu bestätigen. Nicht enthaltene Freigaben, Tenant-IDs, konkrete Sanktionslisten und verantwortliche Personen werden nicht erfunden. Der Import setzt keine Aufgabenerledigung voraus. Mapping und Importnachweise stehen in `docs/kundenimport.md`.
+- Vier-Augen-Prüfung neuer Registereinträge und Versionsprüfung bei konkurrierenden Änderungen werden serverseitig durchgesetzt. Fachliche EC-/Teamrollen sind noch offen; im MVP dürfen angemeldete Projektmitglieder das Register bearbeiten.
 - Echter E-Mail-Versand ist kein Bestandteil des MVP. Benachrichtigungen werden testbar simuliert und protokolliert beziehungsweise als In-App-Aufgaben angezeigt.
 - Kubernetes, SAP BTP, Microservices, Hochverfügbarkeit, Backups und Betriebsmonitoring sind nicht Bestandteil des MVP. Vercel Web Analytics wird für Seitenaufrufe eingebunden.
 - Externe Systemabfragen sind laut Kick-off nur zulässig, wenn Informationen nicht auf SAP zurückgeführt werden können; die konkrete Auslegung muss SAP noch klären.
@@ -139,7 +144,9 @@ Schätzungen zu monetärem Nutzen, Projektkosten und späteren Betriebskosten li
 | Ausgangsdaten aus mehreren Excel-Dateien sind nicht zuverlässig | Schwache Datenqualität und unklare fachliche Regeln |
 | Umgang mit SAP-stämmigen Informationen in externen Systemen ist nicht geklärt | Datenschutz-, Vertraulichkeits- und Freigaberisiko |
 | Hostingentscheidung steht aus | Späte technische Anpassungen, Kosten oder Betriebsaufwand |
-| Vercel-Hobby blockiert Deployments fremder Commit-Autoren im privaten Repository | Automatisches Deployment fremder Änderungen scheitert auch nach Rückkehr zur Git-Integration; Deployment Protection behebt diese Berechtigung nicht |
+| Build meldet bekannte Sicherheitslücke der installierten Next.js-Version 16.4.3 | Sicherheitsupdate der Framework-Version prüfen und gesondert durchführen |
+| CRM-ID aus CSV ist noch nicht fachlich als GTS-BP-ID bestätigt; Freigaben, konkrete Listen und Tenant-Daten fehlen | Zuordnung und fehlende Informationen mit SAP prüfen; importierte Fälle bleiben zur Prüfung, Cloud-Abschluss ohne Tenants ist gesperrt |
+| Repository wird von Vercel als öffentlich gemeldet; spätere Umstellung auf privat würde die Hobby-Autorenbeschränkung wieder relevant machen | Sichtbarkeit bewusst verwalten; ausschließlich synthetische Mock-Daten und keine Secrets im Repository |
 | Softwareentwicklung hat noch nicht begonnen | Terminrisiko für Implementierung, Test und Dokumentation bis Ende Januar |
 | Projektende und Abnahmerollen sind nicht bestätigt | Unsicherheit bei Planung und formaler Abnahme |
 

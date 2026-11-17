@@ -74,3 +74,7 @@ Prisma 7 benötigt bei jedem Deployment eine Client-Generierung, beispielsweise 
 Für den MVP werden ausschließlich synthetische Daten verwendet. Kosten, Tarifbedingungen, Zugriffsschutz und Datenbankanbieter sind vor der Einrichtung zu prüfen. Die Architektur und alle genannten Befehle sind Planung; die Anwendung und das Deployment sind noch nicht implementiert.
 
 Quellen: [Vercel: PostgreSQL](https://vercel.com/docs/postgres), [Prisma: Vercel-Integration](https://www.prisma.io/docs/guides/postgres/vercel).
+
+## Persistentes Kundenregister (17.11.2026)
+
+Die vorhandene Neon-Datenbank enthält zusätzlich zu Better Auth die Registertabellen für Kunden, Tenants, Sperrschritte, Audit und Länder-Kontakte. Migration `20261117000000_register` wurde angewendet und 50 Kunden aus der bereitgestellten CSV wurden importiert. Die Anwendung nutzt die Daten über authentifizierte Server Actions. Import, Mapping, offene Felder und Prüfungen: [Kundenimport](kundenimport.md). Die Originaldatei wird nicht im öffentlichen Repository gespeichert.

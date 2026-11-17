@@ -113,7 +113,7 @@ export function RegisterList() {
               <TableCell><Text>{p.country}</Text></TableCell>
               <TableCell><Text>{p.ets}</Text></TableCell>
               <TableCell><Text>{p.sanctionsList}</Text></TableCell>
-              <TableCell><Text>{p.cloudCustomer ? `Ja (${p.tenants.length})` : "Nein"}</Text></TableCell>
+              <TableCell><Text>{p.cloudCustomer ? p.tenants.length ? `Ja (${p.tenants.length})` : "Ja (Tenants fehlen)" : "Nein"}</Text></TableCell>
               <TableCell><Text>{formatDate(p.gtsBlockedAt)}</Text></TableCell>
               <TableCell>{part === "workflow"
                 ? p.decision === "pending"

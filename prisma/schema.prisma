@@ -73,3 +73,117 @@ model RateLimit {
   count       Int
   lastRequest BigInt
 }
+
+enum RegisterDecision {
+  pending
+  approved
+  sanctionedNoBlock
+  declined
+}
+
+enum EtsCategory {
+  ETS1
+  ETR1
+  ETS2
+  ETS3
+  ETS4
+  ETS5
+  ETS6
+}
+
+enum RegisterStepKey {
+  suser
+  tickets
+  remote
+  cloud
+  notify
+}
+
+enum RegisterSpecialCategory {
+  SR
+  Sonstige
+}
+
+model RegisterPartner {
+  id                  String                   @id @default(cuid())
+  bpId                String                   @unique
+  erpId               String
+  name                String
+  country             String
+  region              String                   @default("")
+  ets                 EtsCategory
+  gtsBlockedAt        DateTime
+  gtsDateOnly         Boolean                  @default(false)
+  comment             String                   @default("")
+  spl                 Boolean?
+  ruItConsultancyBan  Boolean?
+  ukraineCrisis       Boolean?
+  sanctionsList       String                   @default("")
+  listReference       String?
+  cloudCustomer       Boolean                  @default(false)
+  specialCategory     RegisterSpecialCategory?
+  specialComment      String?
+  enteredBy           String
+  enteredByUserId     String?
+  decision            RegisterDecision         @default(pending)
+  decidedBy           String?
+  decidedAt           DateTime?
+  decisionComment     String?
+  sourceFile          String?
+  sourceRow           Int?
+  version             Int                      @default(0)
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  tenants             RegisterTenant[]
+  steps               RegisterStep[]
+  audit               RegisterAudit[]
+
+  @@index([country])
+  @@index([ets, gtsBlockedAt])
+  @@index([decision])
+}
+
+model RegisterTenant {
+  id         String          @id @default(cuid())
+  partnerId  String
+  partner    RegisterPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  lob        String
+  product    String
+  tenantId   String
+  ticket     String
+
+  @@unique([partnerId, tenantId])
+  @@index([tenantId])
+}
+
+model RegisterStep {
+  partnerId  String
+  partner    RegisterPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  key        RegisterStepKey
+  at         DateTime
+  by         String
+  result     String
+
+  @@id([partnerId, key])
+}
+
+model RegisterAudit {
+  id         String          @id @default(cuid())
+  partnerId  String
+  partner    RegisterPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  at         DateTime        @default(now())
+  by         String
+  text       String
+
+  @@index([partnerId, at])
+}
+
+model RegisterContact {
+  id                 String    @id @default(cuid())
+  region             String    @unique
+  countries          String[]
+  generalDirector    String    @default("")
+  legalHead          String    @default("")
+  commercialDirector String    @default("")
+  lastChecked        DateTime?
+}

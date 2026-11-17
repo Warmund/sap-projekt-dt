@@ -22,7 +22,7 @@ import { TableCell } from "@ui5/webcomponents-react/TableCell";
 import "@ui5/webcomponents-icons/dist/email.js";
 import "@ui5/webcomponents-icons/dist/history.js";
 import { ETS_INFO } from "../../lib/register/mock-data";
-import { formatDateTime, PHASES, progress, overallStatus, stepStatuses, STEP_DEFS, VARIANT_LABEL } from "../../lib/register/workflow";
+import { formatDate, formatDateTime, PHASES, progress, overallStatus, stepStatuses, STEP_DEFS, VARIANT_LABEL } from "../../lib/register/workflow";
 import type { BlockedPartner, StepOrderVariant } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { Section, StatusBadge, StepBadge } from "./ui";
@@ -41,9 +41,9 @@ export function RegisterDetail() {
   const canAdvance = p.decision === "approved" && pr.done < pr.total;
   const contact = contacts.find((c) => c.countries.includes(p.country));
 
-  const submit = (decision: "approved" | "sanctionedNoBlock" | "declined") => {
+  const submit = async (decision: "approved" | "sanctionedNoBlock" | "declined") => {
     if (decision !== "approved" && !comment.trim()) { setCommentError(true); return; }
-    decide(p.id, decision, comment.trim());
+    if (!await decide(p.id, decision, comment.trim())) return;
     setComment(""); setCommentError(false);
   };
 
@@ -58,19 +58,19 @@ export function RegisterDetail() {
     titleArea={<DynamicPageTitle
       breadcrumbs={<Link onClick={() => open("rg-register")}>Register</Link>}
       heading={<div className="rg-title-row"><Title level="H1" size="H3">{p.name}</Title><StatusBadge status={status} />{p.cloudCustomer && <StatusBadgeCloud />}</div>}
-      subheading={<Text>BP {p.bpId} · {p.country} · {p.ets} · {p.sanctionsList} · in GTS gesperrt am {formatDateTime(p.gtsBlockedAt)}</Text>}
+      subheading={<Text>BP {p.bpId} · {p.country} · {p.ets} · {p.sanctionsList} · in GTS gesperrt am {p.gtsDateOnly ? formatDate(p.gtsBlockedAt) : formatDateTime(p.gtsBlockedAt)}</Text>}
       actionsBar={<div className="rg-actions">
         <SegmentedButton accessibleName="Diskussionsvariante Schrittfolge" onSelectionChange={(e) => setVariant(e.detail.selectedItems[0]?.dataset.key as StepOrderVariant)}>
           <SegmentedButtonItem data-key="A" selected={variant === "A"} tooltip={VARIANT_LABEL.A}>A: SAP-Folien</SegmentedButtonItem>
           <SegmentedButtonItem data-key="B" selected={variant === "B"} tooltip={VARIANT_LABEL.B}>B: Call 06.11.</SegmentedButtonItem>
         </SegmentedButton>
-        <Button design="Transparent" onClick={reset}>Demo zurücksetzen</Button>
+        <Button design="Transparent" onClick={reset}>Daten neu laden</Button>
       </div>} />}>
     <div className="rg-page">
       {p.decision === "pending" && <section className="rg-approval" aria-labelledby="rg-approval-title">
         <div className="rg-approval-text">
           <Title id="rg-approval-title" level="H2" size="H5">Vier-Augen-Freigabe durch EC Member 2</Title>
-          <Text>In GTS gesperrt von {p.enteredBy} (EC Member 1). Erst mit der Freigabe starten die Sperrschritte. Auf offene Freigaben weist nur die Dashboard-Kachel hin, es gibt keine E-Mail.</Text>
+          <Text>Erfasst von {p.enteredBy} (EC Member 1). Erst mit der Freigabe starten die Sperrschritte. Auf offene Freigaben weist nur die Dashboard-Kachel hin, es gibt keine E-Mail.</Text>
           <Label for="rg-decision-comment" required={commentError}>Kommentar zur Entscheidung (Pflicht, wenn nicht freigegeben wird)</Label>
           <Input id="rg-decision-comment" value={comment} valueState={commentError ? "Negative" : "None"}
             placeholder="z. B. nur Zahlungsbeschränkungen, keine Sperre nötig" onInput={(e) => { setComment(e.target.value); setCommentError(false); }} />
@@ -96,7 +96,7 @@ export function RegisterDetail() {
               {canAdvance && <Button onClick={() => advance(p.id)}>Rückmeldung simulieren</Button>}
             </>}>
             <ol className="rg-steps">
-              <StepRow nr="0" title="Sperre in SAP GTS" system="GTS" status="done" result={`${p.enteredBy} (EC Member 1), ${formatDateTime(p.gtsBlockedAt)}`} />
+              <StepRow nr="0" title="Sperre in SAP GTS" system="GTS" status="done" result={`${p.enteredBy} (EC Member 1), ${p.gtsDateOnly ? formatDate(p.gtsBlockedAt) : formatDateTime(p.gtsBlockedAt)}`} />
               <StepRow nr="1" title="Datensatz im Register" system="Register" status="done" result="Automatisch angelegt (im Prototyp von Hand)" />
               <StepRow nr="2" title="Vier-Augen-Freigabe" system="Register" status={p.decision === "pending" ? "running" : "done"}
                 result={p.decision === "pending" ? "Hinweis über die Dashboard-Kachel „Zur Freigabe“" : `${p.decidedBy} (EC Member 2), ${formatDateTime(p.decidedAt!)}`} />
@@ -114,6 +114,7 @@ export function RegisterDetail() {
           </Section>
 
           {p.cloudCustomer && <Section title="Cloud: zu sperrende Tenants" sub="Quelle: [SAP-System, mit SAP klären]. Je LoB ein Ticket über einen einheitlichen Weg, die LoB bestätigt die Sperre im Register.">
+            {!p.tenants.length && <MessageStrip hideCloseButton design="Critical">Cloud-Kunde laut Quelldatei. Tenant-IDs, Produkte und LoB-Tickets sind noch nicht angegeben.</MessageStrip>}
             <Table accessibleName="Cloud-Tenants" overflowMode="Popin"
               headerRow={<TableHeaderRow>
                 <TableHeaderCell>Line of Business</TableHeaderCell><TableHeaderCell>Produkt</TableHeaderCell>
@@ -144,15 +145,19 @@ export function RegisterDetail() {
               <dt>ERP-ID</dt><dd>{p.erpId}</dd>
               <dt>Land</dt><dd>{p.country}</dd>
               <dt>ETS-Kategorie</dt><dd>{p.ets} ({ETS_INFO[p.ets]})</dd>
+              <dt>Region</dt><dd>{p.region || "Nicht angegeben"}</dd>
+              <dt>SPL-Kennzeichen</dt><dd>{p.spl == null ? "Nicht angegeben" : p.spl ? "Ja" : "Nein"}</dd>
+              <dt>RU IT Consultancy Ban</dt><dd>{p.ruItConsultancyBan == null ? "Nicht angegeben" : p.ruItConsultancyBan ? "Ja" : "Nein"}</dd>
+              <dt>Ukraine Crisis</dt><dd>{p.ukraineCrisis == null ? "Nicht angegeben" : p.ukraineCrisis ? "Ja" : "Nein"}</dd>
               <dt>Sanktionsliste</dt><dd>{p.sanctionsList}</dd>
-              <dt>Cloud-Kunde</dt><dd>{p.cloudCustomer ? `Ja, ${p.tenants.length} Tenants` : "Nein"}</dd>
+              <dt>Cloud-Kunde</dt><dd>{p.cloudCustomer ? `Ja, ${p.tenants.length ? `${p.tenants.length} Tenants` : "Tenant-Daten fehlen"}` : "Nein"}</dd>
               <dt>Sonderkategorie</dt><dd>{p.specialCategory ?? "keine"}{p.specialComment ? `, ${p.specialComment}` : ""}</dd>
               <dt>Kommentar</dt><dd>{p.comment}</dd>
             </dl>
           </Section>
           <Section title="Freigabe-Nachweis">
             <dl className="rg-facts">
-              <dt>EC Member 1</dt><dd>{p.enteredBy} · {formatDateTime(p.gtsBlockedAt)} (GTS)</dd>
+              <dt>EC Member 1</dt><dd>{p.enteredBy} · {p.gtsDateOnly ? formatDate(p.gtsBlockedAt) : formatDateTime(p.gtsBlockedAt)} (GTS)</dd>
               <dt>EC Member 2</dt><dd>{p.decidedBy ? `${p.decidedBy} · ${formatDateTime(p.decidedAt!)}` : "offen"}</dd>
               <dt>Entscheidung</dt><dd>{decisionText(p)}</dd>
             </dl>

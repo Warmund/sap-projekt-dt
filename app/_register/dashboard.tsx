@@ -26,7 +26,7 @@ export function RegisterDashboard() {
   const noBlock = withStatus.filter((x) => x.status === "Sanktioniert ohne Sperre");
   const runningSteps = partners.flatMap((p) => Object.entries(stepStatuses(p, variant)).filter(([, s]) => s === "running" || s === "waiting").map(([k]) => k as StepKey));
   const openCloud = partners.filter((p) => stepStatuses(p, variant).cloud === "running" || stepStatuses(p, variant).cloud === "waiting").reduce((n, p) => n + p.tenants.length, 0);
-  const dueContacts = contacts.filter((c) => daysSince(c.lastChecked) > CONTACT_CHECK_INTERVAL_DAYS).length;
+  const dueContacts = contacts.filter((c) => (!c.lastChecked || daysSince(c.lastChecked) > CONTACT_CHECK_INTERVAL_DAYS)).length;
 
   const now = new Date();
   const months = Array.from({ length: 6 }, (_, i) => {
@@ -39,7 +39,7 @@ export function RegisterDashboard() {
 
   return <DynamicPage hidePinButton className="app-page"
     titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Sanktionsregister</Title>}
-      subheading={<Text>Gesperrte Geschäftspartner, offene Freigaben und Status der Sperrschritte · Mock-Daten</Text>} />}>
+      subheading={<Text>Gesperrte Geschäftspartner, offene Freigaben und Status der Sperrschritte</Text>} />}>
     <div className="rg-page">
       <Section title="Handlungsbedarf">
         <div className="rg-kpi-grid">

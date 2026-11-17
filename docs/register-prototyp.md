@@ -1,6 +1,6 @@
 # Register-Prototyp (UI mit Mock-Daten)
 
-**Stand:** 12.11.2026 · Grundlage: SAP-Call vom 06.11.2026, SAP-Folien „Blocked BP Register Requirements“, Pocket Guide ETS-Kategorien (Stand Juli 2026)
+**Stand:** 17.11.2026 · Grundlage: SAP-Call vom 06.11.2026, SAP-Folien „Blocked BP Register Requirements“, Pocket Guide ETS-Kategorien (Stand Juli 2026)
 
 ## Was enthalten ist
 
@@ -19,8 +19,8 @@ Neue Navigationsgruppe „Sanktionsregister“ in der bestehenden Shell mit sech
 
 - Fachlogik ohne React in `lib/register/` (`types.ts`, `workflow.ts`, `mock-data.ts`).
 - UI unter `app/_register/` (privater Ordner, keine eigene Route), eingebunden in `app/shell.tsx`.
-- Zustand nur im Browser (`RegisterProvider`). **Keine Datenbankänderung, keine Migration.** Ein Neuladen setzt die Demo zurück.
-- Alle Daten sind erfunden.
+- Seit 17.11.2026 liest `RegisterProvider` die Registerdaten aus PostgreSQL; Änderungen werden über authentifizierte Server Actions gespeichert. Ein Neuladen setzt den Bestand nicht zurück.
+- 50 Kunden aus der bereitgestellten Test-CSV ersetzen die bisherigen Kunden-Mock-Daten. Kontakte sind zunächst leer, fehlende Tenant- und Freigabedaten werden nicht erfunden. Details: [Kundenimport](kundenimport.md).
 
 ## Annahmen und offene Punkte (mit SAP klären)
 
@@ -33,4 +33,4 @@ Neue Navigationsgruppe „Sanktionsregister“ in der bestehenden Shell mit sech
 
 ## Nächste Schritte
 
-Nach Abstimmung mit SAP Datenmodell in Prisma übernehmen (Migration mit dem Team abstimmen, gemeinsame Datenbank) und die Mock-Daten als Seed bereitstellen.
+Die Migration und der CSV-Import sind angewendet. Mit SAP sind insbesondere die CRM-/BP-ID-Zuordnung, fehlende Tenant- und Verantwortlichkeitsdaten sowie fachliche Rollen und die verbindliche Schrittfolge abzustimmen.

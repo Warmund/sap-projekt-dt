@@ -22,6 +22,7 @@ import "@ui5/webcomponents-icons/dist/list.js";
 import "@ui5/webcomponents-icons/dist/add-document.js";
 import "@ui5/webcomponents-icons/dist/people-connected.js";
 import "@ui5/webcomponents-icons/dist/contacts.js";
+import type { RegisterData } from "../lib/register/repository";
 import { authClient } from "../lib/auth-client";
 import { Home } from "./home";
 import { Todos, type Todo } from "./todos";
@@ -37,7 +38,7 @@ import { RegisterContacts } from "./_register/contacts";
 type View = "home" | "todos" | "users" | RegisterView;
 const STORAGE_KEY = "todos";
 
-export function Shell({ user }: { user: { name: string; email: string; role: string } }) {
+export function Shell({ user, initialRegister }: { user: { name: string; email: string; role: string }; initialRegister: RegisterData }) {
   const layoutRef = useRef<NavigationLayoutDomRef>(null);
   const [mode, setMode] = useState<"Auto" | "Collapsed" | "Expanded">("Auto");
   const [view, setView] = useState<View>("home");
@@ -79,7 +80,7 @@ export function Shell({ user }: { user: { name: string; email: string; role: str
   };
 
   return <ThemeProvider>
-    <RegisterProvider currentUser={user.name} onNavigate={setView}>
+    <RegisterProvider initialData={initialRegister} currentUser={user.name} onNavigate={setView}>
     <NavigationLayout ref={layoutRef} mode={mode} className="app-layout"
       header={<ShellBar
         startButton={<Button icon="menu2" design="Transparent" tooltip="Navigation ein-/ausblenden" accessibleName="Navigation ein-/ausblenden"

@@ -24,9 +24,9 @@ export function RegisterContacts() {
   const { contacts, updateContact } = useRegister();
   const [editing, setEditing] = useState<CountryContact | null>(null);
 
-  const save = () => {
+  const save = async () => {
     if (!editing) return;
-    updateContact({ ...editing, lastChecked: new Date().toISOString() });
+    if (!await updateContact(editing)) return;
     setEditing(null);
   };
   const set = (field: keyof CountryContact, value: string) =>
@@ -34,7 +34,7 @@ export function RegisterContacts() {
 
   return <DynamicPage hidePinButton className="app-page"
     titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Länder-Kontakte</Title>}
-      subheading={<Text>Wer bei einer Sperre zusätzlich zum Account Executive informiert wird · Mock-Daten</Text>} />}>
+      subheading={<Text>Wer bei einer Sperre zusätzlich zum Account Executive informiert wird</Text>} />}>
     <div className="rg-page">
       <div className="rg-info-grid">
         <MessageStrip hideCloseButton design="Information">Manuelle Pflege: Die Personen wechseln mehrmals im Jahr. Eine HR-Anbindung ist wegen Personendaten schwierig.</MessageStrip>
@@ -53,14 +53,14 @@ export function RegisterContacts() {
           <TableHeaderCell><span className="rg-sr-only">Aktion</span></TableHeaderCell>
         </TableHeaderRow>}>
         {contacts.map((c) => {
-          const due = daysSince(c.lastChecked) > CONTACT_CHECK_INTERVAL_DAYS;
+          const due = !c.lastChecked || daysSince(c.lastChecked) > CONTACT_CHECK_INTERVAL_DAYS;
           return <TableRow key={c.id} rowKey={c.id}>
             <TableCell><Text className="rg-strong">{c.region}</Text></TableCell>
             <TableCell><Text>{c.countries.join(", ")}</Text></TableCell>
             <TableCell><Text>{c.generalDirector || "[offen]"}</Text></TableCell>
             <TableCell><Text>{c.legalHead || "[offen]"}</Text></TableCell>
             <TableCell><Text>{c.commercialDirector || "[offen]"}</Text></TableCell>
-            <TableCell><Text>{formatDate(c.lastChecked)}</Text></TableCell>
+            <TableCell><Text>{c.lastChecked ? formatDate(c.lastChecked) : "Noch nicht geprüft"}</Text></TableCell>
             <TableCell><ObjectStatus inverted state={due ? "Critical" : "Positive"}>{due ? "Prüfung fällig" : "Aktuell"}</ObjectStatus></TableCell>
             <TableCell><Button icon="edit" design="Transparent" accessibleName={`${c.region} bearbeiten`} onClick={() => setEditing(c)}>Bearbeiten</Button></TableCell>
           </TableRow>;
