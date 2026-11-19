@@ -1,4 +1,5 @@
 "use client";
+import "@ui5/webcomponents-icons/dist/add-document.js";
 import { useState } from "react";
 import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
 import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";

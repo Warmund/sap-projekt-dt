@@ -2,8 +2,6 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@ui5/webcomponents-react/Button";
-import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
-import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
 import { Form } from "@ui5/webcomponents-react/Form";
 import { FormGroup } from "@ui5/webcomponents-react/FormGroup";
 import { FormItem } from "@ui5/webcomponents-react/FormItem";
@@ -105,9 +103,7 @@ export function Users() {
     finally { setUpdatingUserId(null); }
   }
 
-  return <DynamicPage hidePinButton className="app-page"
-    titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Nutzer verwalten</Title>}
-      subheading={<Text>{users.length} Nutzer im System</Text>} />}>
+  return <>
     <div className="user-admin">
       {error && <MessageStrip design="Negative" onClose={() => setError("")}>{error}</MessageStrip>}
       {success && <MessageStrip design="Positive" onClose={() => setSuccess("")}>{success}</MessageStrip>}
@@ -174,5 +170,5 @@ export function Users() {
       onClose={(action) => void deleteUser(action)}>
       {deletingUser ? `Möchtest du ${deletingUser.name} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.` : ""}
     </MessageBox>
-  </DynamicPage>;
+  </>;
 }

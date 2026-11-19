@@ -1,8 +1,5 @@
 "use client";
 import { useState } from "react";
-import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
-import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
-import { Title } from "@ui5/webcomponents-react/Title";
 import { Text } from "@ui5/webcomponents-react/Text";
 import { Button } from "@ui5/webcomponents-react/Button";
 import { Input } from "@ui5/webcomponents-react/Input";
@@ -32,12 +29,10 @@ export function RegisterContacts() {
   const set = (field: keyof CountryContact, value: string) =>
     setEditing((c) => c && { ...c, [field]: field === "countries" ? value.split(",").map((s) => s.trim()).filter(Boolean) : value });
 
-  return <DynamicPage hidePinButton className="app-page"
-    titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Länder-Kontakte</Title>}
-      subheading={<Text>Wer bei einer Sperre zusätzlich zum Account Executive informiert wird</Text>} />}>
+  return <>
     <div className="rg-page">
       <div className="rg-info-grid">
-        <MessageStrip hideCloseButton design="Information">Manuelle Pflege: Die Personen wechseln mehrmals im Jahr. Eine HR-Anbindung ist wegen Personendaten schwierig.</MessageStrip>
+        <MessageStrip hideCloseButton design="Information">Kontakte werden manuell gepflegt. Für einen späteren Import müssen Datenquelle und Zugriff auf Personendaten geklärt sein.</MessageStrip>
         <MessageStrip hideCloseButton design="Critical">Prüfung alle {CONTACT_CHECK_INTERVAL_DAYS} Tage. Fällige Regionen erscheinen auf dem Dashboard. Intervall mit SAP bestätigen.</MessageStrip>
         <MessageStrip hideCloseButton design="Negative">Nie den Kunden selbst kontaktieren. Bei Sanktionen kann schon die Erklärung der Sperre verboten sein.</MessageStrip>
       </div>
@@ -81,7 +76,7 @@ export function RegisterContacts() {
         <Field id="c-la" label="Länder der Region (kommagetrennt)" value={editing.countries.join(", ")} onInput={(v) => set("countries", v)} />
       </div>}
     </Dialog>
-  </DynamicPage>;
+  </>;
 }
 
 function Field({ id, label, value, onInput }: { id: string; label: string; value: string; onInput: (v: string) => void }) {
