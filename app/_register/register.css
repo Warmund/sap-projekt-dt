@@ -84,3 +84,5 @@
   .rg-bars li { grid-template-columns: minmax(5rem, 8rem) 1fr 2rem; }
   .rg-facts { grid-template-columns: 1fr; }
 }
+
+.rg-filter-actions { margin-top: 0.75rem; }

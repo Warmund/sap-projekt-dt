@@ -5,6 +5,12 @@ import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
 import { Title } from "@ui5/webcomponents-react/Title";
 import { Text } from "@ui5/webcomponents-react/Text";
 import { Input } from "@ui5/webcomponents-react/Input";
+import { Button } from "@ui5/webcomponents-react/Button";
+import { DatePicker } from "@ui5/webcomponents-react/DatePicker";
+import { Label } from "@ui5/webcomponents-react/Label";
+import { Option } from "@ui5/webcomponents-react/Option";
+import { Panel } from "@ui5/webcomponents-react/Panel";
+import { Select } from "@ui5/webcomponents-react/Select";
 import { Icon } from "@ui5/webcomponents-react/Icon";
 import { Link } from "@ui5/webcomponents-react/Link";
 import { Table } from "@ui5/webcomponents-react/Table";
@@ -18,6 +24,9 @@ import { matchesRegisterFilter, REGISTER_FILTERS } from "../../lib/register/dash
 import { useRegister } from "./store";
 import { StatusBadge } from "./ui";
 
+const emptyFilters = { country: "", ets: "", list: "", cloud: "", status: "", from: "", to: "" };
+const unique = (values: string[]) => [...new Set(values)].filter(Boolean).sort((a, b) => a.localeCompare(b, "de"));
+
 export function RegisterList() {
   const { registerFilter } = useRegister();
   return <RegisterResults key={registerFilter} />;
@@ -26,11 +35,30 @@ export function RegisterList() {
 function RegisterResults() {
   const { partners, open, registerFilter, setRegisterFilter } = useRegister();
   const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState(emptyFilters);
+  const activeCount = [filters.country, filters.ets, filters.list, filters.cloud, filters.status, filters.from || filters.to].filter(Boolean).length;
+  const invalidRange = Boolean(filters.from && filters.to && filters.from > filters.to);
   const q = query.trim().toLowerCase();
-  const rows = partners.filter((p) =>
-    matchesRegisterFilter(p, registerFilter) &&
-    (!q || [p.name, p.bpId, p.erpId, ...p.tenants.map((t) => t.tenantId)].some((v) => v.toLowerCase().includes(q))),
-  );
+  const scoped = partners.filter((p) => matchesRegisterFilter(p, registerFilter));
+  const rows = scoped.filter((p) => {
+    if (filters.country && p.country !== filters.country) return false;
+    if (filters.ets && p.ets !== filters.ets) return false;
+    if (filters.list && p.sanctionsList !== filters.list) return false;
+    if (filters.cloud && p.cloudCustomer !== (filters.cloud === "Ja")) return false;
+    if (filters.status && overallStatus(p) !== filters.status) return false;
+    if (filters.from || filters.to) {
+      const date = formatDate(p.gtsBlockedAt).split(".").reverse().join("-");
+      if (invalidRange || (filters.from && date < filters.from) || (filters.to && date > filters.to)) return false;
+    }
+    return !q || [p.name, p.bpId, p.erpId, ...p.tenants.map((t) => t.tenantId)].some((v) => v.toLowerCase().includes(q));
+  });
+  const selectFilters = [
+    { key: "country", label: "Land", options: unique(scoped.map((p) => p.country)) },
+    { key: "ets", label: "ETS", options: unique(scoped.map((p) => p.ets)) },
+    { key: "list", label: "Sanktionsliste", options: unique(scoped.map((p) => p.sanctionsList)) },
+    { key: "cloud", label: "Cloud", options: ["Ja", "Nein"] },
+    { key: "status", label: "Status", options: unique(scoped.map(overallStatus)) },
+  ] as const;
   const title = registerFilter === "all" ? "Geschäftspartner" : REGISTER_FILTERS[registerFilter];
 
   return <DynamicPage hidePinButton className="app-page"
@@ -45,8 +73,34 @@ function RegisterResults() {
           <Input type="Search" accessibleName="Suche" placeholder="Name, BP-ID, ERP-ID oder Tenant-ID"
             icon={<Icon name="search" />} showClearIcon value={query} onInput={(e) => setQuery(e.target.value)} />
         </div>
+        <Panel collapsed headerText={activeCount ? `Filter (${activeCount})` : "Filter"}>
+          <div className="rg-form-grid">
+            {selectFilters.map(({ key, label, options }) => <div className="rg-field" key={key}>
+              <Label for={`register-${key}`}>{label}</Label>
+              <Select id={`register-${key}`} accessibleName={label} value={filters[key]}
+                onChange={(e) => setFilters((current) => ({ ...current, [key]: e.target.value }))}>
+                <Option value="">Alle</Option>
+                {options.map((value) => <Option key={value} value={value}>{value}</Option>)}
+              </Select>
+            </div>)}
+            {(["from", "to"] as const).map((key) => {
+              const label = key === "from" ? "GTS-Sperre von" : "GTS-Sperre bis";
+              return <div key={key} className="rg-field">
+                <Label for={`register-${key}`}>{label}</Label>
+                <DatePicker id={`register-${key}`} accessibleName={label} valueFormat="yyyy-MM-dd" displayFormat="dd.MM.yyyy"
+                  value={filters[key]} onChange={({ detail }) => {
+                    if (detail.valid || !detail.value) setFilters((current) => ({ ...current, [key]: detail.value }));
+                  }} />
+              </div>;
+            })}
+          </div>
+          {invalidRange && <p role="alert">Das Enddatum muss am oder nach dem Startdatum liegen.</p>}
+          {activeCount > 0 && <div className="rg-actions rg-filter-actions">
+            <Button design="Transparent" onClick={() => setFilters(emptyFilters)}>Filter zurücksetzen</Button>
+          </div>}
+        </Panel>
         <Table accessibleName={title} overflowMode="Popin"
-          noDataText={q ? "Keine Treffer. Ändere den Suchbegriff." : "Keine Geschäftspartner in dieser Ansicht."}
+          noDataText={activeCount ? "Keine Treffer. Ändere oder entferne die Filter." : q ? "Keine Treffer. Ändere den Suchbegriff." : "Keine Geschäftspartner in dieser Ansicht."}
           onRowClick={(e) => open("rg-detail", e.detail.row.rowKey)}
           headerRow={<TableHeaderRow sticky>
             <TableHeaderCell importance={6} minWidth="9rem">Geschäftspartner</TableHeaderCell>

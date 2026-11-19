@@ -9,7 +9,7 @@ Neue Navigationsgruppe „Sanktionsregister“ in der bestehenden Shell mit sech
 | Ansicht | Inhalt |
 | --- | --- |
 | Dashboard | Kachel „Zur Freigabe“ statt E-Mail-Hinweis, offene Sperrschritte, Cloud-Tenants, fällige Länder-Kontakte, Kennzahlen nach Monat, Sanktionsliste, Land, ETS und Schrittart |
-| Register | Ergebnistabelle mit Suche über Name, BP-ID, ERP-ID und Tenant-ID. Die Zeilen öffnen die Fall-Details. |
+| Register | Ergebnistabelle mit Suche über Name, BP-ID, ERP-ID und Tenant-ID. Aufklappbare Filter für Land, ETS, Sanktionsliste, Cloud, GTS-Sperrdatum und Status. Die Zeilen öffnen die Fall-Details. |
 | Neuer Datensatz | Simulierte Übernahme aus GTS, Sanktionsliste als Auswahlliste, Cloud-Prüfung mit Tenants je LoB, Sonderkategorie SR |
 | Detail | Vier-Augen-Freigabe mit drei Ausgängen (freigeben, sanktioniert ohne Sperre, ablehnen), Sperrschritte mit Status, Tenants, Empfänger der Benachrichtigung, E-Mail-Entwurf mit Platzhaltern, Audit-Trail |
 | Nachbarabteilung | Eingeschränkte Sicht je Team, nur eigene Schritte bestätigen, „Keine Tickets vorhanden“ |
