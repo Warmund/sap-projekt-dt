@@ -10,6 +10,7 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 19.11.2026 | Register um auf- und absteigende Sortierung für Kunden, Land, ETS, Sanktionsliste, Cloud, Sperrdatum und Status ergänzt | 5.1 |
 | Agent | 19.11.2026 | Register um aufklappbare Filter für Land, ETS, Sanktionsliste, Cloud, GTS-Sperrdatum und Status ergänzt | 5.0 |
 | Agent | 19.11.2026 | Vercel-Installationsbefehl versuchsweise auf npm install --no-audit --no-fund umgestellt. Build-Zeit nach dem Wechsel noch zu messen. | 4.9 |
 | Agent | 19.11.2026 | Registeransicht auf Suche und Ergebnistabelle reduziert. Erfassung erfolgt über Administration. | 4.8 |

@@ -35,6 +35,7 @@ export function RegisterList() {
 function RegisterResults() {
   const { partners, open, registerFilter, setRegisterFilter } = useRegister();
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("date-desc");
   const [filters, setFilters] = useState(emptyFilters);
   const activeCount = [filters.country, filters.ets, filters.list, filters.cloud, filters.status, filters.from || filters.to].filter(Boolean).length;
   const invalidRange = Boolean(filters.from && filters.to && filters.from > filters.to);
@@ -51,6 +52,21 @@ function RegisterResults() {
       if (invalidRange || (filters.from && date < filters.from) || (filters.to && date > filters.to)) return false;
     }
     return !q || [p.name, p.bpId, p.erpId, ...p.tenants.map((t) => t.tenantId)].some((v) => v.toLowerCase().includes(q));
+  });
+  const collator = new Intl.Collator("de", { numeric: true, sensitivity: "base" });
+  rows.sort((a, b) => {
+    const [field, direction] = sort.split("-");
+    const values = {
+      name: [a.name, b.name],
+      country: [a.country, b.country],
+      ets: [a.ets, b.ets],
+      list: [a.sanctionsList, b.sanctionsList],
+      cloud: [a.cloudCustomer ? "Ja" : "Nein", b.cloudCustomer ? "Ja" : "Nein"],
+      date: [a.gtsBlockedAt, b.gtsBlockedAt],
+      status: [overallStatus(a), overallStatus(b)],
+    };
+    const [left, right] = values[field as keyof typeof values] ?? values.date;
+    return (direction === "desc" ? -1 : 1) * collator.compare(left, right) || collator.compare(a.bpId, b.bpId);
   });
   const selectFilters = [
     { key: "country", label: "Land", options: unique(scoped.map((p) => p.country)) },
@@ -69,6 +85,20 @@ function RegisterResults() {
           <div className="rg-actions">
             <Title id="register-results" level="H2" size="H5">{title} ({rows.length})</Title>
             {registerFilter !== "all" && <Link accessibleRole="Button" onClick={() => setRegisterFilter("all")}>Alle Kunden anzeigen</Link>}
+          </div>
+          <div className="rg-actions">
+          <Label for="register-sort">Sortieren nach</Label>
+          <Select id="register-sort" accessibleName="Sortieren nach" value={sort} onChange={(e) => setSort(e.target.value)}>
+            <Option value="date-desc">GTS-Sperre: neueste zuerst</Option>
+            <Option value="date-asc">GTS-Sperre: älteste zuerst</Option>
+            {[
+              ["name", "Geschäftspartner"], ["country", "Land"], ["ets", "ETS"],
+              ["list", "Sanktionsliste"], ["cloud", "Cloud"], ["status", "Status"],
+            ].flatMap(([key, label]) => [
+              <Option key={key + "-asc"} value={key + "-asc"}>{label}: aufsteigend</Option>,
+              <Option key={key + "-desc"} value={key + "-desc"}>{label}: absteigend</Option>,
+            ])}
+          </Select>
           </div>
           <Input type="Search" accessibleName="Suche" placeholder="Name, BP-ID, ERP-ID oder Tenant-ID"
             icon={<Icon name="search" />} showClearIcon value={query} onInput={(e) => setQuery(e.target.value)} />
