@@ -53,7 +53,7 @@ export function RegisterContacts() {
           <TableHeaderCell><span className="rg-sr-only">Aktion</span></TableHeaderCell>
         </TableHeaderRow>}>
         {contacts.map((c) => {
-          const due = !c.lastChecked || daysSince(c.lastChecked) > CONTACT_CHECK_INTERVAL_DAYS;
+          const due = !c.lastChecked || daysSince(c.lastChecked) >= CONTACT_CHECK_INTERVAL_DAYS;
           return <TableRow key={c.id} rowKey={c.id}>
             <TableCell><Text className="rg-strong">{c.region}</Text></TableCell>
             <TableCell><Text>{c.countries.join(", ")}</Text></TableCell>

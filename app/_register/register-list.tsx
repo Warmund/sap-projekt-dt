@@ -23,21 +23,27 @@ import "@ui5/webcomponents-icons/dist/add-document.js";
 import "@ui5/webcomponents-icons/dist/search.js";
 import { formatDate, overallStatus, stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
 import type { BlockedPartner, StepKey } from "../../lib/register/types";
+import { matchesRegisterFilter, REGISTER_FILTERS, type RegisterFilter } from "../../lib/register/dashboard";
 import { useRegister } from "./store";
 import { StatusBadge, StepBadge } from "./ui";
 
-type Part = "workflow" | "noBlock";
+type Part = "all" | "workflow" | "noBlock";
 const SHORT: Record<StepKey, string> = { suser: "S-User", tickets: "Tickets", remote: "Remote", cloud: "Cloud", notify: "Info" };
 
 export function RegisterList() {
-  const { partners, variant, open } = useRegister();
-  const [part, setPart] = useState<Part>("workflow");
+  const { registerFilter } = useRegister();
+  return <FilteredRegister key={registerFilter} />;
+}
+
+function FilteredRegister() {
+  const { partners, variant, open, registerFilter, setRegisterFilter } = useRegister();
+  const [part, setPart] = useState<Part>(registerFilter === "noBlock" ? "noBlock" : "all");
   const [query, setQuery] = useState("");
   const [ets, setEts] = useState("Alle");
   const [cloud, setCloud] = useState("Alle");
   const [status, setStatus] = useState("Alle");
 
-  const inPart = partners.filter((p) => part === "workflow"
+  const inPart = partners.filter((p) => matchesRegisterFilter(p, registerFilter, variant)).filter((p) => part === "all" ? true : part === "workflow"
     ? p.decision === "pending" || p.decision === "approved"
     : p.decision === "sanctionedNoBlock");
   const q = query.trim().toLowerCase();
@@ -58,11 +64,19 @@ export function RegisterList() {
       </div>} />}>
     <div className="rg-page">
       <SegmentedButton accessibleName="Teil des Registers" onSelectionChange={(e) => setPart(e.detail.selectedItems[0]?.dataset.key as Part)}>
+        <SegmentedButtonItem data-key="all" selected={part === "all"}>Alle Kunden ({partners.length})</SegmentedButtonItem>
         <SegmentedButtonItem data-key="workflow" selected={part === "workflow"}>Sperr-Workflow ({partners.filter((p) => p.decision === "pending" || p.decision === "approved").length})</SegmentedButtonItem>
         <SegmentedButtonItem data-key="noBlock" selected={part === "noBlock"}>Sanktioniert ohne Sperre ({partners.filter((p) => p.decision === "sanctionedNoBlock").length})</SegmentedButtonItem>
       </SegmentedButton>
 
       <div className="rg-filters">
+        <div className="rg-field">
+          <Label for="rg-dashboard-filter">Dashboard-Auswahl</Label>
+          <Select id="rg-dashboard-filter" accessibleName="Dashboard-Auswahl" value={registerFilter}
+            onChange={(e) => setRegisterFilter(e.target.value as RegisterFilter)}>
+            {Object.entries(REGISTER_FILTERS).map(([value, label]) => <Option key={value} value={value}>{label}</Option>)}
+          </Select>
+        </div>
         <div className="rg-field rg-field-wide">
           <Label for="rg-search">Suche nach Name oder ID</Label>
           <Input id="rg-search" icon={<Icon name="search" />} value={query} placeholder="Name, BP-ID, ERP-ID oder Tenant-ID" accessibleName="Suche"

@@ -14,7 +14,7 @@ async function main() {
     const provisioner = betterAuth({ ...auth.options, emailAndPassword: { ...auth.options.emailAndPassword, enabled: true, disableSignUp: false } });
     await provisioner.api.signUpEmail({ body: { username, email, name: "Register smoke test", password } });
     const partner = await db.registerPartner.findFirstOrThrow({ where: { sourceFile: { not: null }, cloudCustomer: true }, select: { bpId: true, name: true, region: true } });
-    console.log(JSON.stringify({ partner, count: await db.registerPartner.count() }));
+    console.log(JSON.stringify({ partner, count: await db.registerPartner.count(), sr: await db.registerPartner.count({ where: { specialCategory: "SR" } }), cloudMissing: await db.registerPartner.count({ where: { cloudCustomer: true, tenants: { none: {} } } }) }));
   }
 }
 main().catch(() => { console.error("Register smoke fixture failed."); process.exitCode = 1; }).finally(() => db.$disconnect());

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ThemeProvider } from "@ui5/webcomponents-react/ThemeProvider";
 import { NavigationLayout, type NavigationLayoutDomRef } from "@ui5/webcomponents-react/NavigationLayout";
 import { ShellBar } from "@ui5/webcomponents-react/ShellBar";
@@ -14,8 +14,6 @@ import { UserMenuAccount } from "@ui5/webcomponents-react/UserMenuAccount";
 import { UserMenuItem } from "@ui5/webcomponents-react/UserMenuItem";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
 import "@ui5/webcomponents-icons/dist/menu2.js";
-import "@ui5/webcomponents-icons/dist/home.js";
-import "@ui5/webcomponents-icons/dist/task.js";
 import "@ui5/webcomponents-icons/dist/question-mark.js";
 import "@ui5/webcomponents-icons/dist/bar-chart.js";
 import "@ui5/webcomponents-icons/dist/list.js";
@@ -24,8 +22,6 @@ import "@ui5/webcomponents-icons/dist/people-connected.js";
 import "@ui5/webcomponents-icons/dist/contacts.js";
 import type { RegisterData } from "../lib/register/repository";
 import { authClient } from "../lib/auth-client";
-import { Home } from "./home";
-import { Todos, type Todo } from "./todos";
 import { Users } from "./users";
 import { RegisterProvider, type RegisterView } from "./_register/store";
 import { RegisterDashboard } from "./_register/dashboard";
@@ -35,24 +31,14 @@ import { RegisterDetail } from "./_register/detail";
 import { RegisterTasks } from "./_register/tasks";
 import { RegisterContacts } from "./_register/contacts";
 
-type View = "home" | "todos" | "users" | RegisterView;
-const STORAGE_KEY = "todos";
+type View = "users" | RegisterView;
 
 export function Shell({ user, initialRegister }: { user: { name: string; email: string; role: string }; initialRegister: RegisterData }) {
   const layoutRef = useRef<NavigationLayoutDomRef>(null);
   const [mode, setMode] = useState<"Auto" | "Collapsed" | "Expanded">("Auto");
-  const [view, setView] = useState<View>("home");
+  const [view, setView] = useState<View>("rg-dashboard");
   const [menuOpener, setMenuOpener] = useState<HTMLElement | null>(null);
   const [error, setError] = useState("");
-  const [todos, setTodos] = useState<Todo[]>([]);
-
-  useEffect(() => {
-    // Restore browser-only data after hydration.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    try { setTodos(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]")); } catch { /* ignore corrupt storage */ }
-  }, []);
-  const saveTodos = (next: Todo[]) => { setTodos(next); localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); };
-
   const initials = user.name.split(/\s+/).map((p) => p[0]).join("").slice(0, 2).toUpperCase();
 
   const signOut = async () => {
@@ -68,14 +54,13 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
   const content = () => {
     switch (view) {
       case "users": return isAdmin ? <Users /> : null;
-      case "todos": return <Todos todos={todos} onChange={saveTodos} />;
       case "rg-dashboard": return <RegisterDashboard />;
       case "rg-register": return <RegisterList />;
       case "rg-new": return <RegisterNewEntry />;
       case "rg-detail": return <RegisterDetail />;
       case "rg-tasks": return <RegisterTasks />;
       case "rg-contacts": return <RegisterContacts />;
-      default: return <Home name={user.name} todos={todos} onOpenTodos={() => setView("todos")} />;
+      default: return <RegisterDashboard />;
     }
   };
 
@@ -85,7 +70,7 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
       header={<ShellBar
         startButton={<Button icon="menu2" design="Transparent" tooltip="Navigation ein-/ausblenden" accessibleName="Navigation ein-/ausblenden"
           onClick={() => setMode(layoutRef.current?.isSideCollapsed() ? "Expanded" : "Collapsed")} />}
-        branding={<ShellBarBranding logo={<img src="/sap-logo.svg" alt="SAP" />} onClick={() => setView("home")}>SAP-Project-DT</ShellBarBranding>}
+        branding={<ShellBarBranding logo={<img src="/sap-logo.svg" alt="SAP" />} onClick={() => setView("rg-dashboard")}>SAP-Project-DT</ShellBarBranding>}
         secondaryTitle="Export Control"
         profile={<Avatar initials={initials} accessibleName={user.name} />}
         onProfileClick={(e) => setMenuOpener(e.detail.targetRef)} />}
@@ -96,16 +81,12 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
           if (window.matchMedia("(max-width: 599px)").matches) setMode("Collapsed");
         }}
         fixedItems={<SideNavigationItem text="Hilfe" icon="question-mark" href="https://www.sap.com/design-system/fiori-design-web/" target="_blank" />}>
-        <SideNavigationItem text="Home" icon="home" data-key="home" selected={view === "home"} />
+        <SideNavigationItem text="Dashboard" icon="bar-chart" data-key="rg-dashboard" selected={view === "rg-dashboard"} />
         <SideNavigationGroup text="Sanktionsregister" expanded>
-          <SideNavigationItem text="Dashboard" icon="bar-chart" data-key="rg-dashboard" selected={view === "rg-dashboard"} />
           <SideNavigationItem text="Register" icon="list" data-key="rg-register" selected={view === "rg-register" || view === "rg-detail"} />
           <SideNavigationItem text="Neuer Datensatz" icon="add-document" data-key="rg-new" selected={view === "rg-new"} />
           <SideNavigationItem text="Nachbarabteilung" icon="people-connected" data-key="rg-tasks" selected={view === "rg-tasks"} />
           <SideNavigationItem text="Länder-Kontakte" icon="contacts" data-key="rg-contacts" selected={view === "rg-contacts"} />
-        </SideNavigationGroup>
-        <SideNavigationGroup text="Arbeitsbereich" expanded>
-          <SideNavigationItem text="Aufgaben" icon="task" data-key="todos" selected={view === "todos"} />
         </SideNavigationGroup>
       </SideNavigation>}>
       <main className="app-content">

@@ -2,6 +2,7 @@
 import { createContext, useContext, useRef, useState, type ReactNode } from "react";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
 import { loadRegister, mutateRegister } from "./actions";
+import type { RegisterFilter } from "../../lib/register/dashboard";
 import type { RegisterCommand, RegisterData } from "../../lib/register/repository";
 import type { BlockedPartner, CountryContact, Decision, StepKey, StepOrderVariant } from "../../lib/register/types";
 import "./register.css";
@@ -11,6 +12,9 @@ type RegisterState = {
   partners: BlockedPartner[];
   contacts: CountryContact[];
   variant: StepOrderVariant;
+  registerFilter: RegisterFilter;
+  setRegisterFilter: (filter: RegisterFilter) => void;
+  openRegister: (filter: RegisterFilter) => void;
   selected: BlockedPartner | undefined;
   currentUser: string;
   setVariant: (v: StepOrderVariant) => void;
@@ -27,6 +31,7 @@ const Ctx = createContext<RegisterState | null>(null);
 /** Database is authoritative; failed writes never become local success states. */
 export function RegisterProvider({ children, currentUser, onNavigate, initialData }: { children: ReactNode; currentUser: string; onNavigate: (view: RegisterView) => void; initialData: RegisterData }) {
   const [data, setData] = useState(initialData);
+  const [registerFilter, setRegisterFilter] = useState<RegisterFilter>("all");
   const [variant, setVariant] = useState<StepOrderVariant>("A");
   const [selectedId, setSelectedId] = useState<string | undefined>(initialData.partners[0]?.id);
   const [error, setError] = useState("");
@@ -45,7 +50,8 @@ export function RegisterProvider({ children, currentUser, onNavigate, initialDat
   };
   const version = (id: string) => data.partners.find((p) => p.id === id)?.version ?? -1;
   const value: RegisterState = {
-    ...data, variant, currentUser, selected: data.partners.find((p) => p.id === selectedId), setVariant,
+    ...data, variant, currentUser, registerFilter, setRegisterFilter,
+    openRegister: (filter) => { setRegisterFilter(filter); onNavigate("rg-register"); }, selected: data.partners.find((p) => p.id === selectedId), setVariant,
     open: (view, id) => { if (id) setSelectedId(id); onNavigate(view); },
     decide: async (id, decision, comment) => !!await run({ kind: "decide", id, version: version(id), decision, comment }),
     completeStep: async (id, step, result) => !!await run({ kind: "complete", id, version: version(id), step, variant, result }),

@@ -34,3 +34,15 @@ Neue Navigationsgruppe „Sanktionsregister“ in der bestehenden Shell mit sech
 ## Nächste Schritte
 
 Die Migration und der CSV-Import sind angewendet. Mit SAP sind insbesondere die CRM-/BP-ID-Zuordnung, fehlende Tenant- und Verantwortlichkeitsdaten sowie fachliche Rollen und die verbindliche Schrittfolge abzustimmen.
+
+## Dashboard-Anbindung (17.11.2026)
+
+Das Register-Dashboard ist die Startansicht. Bestandszahlen, Länder-/ETS-/Listenverteilungen und historische Sperrdaten verwenden alle gespeicherten Kunden, auch noch nicht freigegebene CSV-Fälle. Offene Sperrschritte zählen nur freigegebene laufende oder wartende Schritte. Fehlende Cloud-Tenant-Daten werden als eigene Kennzahl ausgewiesen. Die Zeitachse zeigt alle vorhandenen Jahre; die Jahresauswahl wechselt auf zwölf Monate des gewählten Jahres. Kennzahlen öffnen Registerfilter für Freigaben, offene Schritte, Cloud-Datenlücken, SR und Fälle ohne Sperre. Der Filter ist in der Liste sichtbar und änderbar; „Alle Kunden“ enthält auch abgelehnte Fälle. Kontakte sind ab sieben Tagen oder ohne Prüfdatum fällig.
+
+Eigene Änderungen aktualisieren das Dashboard nach erfolgreicher Speicherung. „Daten aktualisieren“ lädt den aktuellen Datenbankstand anderer Sitzungen. Keine automatische Freigabe, kein Polling und keine neuen externen Systemanbindungen.
+
+Verifikation: Logiktests für Bestands-/Workflowtrennung, historische Monats-/Jahreswerte, Filterziele und leere Daten; Typecheck und Build erfolgreich, ESLint ohne Fehler (vier vorhandene Warnungen). Browser-Test mit temporärem Login bestätigt Startansicht, Datenbank-Kennzahlen sowie SR-/Cloud-Filter und Navigation zum Register.
+
+## Navigation (19.11.2026)
+
+Dashboard ersetzt Home als oberster Navigationseintrag und als Ziel des Logo-Klicks. Die separate persönliche Todo-App einschließlich Komponenten, Browser-Speicherzugriff und CSS wurde entfernt. Die Nachbarabteilungsansicht und die fachlichen Sperrschritte bleiben erhalten.

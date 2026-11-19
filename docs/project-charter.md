@@ -4,12 +4,14 @@
 
 **Author:** Projektteam der Frankfurt University of Applied Sciences
 
-**Status:** Arbeitsstand, 17.11.2026
+**Status:** Arbeitsstand, 19.11.2026
 
 ## Change log
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 19.11.2026 | Home und persönliche Todo-App vollständig entfernt; Dashboard ersetzt Home als oberster Navigationseintrag und Ziel des Logo-Klicks, fachliche Sperraufgaben bleiben im Register | 4.1 |
+| Agent | 17.11.2026 | Register-Dashboard als Startansicht angebunden: Kundenbestand unabhängig von Freigabe, historische Jahres-/Monatsauswertung, Aktualisieren und Kacheln mit passenden Registerfiltern | 4.0 |
 | Agent | 17.11.2026 | Datenabgleich aller 50 CSV-Zeilen, wiederholbarer Import, Datenbank- und Browser-Tests erfolgreich; vorhandene Next.js-Sicherheitswarnung als offenes technisches Risiko aufgenommen | 3.9 |
 | Agent | 17.11.2026 | Kundenregister in bestehender Neon-Datenbank angelegt und 50 Kunden aus bereitgestellter Test-CSV importiert; persistente Registeransichten, Freigaben, Aufgaben und Audit angebunden, fehlende Fachangaben bleiben offen | 3.8 |
 | Agent | 13.11.2026 | Vercel meldet GitHub-Repository als öffentlich; frühere Hobby-Beschränkung für private Repositories ist damit für den aktuellen Stand nicht einschlägig | 3.7 |
@@ -104,12 +106,13 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Der technische Stack ist Next.js 16 mit TypeScript, UI5 Web Components for React, Prisma 7 und PostgreSQL 18.
 - Die Internet-Demo soll dem Projektteam und ausgewählten SAP-Ansprechpersonen zugänglich sein; Vercel soll möglichst im kostenlosen Tarif genutzt werden. Ein Vercel-Konto darf für Besucher nicht erforderlich sein; die konkrete Zugriffsschutzlösung ist offen. Änderungen am Hauptbranch sollen automatisch deployt werden.
 - Für den MVP ist eine individuelle App-Anmeldung mit Benutzername und Passwort, Better Auth und einer SAP-nah gestalteten Login-Oberfläche mit SAP-Logo und responsiver Anmeldekarte vorgesehen. Ein deaktivierter SSO-Button dient als sichtbarer Platzhalter ohne Funktion. Echtes SAP-SSO bleibt eine spätere Integrationsmöglichkeit.
-- Die Startseite zeigt vorerst nur den oberen Anwendungsbalken; die Todo-Demo wurde auf Nutzerwunsch entfernt.
+- Home und die persönliche Todo-App sind entfernt. Das Register-Dashboard ist Startansicht und oberster Navigationseintrag; ein Klick auf das Logo führt ebenfalls dorthin. Fachliche Sperrschritte bleiben Bestandteil des Registers.
 - GitHub Actions prüft TypeScript und ESLint bei Push auf `main`. Deployments erfolgen unabhängig davon über die bestehende Vercel-GitHub-Integration mit `Warmund/sap-projekt-dt`: `main` nach Production, andere Branches als Preview. Die separate Deployment-Action wurde entfernt und `git.deploymentEnabled` wieder aktiviert. Die dafür zuvor angelegten GitHub-Secrets werden nicht mehr benötigt.
 - Eine technische Admin-Rolle darf Nutzer auflisten und weitere Demo-Zugänge einschließlich ihrer Rolle anlegen. Fachliche Rollen und Berechtigungen bleiben gesondert zu klären.
 - Die bestehenden Demo-Zugänge patrick, mark, paul und jonas haben vorläufig die technische Admin-Rolle.
 - Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant. Eine Neon-Ressource im kostenlosen Tarif wurde mit dem Vercel-Projekt `project-dt-sap` und der lokalen Entwicklung verbunden; die Better-Auth-Migration wurde angewendet. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
 - Das Sanktionsregister wird seit 17.11.2026 in derselben Neon-Datenbank wie die Anmeldung gespeichert. Die bereitgestellte Kunden-Test-CSV liefert 50 Datensätze mit 13 Spalten. CRM wird für die bestehende BP-ID-Ansicht verwendet; diese fachliche Zuordnung bleibt zu bestätigen. Nicht enthaltene Freigaben, Tenant-IDs, konkrete Sanktionslisten und verantwortliche Personen werden nicht erfunden. Der Import setzt keine Aufgabenerledigung voraus. Mapping und Importnachweise stehen in `docs/kundenimport.md`.
+- Das Dashboard ist die Startansicht nach der Anmeldung. Bestandskennzahlen berücksichtigen alle Kunden, Workflowkennzahlen ausschließlich tatsächlich freigegebene Schritte. Historische Sperrdaten werden nach Jahr beziehungsweise Monat ausgewertet; Kacheln öffnen die passende Registerauswahl. Andere Nutzeränderungen können mit „Daten aktualisieren“ nachgeladen werden.
 - Vier-Augen-Prüfung neuer Registereinträge und Versionsprüfung bei konkurrierenden Änderungen werden serverseitig durchgesetzt. Fachliche EC-/Teamrollen sind noch offen; im MVP dürfen angemeldete Projektmitglieder das Register bearbeiten.
 - Echter E-Mail-Versand ist kein Bestandteil des MVP. Benachrichtigungen werden testbar simuliert und protokolliert beziehungsweise als In-App-Aufgaben angezeigt.
 - Kubernetes, SAP BTP, Microservices, Hochverfügbarkeit, Backups und Betriebsmonitoring sind nicht Bestandteil des MVP. Vercel Web Analytics wird für Seitenaufrufe eingebunden.
