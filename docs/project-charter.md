@@ -10,9 +10,10 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
-| Agent | 19.11.2026 | 4.6 |
-| Agent | 19.11.2026 | 4.5 |
-| Agent | 19.11.2026 | 4.4 |
+| Agent | 19.11.2026 | „Neuer Datensatz“ in die Sidebar-Gruppe „Administration“ verschoben | 4.7 |
+| Agent | 19.11.2026 | Frühere Sidebar wiederhergestellt und Administration ins Profilmenü verschoben | 4.6 |
+| Agent | 19.11.2026 | Mobile Registeraktionen umplatziert, Aktionslinks als Buttons ausgezeichnet und Schrittfolge pro Fall mit Sperre nach Entscheidung umgesetzt | 4.5 |
+| Agent | 19.11.2026 | UI-Audit dokumentiert Risiken bei mobilen Aktionen, Link-Semantik und der fachlichen Workflow-Steuerung | 4.4 |
 | Agent | 19.11.2026 | Node.js für Entwicklung und CI auf das Sicherheitsrelease 24.22.3 angehoben und als Mindestversion hinterlegt | 4.3 |
 | Agent | 19.11.2026 | Sidebar nach Arbeitsablauf geordnet und Administration mit Tabs für Sperrfälle, Cloud-Tenants, Länder-Kontakte und Nutzer ergänzt | 4.2 |
 | Agent | 19.11.2026 | Home und persönliche Todo-App vollständig entfernt; Dashboard ersetzt Home als oberster Navigationseintrag und Ziel des Logo-Klicks, fachliche Sperraufgaben bleiben im Register | 4.1 |

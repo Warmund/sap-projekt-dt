@@ -85,9 +85,11 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
         <SideNavigationItem text="Dashboard" icon="bar-chart" data-key="rg-dashboard" selected={view === "rg-dashboard"} />
         <SideNavigationGroup text="Sanktionsregister" expanded>
           <SideNavigationItem text="Register" icon="list" data-key="rg-register" selected={view === "rg-register" || view === "rg-detail"} />
-          <SideNavigationItem text="Neuer Datensatz" icon="add-document" data-key="rg-new" selected={view === "rg-new"} />
           <SideNavigationItem text="Nachbarabteilung" icon="people-connected" data-key="rg-tasks" selected={view === "rg-tasks"} />
           <SideNavigationItem text="Länder-Kontakte" icon="contacts" data-key="rg-contacts" selected={view === "rg-contacts"} />
+        </SideNavigationGroup>
+        <SideNavigationGroup text="Administration" expanded>
+          <SideNavigationItem text="Neuer Datensatz" icon="add-document" data-key="rg-new" selected={view === "rg-new"} />
         </SideNavigationGroup>
       </SideNavigation>}>
       <main className="app-content">
