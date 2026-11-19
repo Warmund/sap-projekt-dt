@@ -10,6 +10,7 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 19.11.2026 | Node.js für Entwicklung und CI auf das Sicherheitsrelease 24.22.3 angehoben und als Mindestversion hinterlegt | 4.3 |
 | Agent | 19.11.2026 | Sidebar nach Arbeitsablauf geordnet und Administration mit Tabs für Sperrfälle, Cloud-Tenants, Länder-Kontakte und Nutzer ergänzt | 4.2 |
 | Agent | 19.11.2026 | Home und persönliche Todo-App vollständig entfernt; Dashboard ersetzt Home als oberster Navigationseintrag und Ziel des Logo-Klicks, fachliche Sperraufgaben bleiben im Register | 4.1 |
 | Agent | 17.11.2026 | Register-Dashboard als Startansicht angebunden: Kundenbestand unabhängig von Freigabe, historische Jahres-/Monatsauswertung, Aktualisieren und Kacheln mit passenden Registerfiltern | 4.0 |
@@ -149,6 +150,7 @@ Schätzungen zu monetärem Nutzen, Projektkosten und späteren Betriebskosten li
 | Ausgangsdaten aus mehreren Excel-Dateien sind nicht zuverlässig | Schwache Datenqualität und unklare fachliche Regeln |
 | Umgang mit SAP-stämmigen Informationen in externen Systemen ist nicht geklärt | Datenschutz-, Vertraulichkeits- und Freigaberisiko |
 | Hostingentscheidung steht aus | Späte technische Anpassungen, Kosten oder Betriebsaufwand |
+| Patchstand der von Vercel verwalteten Node.js-24-Runtime noch nicht verifiziert | Sicherheitskorrekturen in Produktion nach dem nächsten Deployment anhand der Runtime-Version prüfen |
 | Build meldet bekannte Sicherheitslücke der installierten Next.js-Version 16.4.3 | Sicherheitsupdate der Framework-Version prüfen und gesondert durchführen |
 | CRM-ID aus CSV ist noch nicht fachlich als GTS-BP-ID bestätigt; Freigaben, konkrete Listen und Tenant-Daten fehlen | Zuordnung und fehlende Informationen mit SAP prüfen; importierte Fälle bleiben zur Prüfung, Cloud-Abschluss ohne Tenants ist gesperrt |
 | Repository wird von Vercel als öffentlich gemeldet; spätere Umstellung auf privat würde die Hobby-Autorenbeschränkung wieder relevant machen | Sichtbarkeit bewusst verwalten; ausschließlich synthetische Mock-Daten und keine Secrets im Repository |

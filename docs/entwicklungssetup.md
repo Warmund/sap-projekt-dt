@@ -5,7 +5,7 @@ Dieses Dokument beschreibt den aktuellen Stand und die Einrichtung auf einem wei
 ## Voraussetzungen
 
 - Git und Zugriff auf das Projekt-Repository.
-- Node.js 24 LTS mit npm, zum Beispiel von [nodejs.org](https://nodejs.org/). Nach der Installation ein neues Terminal öffnen und mit `node --version` und `npm --version` prüfen.
+- Node.js 24 LTS ab 24.22.3 mit npm, zum Beispiel von [nodejs.org](https://nodejs.org/). Nach der Installation ein neues Terminal öffnen und mit `node --version` und `npm --version` prüfen.
 - Codex CLI für die Arbeit mit Codex und dem MCP-Server.
 
 ## Repository und npm-Pakete
@@ -108,7 +108,7 @@ Auf macOS/Linux in den obigen Befehlen `npm` und `npx` statt `npm.cmd` und `npx.
 
 ## Anwendung starten und prüfen
 
-Mit Node.js 24 im Projektverzeichnis:
+Mit der in `.nvmrc` festgelegten Node.js-Version im Projektverzeichnis:
 
 ```bash
 npm ci
