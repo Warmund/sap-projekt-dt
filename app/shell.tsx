@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "./language";
 import { useRef, useState } from "react";
 import { ThemeProvider } from "@ui5/webcomponents-react/ThemeProvider";
 import { NavigationLayout, type NavigationLayoutDomRef } from "@ui5/webcomponents-react/NavigationLayout";
@@ -30,9 +31,13 @@ import { RegisterNewEntry } from "./_register/new-entry";
 import { RegisterDetail } from "./_register/detail";
 import { RegisterTasks } from "./_register/tasks";
 
-type View = AdministrationView | RegisterView;
+import { Settings } from "./settings";
+import "@ui5/webcomponents-icons/dist/action-settings.js";
+
+type View = AdministrationView | RegisterView | "settings";
 
 export function Shell({ user, initialRegister }: { user: { name: string; email: string; role: string }; initialRegister: RegisterData }) {
+  const { t } = useLanguage();
   const layoutRef = useRef<NavigationLayoutDomRef>(null);
   const [mode, setMode] = useState<"Auto" | "Collapsed" | "Expanded">("Auto");
   const [view, setView] = useState<View>("rg-dashboard");
@@ -52,6 +57,7 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
   const isAdmin = user.role.split(",").includes("admin");
   const content = () => {
     switch (view) {
+      case "settings": return <Settings />;
       case "users":
       case "rg-contacts":
       case "admin-imports":
@@ -69,31 +75,32 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
     <RegisterProvider initialData={initialRegister} currentUser={user.name} onNavigate={setView}>
     <NavigationLayout ref={layoutRef} mode={mode} className="app-layout"
       header={<ShellBar
-        startButton={<Button icon="menu2" design="Transparent" tooltip="Navigation ein-/ausblenden" accessibleName="Navigation ein-/ausblenden"
+        startButton={<Button icon="menu2" design="Transparent" tooltip={t("Navigation ein-/ausblenden")} accessibleName={t("Navigation ein-/ausblenden")}
           onClick={() => setMode(layoutRef.current?.isSideCollapsed() ? "Expanded" : "Collapsed")} />}
         branding={<ShellBarBranding logo={<img src="/sap-logo.svg" alt="SAP" />} onClick={() => setView("rg-dashboard")}>SAP-Project-DT</ShellBarBranding>}
         secondaryTitle="Export Control"
         profile={<Avatar initials={initials} accessibleName={user.name} />}
         onProfileClick={(e) => setMenuOpener(e.detail.targetRef)} />}
-      sideContent={<SideNavigation accessibleName="Hauptnavigation"
+      sideContent={<SideNavigation accessibleName={t("Hauptnavigation")}
         onSelectionChange={(e) => {
           setView(e.detail.item.dataset.key as View);
           // On size S the navigation is an overlay and should close after selection (Fiori guideline).
           if (window.matchMedia("(max-width: 599px)").matches) setMode("Collapsed");
         }}
-        fixedItems={<SideNavigationItem text="Hilfe" icon="question-mark" href="https://www.sap.com/design-system/fiori-design-web/" target="_blank" />}>
+        fixedItems={<SideNavigationItem text={t("Hilfe")} icon="question-mark" href="https://www.sap.com/design-system/fiori-design-web/" target="_blank" />}>
         <SideNavigationItem text="Dashboard" icon="bar-chart" data-key="rg-dashboard" selected={view === "rg-dashboard"} />
-        <SideNavigationGroup text="Sanktionsregister" expanded>
-          <SideNavigationItem text="Register" icon="list" data-key="rg-register" selected={view === "rg-register" || view === "rg-detail"} />
-          <SideNavigationItem text="Nachbarabteilung" icon="people-connected" data-key="rg-tasks" selected={view === "rg-tasks"} />
-          <SideNavigationItem text="Länder-Kontakte" icon="contacts" data-key="rg-contacts" selected={view === "rg-contacts"} />
+        <SideNavigationGroup text={t("Sanktionsregister")} expanded>
+          <SideNavigationItem text={t("Register")} icon="list" data-key="rg-register" selected={view === "rg-register" || view === "rg-detail"} />
+          <SideNavigationItem text={t("Nachbarabteilung")} icon="people-connected" data-key="rg-tasks" selected={view === "rg-tasks"} />
+          <SideNavigationItem text={t("Länder-Kontakte")} icon="contacts" data-key="rg-contacts" selected={view === "rg-contacts"} />
         </SideNavigationGroup>
         <SideNavigationGroup text="Administration" expanded>
-          <SideNavigationItem text="Neuer Datensatz" icon="add-document" data-key="rg-new" selected={view === "rg-new"} />
+          <SideNavigationItem text={t("Neuer Datensatz")} icon="add-document" data-key="rg-new" selected={view === "rg-new"} />
         </SideNavigationGroup>
+        <SideNavigationItem text={t("Einstellungen")} icon="action-settings" data-key="settings" selected={view === "settings"} />
       </SideNavigation>}>
       <main className="app-content">
-        {error && <MessageStrip design="Negative" onClose={() => setError("")}>{error}</MessageStrip>}
+        {error && <MessageStrip design="Negative" onClose={() => setError("")}>{t(error)}</MessageStrip>}
         {content()}
       </main>
     </NavigationLayout>
@@ -105,7 +112,7 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
         setView(detail.item.dataset.key === "users" && isAdmin ? "users" : "admin-imports");
       }}>
       <UserMenuItem text="Administration" />
-      {isAdmin && <UserMenuItem text="Nutzer verwalten" data-key="users" />}
+      {isAdmin && <UserMenuItem text={t("Nutzer verwalten")} data-key="users" />}
     </UserMenu>
   </ThemeProvider>;
 }

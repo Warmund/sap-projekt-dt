@@ -1,3 +1,4 @@
+import { useLanguage } from "./language";
 import { Button } from "@ui5/webcomponents-react/Button";
 import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
 import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
@@ -17,6 +18,7 @@ export function Administration({ view, isAdmin, onSelect }: {
   isAdmin: boolean;
   onSelect: (view: AdministrationView) => void;
 }) {
+  const { t } = useLanguage();
   const { open, openRegister, partners } = useRegister();
   const missingTenants = partners.filter((partner) => partner.cloudCustomer && partner.tenants.length === 0).length;
 
@@ -26,26 +28,26 @@ export function Administration({ view, isAdmin, onSelect }: {
       const key = detail.tab.dataset.key;
       if (key === "admin-imports" || key === "admin-cloud" || key === "rg-contacts" || (key === "users" && isAdmin)) onSelect(key);
     }}>
-      <Tab text="Sperrfälle" data-key="admin-imports" selected={view === "admin-imports"}>
+      <Tab text={t("Sperrfälle")} data-key="admin-imports" selected={view === "admin-imports"}>
         <div className="rg-page">
-          <Section title="Geschäftspartner und Sperrfälle"
-            actions={<Button onClick={() => open("rg-new")}>Datensatz manuell erfassen</Button>}>
-            <Text>Geplanter Import aus einem Datenprodukt für SAP GTS. Benötigt werden Geschäftspartner-ID, Sperrdatum, ETS-Kategorie und Sanktionsliste. Bis zur Anbindung stehen der CSV-Import und die simulierte Erfassung zur Verfügung.</Text>
+          <Section title={t("Geschäftspartner und Sperrfälle")}
+            actions={<Button onClick={() => open("rg-new")}>{t("Datensatz manuell erfassen")}</Button>}>
+            <Text>{t("Geplanter Import aus einem Datenprodukt für SAP GTS. Benötigt werden Geschäftspartner-ID, Sperrdatum, ETS-Kategorie und Sanktionsliste. Bis zur Anbindung stehen der CSV-Import und die simulierte Erfassung zur Verfügung.")}</Text>
           </Section>
         </div>
       </Tab>
-      <Tab text="Cloud-Tenants" data-key="admin-cloud" selected={view === "admin-cloud"}>
+      <Tab text={t("Cloud-Tenants")} data-key="admin-cloud" selected={view === "admin-cloud"}>
         <div className="rg-page">
-          <Section title="Cloud-Nutzung und Tenants"
-            actions={<Button onClick={() => openRegister("cloudMissing")}>Betroffene Kunden anzeigen</Button>}>
-            <Text>{missingTenants} Cloud-Kunden ohne Tenant-Daten. Ein künftiges Datenprodukt soll Tenant-ID, Produkt und Line of Business je Geschäftspartner liefern. Die Quelle ist noch zu klären.</Text>
+          <Section title={t("Cloud-Nutzung und Tenants")}
+            actions={<Button onClick={() => openRegister("cloudMissing")}>{t("Betroffene Kunden anzeigen")}</Button>}>
+            <Text>{missingTenants} {t("Cloud-Kunden ohne Tenant-Daten. Ein künftiges Datenprodukt soll Tenant-ID, Produkt und Line of Business je Geschäftspartner liefern. Die Quelle ist noch zu klären.")}</Text>
           </Section>
         </div>
       </Tab>
-      <Tab text="Länder-Kontakte" data-key="rg-contacts" selected={view === "rg-contacts"}>
+      <Tab text={t("Länder-Kontakte")} data-key="rg-contacts" selected={view === "rg-contacts"}>
         {view === "rg-contacts" && <RegisterContacts />}
       </Tab>
-      {isAdmin && <Tab text="Nutzer" data-key="users" selected={view === "users"}>
+      {isAdmin && <Tab text={t("Nutzer")} data-key="users" selected={view === "users"}>
         {view === "users" && <Users />}
       </Tab>}
     </TabContainer>

@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "./language";
 
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@ui5/webcomponents-react/Button";
@@ -24,6 +25,7 @@ import "@ui5/webcomponents-icons/dist/delete.js";
 type User = { id: string; name: string; email: string; username?: string | null; role?: string | null };
 
 export function Users() {
+  const { t } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -68,7 +70,7 @@ export function Users() {
       });
       if (result.error) { setError("Nutzer konnte nicht angelegt werden. Prüfe die Angaben und ob Benutzername und E-Mail bereits vergeben sind."); return; }
       form.reset();
-      setSuccess("Nutzer wurde angelegt.");
+      setSuccess(t("Nutzer wurde angelegt."));
       await loadUsers();
     } catch { setError("Nutzerverwaltung ist derzeit nicht verfügbar."); }
     finally { setPending(false); }
@@ -79,17 +81,14 @@ export function Users() {
     try {
       const result = await authClient.admin.updateUser({ userId, data: { role: role === "admin" ? "admin" : "user" } });
       if (result.error) { setError("Die Rolle konnte nicht geändert werden."); return; }
-      setSuccess("Rolle wurde geändert.");
+      setSuccess(t("Rolle wurde geändert."));
       await loadUsers();
     } catch { setError("Nutzerverwaltung ist derzeit nicht verfügbar."); }
     finally { setUpdatingUserId(null); }
   }
 
-  async function deleteUser(action: string | undefined) {
-    if (action !== "Delete" || !deletingUser) {
-      setDeletingUser(null);
-      return;
-    }
+  async function deleteUser() {
+    if (!deletingUser) return;
     const user = deletingUser;
     setDeletingUser(null);
     setError(""); setSuccess("");
@@ -97,7 +96,7 @@ export function Users() {
     try {
       const result = await authClient.admin.removeUser({ userId: user.id });
       if (result.error) { setError("Der Nutzer konnte nicht gelöscht werden."); return; }
-      setSuccess(`Nutzer ${user.name} wurde gelöscht.`);
+      setSuccess(t("Nutzer {0} wurde gelöscht.", user.name));
       await loadUsers();
     } catch { setError("Nutzerverwaltung ist derzeit nicht verfügbar."); }
     finally { setUpdatingUserId(null); }
@@ -105,21 +104,21 @@ export function Users() {
 
   return <>
     <div className="user-admin">
-      {error && <MessageStrip design="Negative" onClose={() => setError("")}>{error}</MessageStrip>}
+      {error && <MessageStrip design="Negative" onClose={() => setError("")}>{t(error)}</MessageStrip>}
       {success && <MessageStrip design="Positive" onClose={() => setSuccess("")}>{success}</MessageStrip>}
       <section className="user-admin-section" aria-labelledby="user-list-title">
         <div className="user-admin-section-heading">
           <div>
-            <Title id="user-list-title" level="H2" size="H4">Nutzerliste</Title>
-            <Text>Rollen und Zugriffsrechte direkt in der Liste verwalten.</Text>
+            <Title id="user-list-title" level="H2" size="H4">{t("Nutzerliste")}</Title>
+            <Text>{t("Rollen und Zugriffsrechte direkt in der Liste verwalten.")}</Text>
           </div>
         </div>
-        <Table accessibleName="Nutzerliste" alternateRowColors overflowMode="Popin" noDataText="Noch keine Nutzer vorhanden."
+        <Table accessibleName={t("Nutzerliste")} alternateRowColors overflowMode="Popin" noDataText={t("Noch keine Nutzer vorhanden.")}
           headerRow={<TableHeaderRow sticky>
-            <TableHeaderCell width="20%">Name</TableHeaderCell>
-            <TableHeaderCell width="20%" importance={2}>Benutzername</TableHeaderCell>
-            <TableHeaderCell width="35%" importance={1}>E-Mail</TableHeaderCell>
-            <TableHeaderCell width="25%">Rolle und Aktionen</TableHeaderCell>
+            <TableHeaderCell width="20%">{t("Name")}</TableHeaderCell>
+            <TableHeaderCell width="20%" importance={2}>{t("Benutzername")}</TableHeaderCell>
+            <TableHeaderCell width="35%" importance={1}>{t("E-Mail")}</TableHeaderCell>
+            <TableHeaderCell width="25%">{t("Rolle und Aktionen")}</TableHeaderCell>
           </TableHeaderRow>}>
           {users.map((user) => <TableRow key={user.id} rowKey={user.id}>
             <TableCell><Text>{user.name}</Text></TableCell>
@@ -128,13 +127,13 @@ export function Users() {
             <TableCell>
               <div className="user-row-actions">
                 <Select value={user.role === "admin" ? "admin" : "user"} disabled={updatingUserId === user.id}
-                  accessibleName={`Rolle von ${user.name}`} onChange={(event) => void updateRole(user.id, event.target.value)}>
-                  <Option value="user">Nutzer</Option>
+                  accessibleName={t("Rolle von {0}", user.name)} onChange={(event) => void updateRole(user.id, event.target.value)}>
+                  <Option value="user">{t("Nutzer")}</Option>
                   <Option value="admin">Admin</Option>
                 </Select>
-                <Button design="Negative" icon="delete" tooltip={`${user.name} löschen`}
-                  accessibleName={`${user.name} löschen`} disabled={updatingUserId === user.id}
-                  onClick={() => setDeletingUser(user)}>Löschen</Button>
+                <Button design="Negative" icon="delete" tooltip={t("{0} löschen", user.name)}
+                  accessibleName={t("{0} löschen", user.name)} disabled={updatingUserId === user.id}
+                  onClick={() => setDeletingUser(user)}>{t("Löschen")}</Button>
               </div>
             </TableCell>
           </TableRow>)}
@@ -143,32 +142,35 @@ export function Users() {
       <section className="user-admin-section" aria-labelledby="new-user-title">
         <div className="user-admin-section-heading">
           <div>
-            <Title id="new-user-title" level="H2" size="H4">Neuen Nutzer hinzufügen</Title>
-            <Text>Lege einen neuen Zugang für den Arbeitsbereich an.</Text>
+            <Title id="new-user-title" level="H2" size="H4">{t("Neuen Nutzer hinzufügen")}</Title>
+            <Text>{t("Lege einen neuen Zugang für den Arbeitsbereich an.")}</Text>
           </div>
         </div>
         <form onSubmit={createUser}>
-          <Form accessibleMode="Edit" layout="S1 M2 L2 XL2" className="user-form" accessibleName="Neuen Nutzer hinzufügen">
-            <FormGroup headerText="Zugangsdaten">
-              <FormItem labelContent={<Label required>Name</Label>}><Input name="name" required /></FormItem>
-              <FormItem labelContent={<Label required>Benutzername</Label>}><Input name="username" required /></FormItem>
-              <FormItem labelContent={<Label required>E-Mail</Label>}><Input name="email" type="Email" required /></FormItem>
-              <FormItem labelContent={<Label required>Passwort</Label>}><Input name="password" type="Password" required /></FormItem>
-              <FormItem labelContent={<Label>Rolle</Label>}>
-                <Select name="role" value="user"><Option value="user">Nutzer</Option><Option value="admin">Admin</Option></Select>
+          <Form accessibleMode="Edit" layout="S1 M2 L2 XL2" className="user-form" accessibleName={t("Neuen Nutzer hinzufügen")}>
+            <FormGroup headerText={t("Zugangsdaten")}>
+              <FormItem labelContent={<Label required>{t("Name")}</Label>}><Input name="name" required /></FormItem>
+              <FormItem labelContent={<Label required>{t("Benutzername")}</Label>}><Input name="username" required /></FormItem>
+              <FormItem labelContent={<Label required>{t("E-Mail")}</Label>}><Input name="email" type="Email" required /></FormItem>
+              <FormItem labelContent={<Label required>{t("Passwort")}</Label>}><Input name="password" type="Password" required /></FormItem>
+              <FormItem labelContent={<Label>{t("Rolle")}</Label>}>
+                <Select name="role" value="user"><Option value="user">{t("Nutzer")}</Option><Option value="admin">Admin</Option></Select>
               </FormItem>
             </FormGroup>
           </Form>
           <div className="user-form-actions">
-            <Button type="Submit" design="Emphasized" disabled={pending}>Nutzer hinzufügen</Button>
+            <Button type="Submit" design="Emphasized" disabled={pending}>{t("Nutzer hinzufügen")}</Button>
           </div>
         </form>
       </section>
     </div>
-    <MessageBox open={!!deletingUser} type="Confirm" titleText="Nutzer löschen"
-      actions={["Cancel", "Delete"]} emphasizedAction="Delete"
-      onClose={(action) => void deleteUser(action)}>
-      {deletingUser ? `Möchtest du ${deletingUser.name} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.` : ""}
+    <MessageBox open={!!deletingUser} type="Confirm" titleText={t("Nutzer löschen")}
+      actions={[
+        <Button key="cancel" onClick={() => setDeletingUser(null)}>{t("Abbrechen")}</Button>,
+        <Button key="delete" design="Emphasized" onClick={() => void deleteUser()}>{t("Löschen")}</Button>,
+      ]}
+      onClose={() => setDeletingUser(null)}>
+      {deletingUser ? t("Möchtest du {0} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.", deletingUser.name) : ""}
     </MessageBox>
   </>;
 }

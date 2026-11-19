@@ -107,7 +107,10 @@ export function daysSince(iso: string, now = new Date()) {
 /** Prüfintervall der Länder-Kontakte in Tagen (wöchentlich, mit SAP bestätigen). */
 export const CONTACT_CHECK_INTERVAL_DAYS = 7;
 
-const dateFmt = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Berlin" });
-const dateTimeFmt = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
-export const formatDate = (iso: string) => dateFmt.format(new Date(iso));
-export const formatDateTime = (iso: string) => dateTimeFmt.format(new Date(iso));
+const dateOptions = { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Berlin" } as const;
+const formats = {
+  de: [new Intl.DateTimeFormat("de-DE", dateOptions), new Intl.DateTimeFormat("de-DE", { ...dateOptions, hour: "2-digit", minute: "2-digit" })],
+  en: [new Intl.DateTimeFormat("en-GB", dateOptions), new Intl.DateTimeFormat("en-GB", { ...dateOptions, hour: "2-digit", minute: "2-digit" })],
+};
+export const formatDate = (iso: string, language: "de" | "en" = "de") => formats[language][0].format(new Date(iso));
+export const formatDateTime = (iso: string, language: "de" | "en" = "de") => formats[language][1].format(new Date(iso));

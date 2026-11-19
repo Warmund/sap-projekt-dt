@@ -1,10 +1,14 @@
 "use client";
+import { useLanguage } from "../language";
 import { useState, type FormEvent } from "react";
 import { ThemeProvider } from "@ui5/webcomponents-react/ThemeProvider";
 import { Button } from "@ui5/webcomponents-react/Button";
 import { authClient } from "../../lib/auth-client";
 
+import { LanguageSelect } from "../settings";
+
 export default function Login() {
+  const { t } = useLanguage();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -25,21 +29,22 @@ export default function Login() {
       <img className="login-logo" src="/sap-logo.svg" width="88" height="44" alt="SAP" />
       <p className="login-eyebrow">EXPORT CONTROL</p>
       <h1>SAP-Project-DT</h1>
-      <p className="login-intro">Willkommen zurück. Melde dich mit deinem Projektzugang an.</p>
+      <p className="login-intro">{t("Willkommen zurück. Melde dich mit deinem Projektzugang an.")}</p>
     </header>
     <div className="login-field">
-      <label htmlFor="username">Benutzername</label><input id="username" name="username" autoComplete="username" placeholder="Dein Benutzername" required />
+      <label htmlFor="username">{t("Benutzername")}</label><input id="username" name="username" autoComplete="username" placeholder={t("Dein Benutzername")} required />
     </div>
     <div className="login-field">
-      <label htmlFor="password">Passwort</label><input id="password" name="password" type="password" autoComplete="current-password" placeholder="Dein Passwort" required />
+      <label htmlFor="password">{t("Passwort")}</label><input id="password" name="password" type="password" autoComplete="current-password" placeholder={t("Dein Passwort")} required />
     </div>
-    {error && <p className="login-error" role="alert">{error}</p>}
+    {error && <p className="login-error" role="alert">{t(error)}</p>}
     <div className="login-actions">
-      <Button className="login-submit" design="Emphasized" type="Submit" disabled={pending}>{pending ? "Anmeldung läuft …" : "Anmelden"}</Button>
-      <div className="login-divider"><span>oder</span></div>
+      <Button className="login-submit" design="Emphasized" type="Submit" disabled={pending}>{pending ? t("Anmeldung läuft …") : t("Anmelden")}</Button>
+      <div className="login-divider"><span>{t("oder")}</span></div>
       <Button className="login-sso" type="Button" disabled aria-describedby="sso-hint">SSO</Button>
-      <p id="sso-hint" className="login-hint">Single Sign-on ist noch nicht verfügbar.</p>
+      <p id="sso-hint" className="login-hint">{t("Single Sign-on ist noch nicht verfügbar.")}</p>
     </div>
-    <footer className="login-footer">SAP Export Control · Hochschulprojekt</footer>
+    <LanguageSelect />
+    <footer className="login-footer">{t("SAP Export Control · Hochschulprojekt")}</footer>
   </form></main></ThemeProvider>;
 }

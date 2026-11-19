@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "../language";
 import type { ReactNode } from "react";
 import { ObjectStatus } from "@ui5/webcomponents-react/ObjectStatus";
 import { Title } from "@ui5/webcomponents-react/Title";
@@ -16,7 +17,8 @@ const OVERALL: Record<OverallStatus, State> = {
 };
 
 export function StatusBadge({ status }: { status: OverallStatus }) {
-  return <ObjectStatus inverted state={OVERALL[status]}>{status}</ObjectStatus>;
+  const { t } = useLanguage();
+  return <ObjectStatus inverted state={OVERALL[status]}>{t(status)}</ObjectStatus>;
 }
 
 const STEP: Record<StepStatus, [string, State]> = {
@@ -29,11 +31,12 @@ const STEP: Record<StepStatus, [string, State]> = {
 };
 
 export function StepBadge({ status, label }: { status: StepStatus; label?: string }) {
+  const { t } = useLanguage();
   const [text, state] = STEP[status];
   // Mit label: kompakte Pille (nur Schrittname), Status über Farbe, Icon und Tooltip.
   return label
-    ? <ObjectStatus inverted state={state} showDefaultIcon={status === "done" || status === "running"} title={`${label}: ${text}`}>{label}</ObjectStatus>
-    : <ObjectStatus inverted={status !== "notApplicable"} state={state}>{text}</ObjectStatus>;
+    ? <ObjectStatus inverted state={state} showDefaultIcon={status === "done" || status === "running"} title={`${t(label)}: ${t(text)}`}>{t(label)}</ObjectStatus>
+    : <ObjectStatus inverted={status !== "notApplicable"} state={state}>{t(text)}</ObjectStatus>;
 }
 
 /** Kennzahl-Kachel. Mit onClick wird sie zur Navigations-Kachel. */
@@ -65,10 +68,11 @@ export function Section({ title, sub, actions, children }: { title: string; sub?
 
 /** Einfache horizontale Balken, ohne Chart-Bibliothek. */
 export function BarList({ rows, label }: { rows: { label: string; value: number; hint?: string }[]; label: string }) {
+  const { t } = useLanguage();
   const max = Math.max(1, ...rows.map((r) => r.value));
   return <ul className="rg-bars" aria-label={label}>
     {rows.map((r) => <li key={r.label}>
-      <span className="rg-bar-label">{r.label}{r.hint && <small>{r.hint}</small>}</span>
+      <span className="rg-bar-label">{t(r.label)}{r.hint && <small>{t(r.hint)}</small>}</span>
       <span className="rg-bar-track" aria-hidden="true"><span className="rg-bar-fill" style={{ width: `${(r.value / max) * 100}%` }} /></span>
       <span className="rg-bar-value">{r.value}</span>
     </li>)}

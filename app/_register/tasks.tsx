@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "../language";
 import { useState } from "react";
 import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
 import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
@@ -11,7 +12,7 @@ import { SegmentedButton } from "@ui5/webcomponents-react/SegmentedButton";
 import { SegmentedButtonItem } from "@ui5/webcomponents-react/SegmentedButtonItem";
 import { IllustratedMessage } from "@ui5/webcomponents-react/IllustratedMessage";
 import "@ui5/webcomponents-fiori/dist/illustrations/NoTasks.js";
-import { formatDate, stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
+import { stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
 import type { StepKey } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { StepBadge } from "./ui";
@@ -25,6 +26,7 @@ const TEAMS: { key: StepKey; label: string }[] = [
 
 /** Sicht einer Nachbarabteilung: nur eigene Schritte, nur Erledigung bestätigen. */
 export function RegisterTasks() {
+  const { t, date } = useLanguage();
   const { partners, completeStep, open } = useRegister();
   const [team, setTeam] = useState<StepKey>("cloud");
 
@@ -34,32 +36,32 @@ export function RegisterTasks() {
     .filter((t) => t.status === "running" || t.status === "waiting");
 
   return <DynamicPage hidePinButton className="app-page"
-    titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Meine Sperrschritte</Title>}
-      subheading={<Text>Sicht einer Nachbarabteilung · {TEAMS.find((t) => t.key === team)?.label}</Text>} />}>
+    titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">{t("Meine Sperrschritte")}</Title>}
+      subheading={<Text>{t("Sicht einer Nachbarabteilung ·")} {t(TEAMS.find((item) => item.key === team)?.label ?? "")}</Text>} />}>
     <div className="rg-page rg-narrow">
       <MessageStrip hideCloseButton design="Information">
-        Eingeschränkte Rolle: Nachbarabteilungen sehen nur ihre eigenen Schritte und bestätigen deren Erledigung. Stammdaten, Freigaben und Schritte anderer Teams sind nicht änderbar.
+        {t("Eingeschränkte Rolle: Nachbarabteilungen sehen nur ihre eigenen Schritte und bestätigen deren Erledigung. Stammdaten, Freigaben und Schritte anderer Teams sind nicht änderbar.")}
       </MessageStrip>
-      <SegmentedButton accessibleName="Team (Demo)" onSelectionChange={(e) => setTeam(e.detail.selectedItems[0]?.dataset.key as StepKey)}>
-        {TEAMS.map((t) => <SegmentedButtonItem key={t.key} data-key={t.key} selected={team === t.key}>{t.label}</SegmentedButtonItem>)}
+      <SegmentedButton accessibleName={t("Team (Demo)")} onSelectionChange={(e) => setTeam(e.detail.selectedItems[0]?.dataset.key as StepKey)}>
+        {TEAMS.map((item) => <SegmentedButtonItem key={item.key} data-key={item.key} selected={team === item.key}>{t(item.label)}</SegmentedButtonItem>)}
       </SegmentedButton>
 
       {tasks.length === 0
-        ? <IllustratedMessage name="NoTasks" titleText="Keine offenen Schritte" subtitleText="Für dieses Team ist gerade nichts zu tun." />
+        ? <IllustratedMessage name="NoTasks" titleText={t("Keine offenen Schritte")} subtitleText={t("Für dieses Team ist gerade nichts zu tun.")} />
         : tasks.map(({ p, status }) => <article key={p.id} className="rg-task">
           <div className="rg-task-text">
-            <div className="rg-title-row"><Title level="H2" size="H5">{STEP_DEFS[team].label}</Title><StepBadge status={status} /></div>
-            <Text><Link accessibleRole="Button" onClick={() => open("rg-detail", p.id)}>{p.name}</Link> · {detailFor(team, p.tenants.map((t) => `${t.tenantId} (${t.product})`))}</Text>
-            <Text className="rg-muted">{status === "waiting" ? waitingText(team) : `Freigegeben am ${formatDate(p.decidedAt!)}`}</Text>
+            <div className="rg-title-row"><Title level="H2" size="H5">{t(STEP_DEFS[team].label)}</Title><StepBadge status={status} /></div>
+            <Text><Link accessibleRole="Button" onClick={() => open("rg-detail", p.id)}>{p.name}</Link> · {t(detailFor(team, p.tenants.map((tenant) => `${tenant.tenantId} (${tenant.product})`)))}</Text>
+            <Text className="rg-muted">{status === "waiting" ? t(waitingText(team)) : t("Freigegeben am {0}", date(p.decidedAt!))}</Text>
           </div>
           {status === "running" && <div className="rg-actions">
-            <Button design="Transparent">Rückfrage an Export Control</Button>
-            {team === "tickets" && <Button onClick={() => completeStep(p.id, "tickets", "Keine offenen Tickets vorhanden")}>Keine Tickets vorhanden</Button>}
-            <Button design="Positive" onClick={() => completeStep(p.id, team)}>Erledigung bestätigen</Button>
+            <Button design="Transparent">{t("Rückfrage an Export Control")}</Button>
+            {team === "tickets" && <Button onClick={() => completeStep(p.id, "tickets", "Keine offenen Tickets vorhanden")}>{t("Keine Tickets vorhanden")}</Button>}
+            <Button design="Positive" onClick={() => completeStep(p.id, team)}>{t("Erledigung bestätigen")}</Button>
           </div>}
         </article>)}
 
-      <Text className="rg-muted">Eingang im Zielbild über einen einheitlichen Weg für alle Teams und LoBs, z. B. eine E-Mail, die automatisch ein Ticket erzeugt. Die Bestätigung hier ersetzt die Antwort per E-Mail und die eigene Excel-Liste.</Text>
+      <Text className="rg-muted">{t("Eingang im Zielbild über einen einheitlichen Weg für alle Teams und LoBs, z. B. eine E-Mail, die automatisch ein Ticket erzeugt. Die Bestätigung hier ersetzt die Antwort per E-Mail und die eigene Excel-Liste.")}</Text>
     </div>
   </DynamicPage>;
 }

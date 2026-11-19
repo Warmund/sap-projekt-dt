@@ -20,3 +20,20 @@ test("redirects unauthenticated visitors to the login page", async ({ page }) =>
   await page.screenshot({ path: ".scratch/login-mobile.png", fullPage: true });
   expect(errors).toEqual([]);
 });
+
+test("switches the login language and remembers it across reloads", async ({ page }) => {
+  await page.goto("/login");
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await page.locator("#app-language").click();
+  await page.getByRole("option", { name: "English", exact: true }).click();
+  await expect(page.getByLabel("Username")).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page.locator("#app-language").click();
+  await page.getByRole("option", { name: "Deutsch", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Anmelden", exact: true })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+});

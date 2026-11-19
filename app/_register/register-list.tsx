@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "../language";
 import { useState } from "react";
 import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
 import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
@@ -33,6 +34,7 @@ export function RegisterList() {
 }
 
 function RegisterResults() {
+  const { t, date, language } = useLanguage();
   const { partners, open, registerFilter, setRegisterFilter } = useRegister();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("date-desc");
@@ -53,104 +55,104 @@ function RegisterResults() {
     }
     return !q || [p.name, p.bpId, p.erpId, ...p.tenants.map((t) => t.tenantId)].some((v) => v.toLowerCase().includes(q));
   });
-  const collator = new Intl.Collator("de", { numeric: true, sensitivity: "base" });
+  const collator = new Intl.Collator(language, { numeric: true, sensitivity: "base" });
   rows.sort((a, b) => {
     const [field, direction] = sort.split("-");
     const values = {
       name: [a.name, b.name],
-      country: [a.country, b.country],
+      country: [t(a.country), t(b.country)],
       ets: [a.ets, b.ets],
-      list: [a.sanctionsList, b.sanctionsList],
-      cloud: [a.cloudCustomer ? "Ja" : "Nein", b.cloudCustomer ? "Ja" : "Nein"],
+      list: [t(a.sanctionsList), t(b.sanctionsList)],
+      cloud: [t(a.cloudCustomer ? "Ja" : "Nein"), t(b.cloudCustomer ? "Ja" : "Nein")],
       date: [a.gtsBlockedAt, b.gtsBlockedAt],
-      status: [overallStatus(a), overallStatus(b)],
+      status: [t(overallStatus(a)), t(overallStatus(b))],
     };
     const [left, right] = values[field as keyof typeof values] ?? values.date;
     return (direction === "desc" ? -1 : 1) * collator.compare(left, right) || collator.compare(a.bpId, b.bpId);
   });
   const selectFilters = [
-    { key: "country", label: "Land", options: unique(scoped.map((p) => p.country)) },
+    { key: "country", label: t("Land"), options: unique(scoped.map((p) => p.country)) },
     { key: "ets", label: "ETS", options: unique(scoped.map((p) => p.ets)) },
-    { key: "list", label: "Sanktionsliste", options: unique(scoped.map((p) => p.sanctionsList)) },
+    { key: "list", label: t("Sanktionsliste"), options: unique(scoped.map((p) => p.sanctionsList)) },
     { key: "cloud", label: "Cloud", options: ["Ja", "Nein"] },
-    { key: "status", label: "Status", options: unique(scoped.map(overallStatus)) },
+    { key: "status", label: t("Status"), options: unique(scoped.map(overallStatus)) },
   ] as const;
-  const title = registerFilter === "all" ? "Geschäftspartner" : REGISTER_FILTERS[registerFilter];
+  const title = registerFilter === "all" ? t("Geschäftspartner") : t(REGISTER_FILTERS[registerFilter]);
 
   return <DynamicPage hidePinButton className="app-page"
-    titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Register sanktionierter Geschäftspartner</Title>} />}>
+    titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">{t("Register sanktionierter Geschäftspartner")}</Title>} />}>
     <div className="rg-page">
       <section className="rg-table-wrap" aria-labelledby="register-results">
         <div className="rg-table-toolbar">
           <div className="rg-actions">
             <Title id="register-results" level="H2" size="H5">{title} ({rows.length})</Title>
-            {registerFilter !== "all" && <Link accessibleRole="Button" onClick={() => setRegisterFilter("all")}>Alle Kunden anzeigen</Link>}
+            {registerFilter !== "all" && <Link accessibleRole="Button" onClick={() => setRegisterFilter("all")}>{t("Alle Kunden anzeigen")}</Link>}
           </div>
           <div className="rg-actions">
-          <Label for="register-sort">Sortieren nach</Label>
-          <Select id="register-sort" accessibleName="Sortieren nach" value={sort} onChange={(e) => setSort(e.target.value)}>
-            <Option value="date-desc">GTS-Sperre: neueste zuerst</Option>
-            <Option value="date-asc">GTS-Sperre: älteste zuerst</Option>
+          <Label for="register-sort">{t("Sortieren nach")}</Label>
+          <Select id="register-sort" accessibleName={t("Sortieren nach")} value={sort} onChange={(e) => setSort(e.target.value)}>
+            <Option value="date-desc">{t("GTS-Sperre: neueste zuerst")}</Option>
+            <Option value="date-asc">{t("GTS-Sperre: älteste zuerst")}</Option>
             {[
-              ["name", "Geschäftspartner"], ["country", "Land"], ["ets", "ETS"],
-              ["list", "Sanktionsliste"], ["cloud", "Cloud"], ["status", "Status"],
+              ["name", t("Geschäftspartner")], ["country", t("Land")], ["ets", "ETS"],
+              ["list", t("Sanktionsliste")], ["cloud", "Cloud"], ["status", t("Status")],
             ].flatMap(([key, label]) => [
-              <Option key={key + "-asc"} value={key + "-asc"}>{label}: aufsteigend</Option>,
-              <Option key={key + "-desc"} value={key + "-desc"}>{label}: absteigend</Option>,
+              <Option key={key + "-asc"} value={key + "-asc"}>{label}{t(": aufsteigend")}</Option>,
+              <Option key={key + "-desc"} value={key + "-desc"}>{label}{t(": absteigend")}</Option>,
             ])}
           </Select>
           </div>
-          <Input type="Search" accessibleName="Suche" placeholder="Name, BP-ID, ERP-ID oder Tenant-ID"
+          <Input type="Search" accessibleName={t("Suche")} placeholder={t("Name, BP-ID, ERP-ID oder Tenant-ID")}
             icon={<Icon name="search" />} showClearIcon value={query} onInput={(e) => setQuery(e.target.value)} />
         </div>
-        <Panel collapsed headerText={activeCount ? `Filter (${activeCount})` : "Filter"}>
+        <Panel collapsed headerText={activeCount ? t("Filter ({0})", activeCount) : t("Filter")}>
           <div className="rg-form-grid">
             {selectFilters.map(({ key, label, options }) => <div className="rg-field" key={key}>
               <Label for={`register-${key}`}>{label}</Label>
               <Select id={`register-${key}`} accessibleName={label} value={filters[key]}
                 onChange={(e) => setFilters((current) => ({ ...current, [key]: e.target.value }))}>
-                <Option value="">Alle</Option>
-                {options.map((value) => <Option key={value} value={value}>{value}</Option>)}
+                <Option value="">{t("Alle")}</Option>
+                {options.map((value) => <Option key={value} value={value}>{t(value)}</Option>)}
               </Select>
             </div>)}
             {(["from", "to"] as const).map((key) => {
-              const label = key === "from" ? "GTS-Sperre von" : "GTS-Sperre bis";
+              const label = key === "from" ? t("GTS-Sperre von") : t("GTS-Sperre bis");
               return <div key={key} className="rg-field">
                 <Label for={`register-${key}`}>{label}</Label>
-                <DatePicker id={`register-${key}`} accessibleName={label} valueFormat="yyyy-MM-dd" displayFormat="dd.MM.yyyy"
+                <DatePicker id={`register-${key}`} accessibleName={label} valueFormat="yyyy-MM-dd" displayFormat={language === "de" ? "dd.MM.yyyy" : "MMM d, yyyy"}
                   value={filters[key]} onChange={({ detail }) => {
                     if (detail.valid || !detail.value) setFilters((current) => ({ ...current, [key]: detail.value }));
                   }} />
               </div>;
             })}
           </div>
-          {invalidRange && <p role="alert">Das Enddatum muss am oder nach dem Startdatum liegen.</p>}
+          {invalidRange && <p role="alert">{t("Das Enddatum muss am oder nach dem Startdatum liegen.")}</p>}
           {activeCount > 0 && <div className="rg-actions rg-filter-actions">
-            <Button design="Transparent" onClick={() => setFilters(emptyFilters)}>Filter zurücksetzen</Button>
+            <Button design="Transparent" onClick={() => setFilters(emptyFilters)}>{t("Filter zurücksetzen")}</Button>
           </div>}
         </Panel>
         <Table accessibleName={title} overflowMode="Popin"
-          noDataText={activeCount ? "Keine Treffer. Ändere oder entferne die Filter." : q ? "Keine Treffer. Ändere den Suchbegriff." : "Keine Geschäftspartner in dieser Ansicht."}
+          noDataText={activeCount ? t("Keine Treffer. Ändere oder entferne die Filter.") : q ? t("Keine Treffer. Ändere den Suchbegriff.") : t("Keine Geschäftspartner in dieser Ansicht.")}
           onRowClick={(e) => open("rg-detail", e.detail.row.rowKey)}
           headerRow={<TableHeaderRow sticky>
-            <TableHeaderCell importance={6} minWidth="9rem">Geschäftspartner</TableHeaderCell>
-            <TableHeaderCell importance={2}>Land</TableHeaderCell>
+            <TableHeaderCell importance={6} minWidth="9rem">{t("Geschäftspartner")}</TableHeaderCell>
+            <TableHeaderCell importance={2}>{t("Land")}</TableHeaderCell>
             <TableHeaderCell importance={1} minWidth="4.5rem">ETS</TableHeaderCell>
-            <TableHeaderCell importance={1}>Sanktionsliste</TableHeaderCell>
+            <TableHeaderCell importance={1}>{t("Sanktionsliste")}</TableHeaderCell>
             <TableHeaderCell importance={1}>Cloud</TableHeaderCell>
-            <TableHeaderCell importance={2}>GTS-Sperre</TableHeaderCell>
-            <TableHeaderCell importance={5} minWidth="8rem">Status</TableHeaderCell>
+            <TableHeaderCell importance={2}>{t("GTS-Sperre")}</TableHeaderCell>
+            <TableHeaderCell importance={5} minWidth="8rem">{t("Status")}</TableHeaderCell>
           </TableHeaderRow>}>
           {rows.map((p) => <TableRow key={p.id} rowKey={p.id} interactive>
             <TableCell><div className="rg-cell-stack">
               <Text className="rg-strong">{p.name}</Text>
-              <Text className="rg-muted">BP {p.bpId} · ERP {p.erpId}{p.specialCategory ? ` · ${p.specialCategory}` : ""}</Text>
+              <Text className="rg-muted">{t("BP")} {p.bpId} · ERP {p.erpId}{p.specialCategory ? ` · ${t(p.specialCategory)}` : ""}</Text>
             </div></TableCell>
-            <TableCell><Text>{p.country}</Text></TableCell>
+            <TableCell><Text>{t(p.country)}</Text></TableCell>
             <TableCell><Text>{p.ets}</Text></TableCell>
-            <TableCell><Text>{p.sanctionsList}</Text></TableCell>
-            <TableCell><Text>{p.cloudCustomer ? p.tenants.length ? `Ja (${p.tenants.length})` : "Ja (Tenants fehlen)" : "Nein"}</Text></TableCell>
-            <TableCell><Text>{formatDate(p.gtsBlockedAt)}</Text></TableCell>
+            <TableCell><Text>{t(p.sanctionsList)}</Text></TableCell>
+            <TableCell><Text>{p.cloudCustomer ? p.tenants.length ? t("Ja ({0})", p.tenants.length) : t("Ja (Tenants fehlen)") : t("Nein")}</Text></TableCell>
+            <TableCell><Text>{date(p.gtsBlockedAt)}</Text></TableCell>
             <TableCell><StatusBadge status={overallStatus(p)} /></TableCell>
           </TableRow>)}
         </Table>

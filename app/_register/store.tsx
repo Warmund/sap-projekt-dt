@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "../language";
 import { createContext, useContext, useRef, useState, type ReactNode } from "react";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
 import { loadRegister, mutateRegister } from "./actions";
@@ -29,6 +30,7 @@ const Ctx = createContext<RegisterState | null>(null);
 
 /** Database is authoritative; failed writes never become local success states. */
 export function RegisterProvider({ children, currentUser, onNavigate, initialData }: { children: ReactNode; currentUser: string; onNavigate: (view: RegisterView) => void; initialData: RegisterData }) {
+  const { t } = useLanguage();
   const [data, setData] = useState(initialData);
   const [registerFilter, setRegisterFilter] = useState<RegisterFilter>("all");
   const [selectedId, setSelectedId] = useState<string | undefined>(initialData.partners[0]?.id);
@@ -67,8 +69,8 @@ export function RegisterProvider({ children, currentUser, onNavigate, initialDat
     },
   };
   return <Ctx.Provider value={value}>
-    {saving && <MessageStrip hideCloseButton>Änderung wird gespeichert …</MessageStrip>}
-    {error && <MessageStrip design="Negative" onClose={() => setError("")}>{error}</MessageStrip>}
+    {saving && <MessageStrip hideCloseButton>{t("Änderung wird gespeichert …")}</MessageStrip>}
+    {error && <MessageStrip design="Negative" onClose={() => setError("")}>{t(error)}</MessageStrip>}
     {children}
   </Ctx.Provider>;
 }

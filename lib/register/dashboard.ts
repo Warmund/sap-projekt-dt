@@ -29,14 +29,15 @@ export function dashboardSummary(partners: BlockedPartner[], contacts: CountryCo
     dueContacts: contacts.filter((c) => !c.lastChecked || daysSince(c.lastChecked, now) >= CONTACT_CHECK_INTERVAL_DAYS).length,
   };
 }
-export function blockingTimeline(partners: BlockedPartner[], year: string) {
+export function blockingTimeline(partners: BlockedPartner[], year: string, language = "de") {
   if (year === "all") {
     const years = [...new Set(partners.map((p) => p.gtsBlockedAt.slice(0, 4)))].sort();
     return years.map((label) => ({ label, value: partners.filter((p) => p.gtsBlockedAt.startsWith(label)).length }));
   }
+  const monthLabel = new Intl.DateTimeFormat(language, { month: "short", timeZone: "UTC" });
   return Array.from({ length: 12 }, (_, month) => {
     const prefix = `${year}-${String(month + 1).padStart(2, "0")}`;
-    return { label: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"][month],
+    return { label: monthLabel.format(new Date(Date.UTC(2000, month))),
       value: partners.filter((p) => p.gtsBlockedAt.startsWith(prefix)).length };
   });
 }

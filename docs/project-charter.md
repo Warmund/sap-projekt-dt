@@ -10,6 +10,7 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 19.11.2026 | Deutsch und Englisch für die Oberfläche ergänzt. Die Sprache wird in den Einstellungen gewählt und im Browser gespeichert. | 5.2 |
 | Agent | 19.11.2026 | Register um auf- und absteigende Sortierung für Kunden, Land, ETS, Sanktionsliste, Cloud, Sperrdatum und Status ergänzt | 5.1 |
 | Agent | 19.11.2026 | Register um aufklappbare Filter für Land, ETS, Sanktionsliste, Cloud, GTS-Sperrdatum und Status ergänzt | 5.0 |
 | Agent | 19.11.2026 | Vercel-Installationsbefehl versuchsweise auf npm install --no-audit --no-fund umgestellt. Build-Zeit nach dem Wechsel noch zu messen. | 4.9 |
@@ -115,6 +116,7 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Es werden ausschließlich synthetische Mock-Daten verwendet.
 - Der technische Stack ist Next.js 16 mit TypeScript, UI5 Web Components for React, Prisma 7 und PostgreSQL 18.
 - Die Internet-Demo soll dem Projektteam und ausgewählten SAP-Ansprechpersonen zugänglich sein; Vercel soll möglichst im kostenlosen Tarif genutzt werden. Ein Vercel-Konto darf für Besucher nicht erforderlich sein; die konkrete Zugriffsschutzlösung ist offen. Änderungen am Hauptbranch sollen automatisch deployt werden.
+- Die Oberfläche des MVP ist auf Deutsch und Englisch verfügbar. Die Sprachwahl gilt pro Browser und ist auch vor der Anmeldung verfügbar.
 - Für den MVP ist eine individuelle App-Anmeldung mit Benutzername und Passwort, Better Auth und einer SAP-nah gestalteten Login-Oberfläche mit SAP-Logo und responsiver Anmeldekarte vorgesehen. Ein deaktivierter SSO-Button dient als sichtbarer Platzhalter ohne Funktion. Echtes SAP-SSO bleibt eine spätere Integrationsmöglichkeit.
 - Home und die persönliche Todo-App sind entfernt. Das Register-Dashboard ist Startansicht und oberster Navigationseintrag; ein Klick auf das Logo führt ebenfalls dorthin. Fachliche Sperrschritte bleiben Bestandteil des Registers.
 - GitHub Actions prüft TypeScript und ESLint bei Push auf `main`. Deployments erfolgen unabhängig davon über die bestehende Vercel-GitHub-Integration mit `Warmund/sap-projekt-dt`: `main` nach Production, andere Branches als Preview. Die separate Deployment-Action wurde entfernt und `git.deploymentEnabled` wieder aktiviert. Die dafür zuvor angelegten GitHub-Secrets werden nicht mehr benötigt.

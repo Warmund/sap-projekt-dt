@@ -85,3 +85,6 @@ html, body {
 .app-layout { height: 100svh; }
 .app-content { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--sapBackgroundColor); font-family: var(--sapFontFamily); }
 .app-page { flex: 1; min-height: 0; }
+
+.language-field { display: grid; gap: 0.25rem; max-width: 20rem; }
+.language-field ui5-select { width: 100%; }
