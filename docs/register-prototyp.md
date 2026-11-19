@@ -24,7 +24,7 @@ Neue Navigationsgruppe „Sanktionsregister“ in der bestehenden Shell mit sech
 
 ## Annahmen und offene Punkte (mit SAP klären)
 
-1. Reihenfolge der Sperrschritte: SAP-Folien setzen S-User an den Anfang, im Call hieß es Tickets, dann Remote, dann S-User und Cloud parallel. Kernfrage: Lassen sich Tickets noch schließen, wenn der S-User schon gesperrt ist? Im Detail umschaltbar (Variante A und B).
+1. Reihenfolge der Sperrschritte: SAP-Folien setzen S-User an den Anfang, im Call hieß es Tickets, dann Remote, dann S-User und Cloud parallel. Kernfrage: Lassen sich Tickets noch schließen, wenn der S-User schon gesperrt ist? Im Detail pro Fall vor der Entscheidung wählbar (Variante A und B). A ist der Standard. Nach der Entscheidung verwenden alle Ansichten und der Server die gespeicherte Variante. Bei Altfällen deutet eine Ticket-Rückmeldung vor der S-User-Rückmeldung auf B hin.
 2. Soll die Cloud-Sperre zuerst kommen?
 3. Aus welchem SAP-System kommen Cloud-Status und Tenants?
 4. Bedeutung der Sonderkategorie SR.

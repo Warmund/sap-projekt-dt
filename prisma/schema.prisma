@@ -104,7 +104,13 @@ enum RegisterSpecialCategory {
   Sonstige
 }
 
+enum RegisterStepOrder {
+  A
+  B
+}
+
 model RegisterPartner {
+  stepOrder           RegisterStepOrder        @default(A)
   id                  String                   @id @default(cuid())
   bpId                String                   @unique
   erpId               String

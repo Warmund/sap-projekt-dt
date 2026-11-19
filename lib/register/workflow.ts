@@ -24,10 +24,10 @@ export function isApplicable(p: BlockedPartner, step: StepKey) {
 }
 
 /** Status je Sperrschritt für die gewählte Reihenfolge. */
-export function stepStatuses(p: BlockedPartner, variant: StepOrderVariant): Record<StepKey, StepStatus> {
+export function stepStatuses(p: BlockedPartner): Record<StepKey, StepStatus> {
   const result = {} as Record<StepKey, StepStatus>;
   let blocked = false;
-  for (const phase of PHASES[variant]) {
+  for (const phase of PHASES[p.stepOrder]) {
     let phaseOpen = false;
     for (const step of phase) {
       if (!isApplicable(p, step)) { result[step] = "notApplicable"; continue; }
@@ -42,16 +42,16 @@ export function stepStatuses(p: BlockedPartner, variant: StepOrderVariant): Reco
   return result;
 }
 
-export function progress(p: BlockedPartner, variant: StepOrderVariant) {
-  const statuses = Object.values(stepStatuses(p, variant)).filter((s) => s !== "notApplicable");
+export function progress(p: BlockedPartner) {
+  const statuses = Object.values(stepStatuses(p)).filter((s) => s !== "notApplicable");
   return { done: statuses.filter((s) => s === "done").length, total: statuses.length };
 }
 
-export function overallStatus(p: BlockedPartner, variant: StepOrderVariant): OverallStatus {
+export function overallStatus(p: BlockedPartner): OverallStatus {
   if (p.decision === "pending") return "Zur Freigabe";
   if (p.decision === "sanctionedNoBlock") return "Sanktioniert ohne Sperre";
   if (p.decision === "declined") return "Abgelehnt";
-  const { done, total } = progress(p, variant);
+  const { done, total } = progress(p);
   return done === total ? "Abgeschlossen" : "Sperrschritte laufen";
 }
 
@@ -71,8 +71,8 @@ export function decide(p: BlockedPartner, decision: Exclude<Decision, "pending">
 }
 
 /** Rückmeldung eines Schritts. Nur Schritte im Status „läuft“ können erledigt werden. */
-export function completeStep(p: BlockedPartner, step: StepKey, variant: StepOrderVariant, by: string, result?: string, now = new Date()): BlockedPartner {
-  if (stepStatuses(p, variant)[step] !== "running") return p;
+export function completeStep(p: BlockedPartner, step: StepKey, by: string, result?: string, now = new Date()): BlockedPartner {
+  if (stepStatuses(p)[step] !== "running") return p;
   const at = now.toISOString();
   const text = result || defaultResult(p, step);
   return {
@@ -83,11 +83,11 @@ export function completeStep(p: BlockedPartner, step: StepKey, variant: StepOrde
 }
 
 /** Demo-Hilfe: alle laufenden Schritte zurückmelden. */
-export function advance(p: BlockedPartner, variant: StepOrderVariant, now = new Date()): BlockedPartner {
-  const statuses = stepStatuses(p, variant);
+export function advance(p: BlockedPartner, now = new Date()): BlockedPartner {
+  const statuses = stepStatuses(p);
   return (Object.keys(statuses) as StepKey[])
     .filter((s) => statuses[s] === "running")
-    .reduce((acc, s) => completeStep(acc, s, variant, `Rückmeldung ${STEP_DEFS[s].system}`, undefined, now), p);
+    .reduce((acc, s) => completeStep(acc, s, `Rückmeldung ${STEP_DEFS[s].system}`, undefined, now), p);
 }
 
 function defaultResult(p: BlockedPartner, step: StepKey) {

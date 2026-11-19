@@ -37,14 +37,14 @@ export function RegisterList() {
 }
 
 function FilteredRegister() {
-  const { partners, variant, open, registerFilter, setRegisterFilter } = useRegister();
+  const { partners, open, registerFilter, setRegisterFilter } = useRegister();
   const [part, setPart] = useState<Part>(registerFilter === "noBlock" ? "noBlock" : "all");
   const [query, setQuery] = useState("");
   const [ets, setEts] = useState("Alle");
   const [cloud, setCloud] = useState("Alle");
   const [status, setStatus] = useState("Alle");
 
-  const inPart = partners.filter((p) => matchesRegisterFilter(p, registerFilter, variant)).filter((p) => part === "all" ? true : part === "workflow"
+  const inPart = partners.filter((p) => matchesRegisterFilter(p, registerFilter)).filter((p) => part === "all" ? true : part === "workflow"
     ? p.decision === "pending" || p.decision === "approved"
     : p.decision === "sanctionedNoBlock");
   const q = query.trim().toLowerCase();
@@ -52,18 +52,18 @@ function FilteredRegister() {
     (!q || [p.name, p.bpId, p.erpId, ...p.tenants.map((t) => t.tenantId)].some((v) => v.toLowerCase().includes(q))) &&
     (ets === "Alle" || p.ets === ets) &&
     (cloud === "Alle" || (cloud === "Ja") === p.cloudCustomer) &&
-    (status === "Alle" || overallStatus(p, variant) === status));
+    (status === "Alle" || overallStatus(p) === status));
 
-  const exportCsv = () => downloadCsv(rows, variant);
+  const exportCsv = () => downloadCsv(rows);
 
   return <DynamicPage hidePinButton className="app-page"
     titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Register sanktionierter Geschäftspartner</Title>}
-      subheading={<Text>Teil 1: Sperr-Workflow · Teil 2: sanktioniert ohne Sperre · ersetzt die Excel-Liste „to be reported“</Text>}
-      actionsBar={<div className="rg-actions">
+      subheading={<Text>Geschäftspartner suchen, Fälle prüfen und Sperrschritte verfolgen.</Text>} />}>
+    <div className="rg-page">
+      <div className="rg-actions">
         <Button icon="download" onClick={exportCsv}>Gefilterte Liste exportieren</Button>
         <Button design="Emphasized" icon="add-document" onClick={() => open("rg-new")}>Neuer Datensatz</Button>
-      </div>} />}>
-    <div className="rg-page">
+      </div>
       <SegmentedButton accessibleName="Teil des Registers" onSelectionChange={(e) => setPart(e.detail.selectedItems[0]?.dataset.key as Part)}>
         <SegmentedButtonItem data-key="all" selected={part === "all"}>Alle Kunden ({partners.length})</SegmentedButtonItem>
         <SegmentedButtonItem data-key="workflow" selected={part === "workflow"}>Sperr-Workflow ({partners.filter((p) => p.decision === "pending" || p.decision === "approved").length})</SegmentedButtonItem>
@@ -109,7 +109,7 @@ function FilteredRegister() {
       </MessageStrip>}
 
       <div className="rg-table-wrap">
-        <Table accessibleName="Register" overflowMode="Popin" noDataText="Keine Einträge für diese Filter."
+        <Table accessibleName="Register" overflowMode="Popin" noDataText="Keine passenden Einträge. Ändere die Suche oder die Filter."
           onRowClick={(e) => open("rg-detail", e.detail.row.rowKey)}
           headerRow={<TableHeaderRow sticky>
             <TableHeaderCell minWidth="14rem">Geschäftspartner</TableHeaderCell>
@@ -122,7 +122,7 @@ function FilteredRegister() {
             <TableHeaderCell>Status</TableHeaderCell>
           </TableHeaderRow>}>
           {rows.map((p) => {
-            const st = stepStatuses(p, variant);
+            const st = stepStatuses(p);
             return <TableRow key={p.id} rowKey={p.id} interactive>
               <TableCell><div className="rg-cell-stack"><Text className="rg-strong">{p.name}</Text><Text className="rg-muted">BP {p.bpId} · ERP {p.erpId}{p.specialCategory ? ` · ${p.specialCategory}` : ""}</Text></div></TableCell>
               <TableCell><Text>{p.country}</Text></TableCell>
@@ -136,7 +136,7 @@ function FilteredRegister() {
                   : <div className="rg-step-pills">{(Object.keys(SHORT) as StepKey[]).filter((k) => st[k] !== "notApplicable").map((k) =>
                     <StepBadge key={k} status={st[k]} label={SHORT[k]} />)}</div>
                 : <Text>{p.decisionComment ?? ""}</Text>}</TableCell>
-              <TableCell><StatusBadge status={overallStatus(p, variant)} /></TableCell>
+              <TableCell><StatusBadge status={overallStatus(p)} /></TableCell>
             </TableRow>;
           })}
         </Table>
@@ -145,11 +145,11 @@ function FilteredRegister() {
   </DynamicPage>;
 }
 
-function downloadCsv(rows: BlockedPartner[], variant: "A" | "B") {
+function downloadCsv(rows: BlockedPartner[]) {
   const header = ["Name", "BP-ID", "ERP-ID", "Land", "ETS", "Sanktionsliste", "Cloud-Kunde", "Sonderkategorie", "GTS-Sperre", "Status", ...Object.values(STEP_DEFS).map((s) => s.label)];
   const lines = rows.map((p) => {
-    const st = stepStatuses(p, variant);
-    return [p.name, p.bpId, p.erpId, p.country, p.ets, p.sanctionsList, p.cloudCustomer ? "Ja" : "Nein", p.specialCategory ?? "", formatDate(p.gtsBlockedAt), overallStatus(p, variant),
+    const st = stepStatuses(p);
+    return [p.name, p.bpId, p.erpId, p.country, p.ets, p.sanctionsList, p.cloudCustomer ? "Ja" : "Nein", p.specialCategory ?? "", formatDate(p.gtsBlockedAt), overallStatus(p),
       ...(Object.keys(STEP_DEFS) as StepKey[]).map((k) => st[k])];
   });
   const csv = [header, ...lines].map((l) => l.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");

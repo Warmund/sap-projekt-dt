@@ -15,7 +15,7 @@ const partners = [
 ];
 test("imported pending customers count towards inventory and history, not active tasks", () => {
   const contact: CountryContact = { id: "c", region: "Test", countries: [], generalDirector: "", legalHead: "", commercialDirector: "", lastChecked: null };
-  const summary = dashboardSummary(partners, [contact, { ...contact, id: "d", lastChecked: "2026-11-10T00:00:00Z" }], "A", new Date("2026-11-17T00:00:00Z"));
+  const summary = dashboardSummary(partners, [contact, { ...contact, id: "d", lastChecked: "2026-11-10T00:00:00Z" }], new Date("2026-11-17T00:00:00Z"));
   assert.equal(summary.total, 4); assert.equal(summary.pending, 1); assert.equal(summary.approved, 1);
   assert.equal(summary.noBlock, 1); assert.equal(summary.sr, 1); assert.equal(summary.cloudMissing, 1);
   assert.equal(summary.dueContacts, 2);
@@ -25,9 +25,9 @@ test("imported pending customers count towards inventory and history, not active
   assert.equal(months.length, 12); assert.equal(months[4].value, 1); assert.equal(months.reduce((s, m) => s + m.value, 0), 1);
 });
 test("dashboard destinations match the counted cases including empty subsets", () => {
-  const ids = (filter: Parameters<typeof matchesRegisterFilter>[1]) => partners.filter((p) => matchesRegisterFilter(p, filter, "A")).map((p) => p.id);
+  const ids = (filter: Parameters<typeof matchesRegisterFilter>[1]) => partners.filter((p) => matchesRegisterFilter(p, filter)).map((p) => p.id);
   assert.deepEqual(ids("pending"), ["pending"]); assert.deepEqual(ids("open"), ["approved"]);
   assert.deepEqual(ids("cloudMissing"), ["pending"]); assert.deepEqual(ids("sr"), ["pending"]);
   assert.deepEqual(ids("noBlock"), ["noBlock"]); assert.equal(ids("all").length, 4);
-  assert.equal(dashboardSummary([], [], "A").total, 0); assert.deepEqual(blockingTimeline([], "all"), []);
+  assert.equal(dashboardSummary([], []).total, 0); assert.deepEqual(blockingTimeline([], "all"), []);
 });

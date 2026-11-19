@@ -25,12 +25,12 @@ const TEAMS: { key: StepKey; label: string }[] = [
 
 /** Sicht einer Nachbarabteilung: nur eigene Schritte, nur Erledigung bestätigen. */
 export function RegisterTasks() {
-  const { partners, variant, completeStep, open } = useRegister();
+  const { partners, completeStep, open } = useRegister();
   const [team, setTeam] = useState<StepKey>("cloud");
 
   const tasks = partners
     .filter((p) => p.decision === "approved")
-    .map((p) => ({ p, status: stepStatuses(p, variant)[team] }))
+    .map((p) => ({ p, status: stepStatuses(p)[team] }))
     .filter((t) => t.status === "running" || t.status === "waiting");
 
   return <DynamicPage hidePinButton className="app-page"
@@ -49,7 +49,7 @@ export function RegisterTasks() {
         : tasks.map(({ p, status }) => <article key={p.id} className="rg-task">
           <div className="rg-task-text">
             <div className="rg-title-row"><Title level="H2" size="H5">{STEP_DEFS[team].label}</Title><StepBadge status={status} /></div>
-            <Text><Link onClick={() => open("rg-detail", p.id)}>{p.name}</Link> · {detailFor(team, p.tenants.map((t) => `${t.tenantId} (${t.product})`))}</Text>
+            <Text><Link accessibleRole="Button" onClick={() => open("rg-detail", p.id)}>{p.name}</Link> · {detailFor(team, p.tenants.map((t) => `${t.tenantId} (${t.product})`))}</Text>
             <Text className="rg-muted">{status === "waiting" ? waitingText(team) : `Freigegeben am ${formatDate(p.decidedAt!)}`}</Text>
           </div>
           {status === "running" && <div className="rg-actions">

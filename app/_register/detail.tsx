@@ -9,8 +9,8 @@ import { Button } from "@ui5/webcomponents-react/Button";
 import { Input } from "@ui5/webcomponents-react/Input";
 import { Link } from "@ui5/webcomponents-react/Link";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
-import { SegmentedButton } from "@ui5/webcomponents-react/SegmentedButton";
-import { SegmentedButtonItem } from "@ui5/webcomponents-react/SegmentedButtonItem";
+import { Select } from "@ui5/webcomponents-react/Select";
+import { Option } from "@ui5/webcomponents-react/Option";
 import { Dialog } from "@ui5/webcomponents-react/Dialog";
 import { Timeline } from "@ui5/webcomponents-react/Timeline";
 import { TimelineItem } from "@ui5/webcomponents-react/TimelineItem";
@@ -23,21 +23,21 @@ import "@ui5/webcomponents-icons/dist/email.js";
 import "@ui5/webcomponents-icons/dist/history.js";
 import { ETS_INFO } from "../../lib/register/mock-data";
 import { formatDate, formatDateTime, PHASES, progress, overallStatus, stepStatuses, STEP_DEFS, VARIANT_LABEL } from "../../lib/register/workflow";
-import type { BlockedPartner, StepOrderVariant } from "../../lib/register/types";
+import type { BlockedPartner } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { Section, StatusBadge, StepBadge } from "./ui";
 
 export function RegisterDetail() {
-  const { selected: p, variant, setVariant, decide, advance, contacts, open, reset } = useRegister();
+  const { selected: p, setStepOrder, decide, advance, contacts, open, reset } = useRegister();
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState(false);
   const [mailOpen, setMailOpen] = useState(false);
 
   if (!p) return <DynamicPage hidePinButton className="app-page"><MessageStrip hideCloseButton>Kein Datensatz ausgewählt.</MessageStrip></DynamicPage>;
 
-  const status = overallStatus(p, variant);
-  const st = stepStatuses(p, variant);
-  const pr = progress(p, variant);
+  const status = overallStatus(p);
+  const st = stepStatuses(p);
+  const pr = progress(p);
   const canAdvance = p.decision === "approved" && pr.done < pr.total;
   const contact = contacts.find((c) => c.countries.includes(p.country));
 
@@ -56,28 +56,36 @@ export function RegisterDetail() {
 
   return <DynamicPage hidePinButton className="app-page"
     titleArea={<DynamicPageTitle
-      breadcrumbs={<Link onClick={() => open("rg-register")}>Register</Link>}
+      breadcrumbs={<Link accessibleRole="Button" onClick={() => open("rg-register")}>Register</Link>}
       heading={<div className="rg-title-row"><Title level="H1" size="H3">{p.name}</Title><StatusBadge status={status} />{p.cloudCustomer && <StatusBadgeCloud />}</div>}
-      subheading={<Text>BP {p.bpId} · {p.country} · {p.ets} · {p.sanctionsList} · in GTS gesperrt am {p.gtsDateOnly ? formatDate(p.gtsBlockedAt) : formatDateTime(p.gtsBlockedAt)}</Text>}
-      actionsBar={<div className="rg-actions">
-        <SegmentedButton accessibleName="Diskussionsvariante Schrittfolge" onSelectionChange={(e) => setVariant(e.detail.selectedItems[0]?.dataset.key as StepOrderVariant)}>
-          <SegmentedButtonItem data-key="A" selected={variant === "A"} tooltip={VARIANT_LABEL.A}>A: SAP-Folien</SegmentedButtonItem>
-          <SegmentedButtonItem data-key="B" selected={variant === "B"} tooltip={VARIANT_LABEL.B}>B: Call 06.11.</SegmentedButtonItem>
-        </SegmentedButton>
-        <Button design="Transparent" onClick={reset}>Daten neu laden</Button>
-      </div>} />}>
+      subheading={<Text>BP {p.bpId} · {p.country} · {p.ets} · {p.sanctionsList} · in GTS gesperrt am {p.gtsDateOnly ? formatDate(p.gtsBlockedAt) : formatDateTime(p.gtsBlockedAt)}</Text>} />}>
     <div className="rg-page">
+      <div className="rg-actions">
+        <Button onClick={reset}>Daten neu laden</Button>
+      </div>
       {p.decision === "pending" && <section className="rg-approval" aria-labelledby="rg-approval-title">
         <div className="rg-approval-text">
           <Title id="rg-approval-title" level="H2" size="H5">Vier-Augen-Freigabe durch EC Member 2</Title>
-          <Text>Erfasst von {p.enteredBy} (EC Member 1). Erst mit der Freigabe starten die Sperrschritte. Auf offene Freigaben weist nur die Dashboard-Kachel hin, es gibt keine E-Mail.</Text>
-          <Label for="rg-decision-comment" required={commentError}>Kommentar zur Entscheidung (Pflicht, wenn nicht freigegeben wird)</Label>
+          <Text>Erfasst von {p.enteredBy} (EC Member 1). Mit der Freigabe starten die Sperrschritte.</Text>
+          <Label for="rg-step-order">Schrittfolge</Label>
+          <Select id="rg-step-order" accessibleName="Schrittfolge" value={p.stepOrder} onChange={(e) => {
+            const value = e.target.value;
+            e.target.value = p.stepOrder;
+            if (value === "A" || value === "B") void setStepOrder(p.id, value);
+          }}>
+            <Option value="A">A: S-User zuerst</Option>
+            <Option value="B">B: Tickets zuerst</Option>
+          </Select>
+          <Text className="rg-muted">Die Schrittfolge wird für diesen Fall gespeichert. Sobald du entschieden hast, ist sie festgelegt.</Text>
+          <Label for="rg-decision-comment" required={commentError}>Kommentar zur Entscheidung</Label>
           <Input id="rg-decision-comment" value={comment} valueState={commentError ? "Negative" : "None"}
             placeholder="z. B. nur Zahlungsbeschränkungen, keine Sperre nötig" onInput={(e) => { setComment(e.target.value); setCommentError(false); }} />
+          <Text className="rg-muted">Bei „Sanktioniert ohne Sperre“ und „Ablehnen“ ist ein Kommentar erforderlich.</Text>
+          {commentError && <MessageStrip design="Negative" hideCloseButton>Gib einen Kommentar ein und wähle die Entscheidung erneut.</MessageStrip>}
         </div>
         <div className="rg-approval-buttons">
           <Button design="Positive" onClick={() => submit("approved")}>Freigeben, Sperrschritte starten</Button>
-          <Button design="Attention" onClick={() => submit("sanctionedNoBlock")}>Sanktioniert, ohne Sperrschritte</Button>
+          <Button design="Attention" onClick={() => submit("sanctionedNoBlock")}>Sanktioniert ohne Sperre</Button>
           <Button design="Negative" onClick={() => submit("declined")}>Ablehnen</Button>
         </div>
       </section>}
@@ -90,7 +98,7 @@ export function RegisterDetail() {
 
       <div className="rg-detail-grid">
         <div className="rg-detail-main">
-          <Section title="Sperrschritte mit Status" sub={VARIANT_LABEL[variant]}
+          <Section title="Sperrschritte mit Status" sub={VARIANT_LABEL[p.stepOrder]}
             actions={<>
               <Text className="rg-muted">{p.decision === "approved" ? `${pr.done} von ${pr.total} erledigt` : p.decision === "pending" ? "starten nach der Freigabe" : "keine Sperrschritte"}</Text>
               {canAdvance && <Button onClick={() => advance(p.id)}>Rückmeldung simulieren</Button>}
@@ -100,7 +108,7 @@ export function RegisterDetail() {
               <StepRow nr="1" title="Datensatz im Register" system="Register" status="done" result="Automatisch angelegt (im Prototyp von Hand)" />
               <StepRow nr="2" title="Vier-Augen-Freigabe" system="Register" status={p.decision === "pending" ? "running" : "done"}
                 result={p.decision === "pending" ? "Hinweis über die Dashboard-Kachel „Zur Freigabe“" : `${p.decidedBy} (EC Member 2), ${formatDateTime(p.decidedAt!)}`} />
-              {PHASES[variant].map((phase, i) => <li key={phase.join("-")} className="rg-step">
+              {PHASES[p.stepOrder].map((phase, i) => <li key={phase.join("-")} className="rg-step">
                 <span className="rg-step-nr" aria-hidden="true">{i + 3}</span>
                 <div className="rg-step-body">
                   {phase.length > 1 && <Text className="rg-parallel">Parallel</Text>}
@@ -134,7 +142,7 @@ export function RegisterDetail() {
               {recipients.map((r) => <div key={r.role} className="rg-recipient"><Text className="rg-strong">{r.role}</Text><Text>{r.name}</Text></div>)}
             </div>
             <MessageStrip hideCloseButton design="Negative">Kein Kontakt mit dem Kunden selbst. Bei Sanktionen kann schon die Erklärung der Sperre verboten sein.</MessageStrip>
-            <Link onClick={() => open("rg-contacts")}>Länder-Kontakte pflegen</Link>
+            <Link accessibleRole="Button" onClick={() => open("rg-contacts")}>Länder-Kontakte pflegen</Link>
           </Section>
         </div>
 

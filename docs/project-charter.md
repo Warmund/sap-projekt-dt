@@ -10,6 +10,9 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 19.11.2026 | 4.6 |
+| Agent | 19.11.2026 | 4.5 |
+| Agent | 19.11.2026 | 4.4 |
 | Agent | 19.11.2026 | Node.js für Entwicklung und CI auf das Sicherheitsrelease 24.22.3 angehoben und als Mindestversion hinterlegt | 4.3 |
 | Agent | 19.11.2026 | Sidebar nach Arbeitsablauf geordnet und Administration mit Tabs für Sperrfälle, Cloud-Tenants, Länder-Kontakte und Nutzer ergänzt | 4.2 |
 | Agent | 19.11.2026 | Home und persönliche Todo-App vollständig entfernt; Dashboard ersetzt Home als oberster Navigationseintrag und Ziel des Logo-Klicks, fachliche Sperraufgaben bleiben im Register | 4.1 |
@@ -114,7 +117,7 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Die bestehenden Demo-Zugänge patrick, mark, paul und jonas haben vorläufig die technische Admin-Rolle.
 - Die Demo wird direkt auf Vercel mit extern verwaltetem PostgreSQL geplant. Eine Neon-Ressource im kostenlosen Tarif wurde mit dem Vercel-Projekt `project-dt-sap` und der lokalen Entwicklung verbunden; die Better-Auth-Migration wurde angewendet. Entwicklung und Demo nutzen eine einzige gemeinsame Datenbank; Schemaänderungen und Resets werden im Team abgestimmt.
 - Das Sanktionsregister wird seit 17.11.2026 in derselben Neon-Datenbank wie die Anmeldung gespeichert. Die bereitgestellte Kunden-Test-CSV liefert 50 Datensätze mit 13 Spalten. CRM wird für die bestehende BP-ID-Ansicht verwendet; diese fachliche Zuordnung bleibt zu bestätigen. Nicht enthaltene Freigaben, Tenant-IDs, konkrete Sanktionslisten und verantwortliche Personen werden nicht erfunden. Der Import setzt keine Aufgabenerledigung voraus. Mapping und Importnachweise stehen in `docs/kundenimport.md`.
-- Die Administration bündelt geplante Datenprodukte für GTS-Sperrfälle und Cloud-Tenants. Die Pflege der Länder-Kontakte bleibt bis zur Klärung von Quelle und Zugriff manuell. Die Nutzerverwaltung ist weiterhin der technischen Admin-Rolle vorbehalten.
+- Die Administration ist über das Profilmenü erreichbar und bündelt geplante Datenprodukte für GTS-Sperrfälle und Cloud-Tenants. Die Pflege der Länder-Kontakte bleibt bis zur Klärung von Quelle und Zugriff manuell. Die Nutzerverwaltung ist weiterhin der technischen Admin-Rolle vorbehalten.
 - Das Dashboard ist die Startansicht nach der Anmeldung. Bestandskennzahlen berücksichtigen alle Kunden, Workflowkennzahlen ausschließlich tatsächlich freigegebene Schritte. Historische Sperrdaten werden nach Jahr beziehungsweise Monat ausgewertet; Kacheln öffnen die passende Registerauswahl. Andere Nutzeränderungen können mit „Daten aktualisieren“ nachgeladen werden.
 - Vier-Augen-Prüfung neuer Registereinträge und Versionsprüfung bei konkurrierenden Änderungen werden serverseitig durchgesetzt. Fachliche EC-/Teamrollen sind noch offen; im MVP dürfen angemeldete Projektmitglieder das Register bearbeiten.
 - Echter E-Mail-Versand ist kein Bestandteil des MVP. Benachrichtigungen werden testbar simuliert und protokolliert beziehungsweise als In-App-Aufgaben angezeigt.

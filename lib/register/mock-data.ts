@@ -42,7 +42,7 @@ function build(s: Seed, index: number): BlockedPartner {
     audit.push({ at, by: completed[step]!.by, text: RESULTS[step] });
   });
   return {
-    id: s.id, bpId, erpId: `${4000 + index * 13}-${ISO[s.country] ?? "XX"}`,
+    id: s.id, stepOrder: "A", bpId, erpId: `${4000 + index * 13}-${ISO[s.country] ?? "XX"}`,
     name: s.name, country: s.country, ets: s.ets, sanctionsList: s.list, gtsBlockedAt: s.gts,
     enteredBy, decision: s.decision, decidedAt, decidedBy: decidedAt ? EC2 : undefined, decisionComment: s.decisionComment,
     cloudCustomer: !!s.tenants?.length, tenants: s.tenants ?? [], specialCategory: s.special ?? null,

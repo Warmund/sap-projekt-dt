@@ -20,6 +20,7 @@ export type Tenant = { lob: string; product: string; tenantId: string; ticket: s
 export type AuditEntry = { at: string; text: string; by: string };
 
 export type BlockedPartner = {
+  stepOrder: StepOrderVariant;
   id: string;
   bpId: string;
   erpId: string;

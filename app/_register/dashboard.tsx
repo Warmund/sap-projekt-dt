@@ -21,10 +21,10 @@ import { useRegister } from "./store";
 import { BarList, countBy, KpiTile, Section, StatusBadge } from "./ui";
 
 export function RegisterDashboard() {
-  const { partners, contacts, variant, open, openRegister, reset } = useRegister();
+  const { partners, contacts, open, openRegister, reset } = useRegister();
   const [year, setYear] = useState("all");
   const [refreshing, setRefreshing] = useState(false);
-  const summary = dashboardSummary(partners, contacts, variant);
+  const summary = dashboardSummary(partners, contacts);
   const { runningSteps, dueContacts } = summary;
   const months = blockingTimeline(partners, year);
   const maxMonth = Math.max(1, ...months.map((m) => m.value));
@@ -36,16 +36,16 @@ export function RegisterDashboard() {
 
   return <DynamicPage hidePinButton className="app-page"
     titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Sanktionsregister</Title>}
-      subheading={<Text>Kundenbestand, offene Freigaben und Status der Sperrschritte</Text>}
-      actionsBar={<Button onClick={refresh} disabled={refreshing}>{refreshing ? "Wird geladen …" : "Daten aktualisieren"}</Button>} />}>
+      subheading={<Text>Kundenbestand, offene Freigaben und Status der Sperrschritte</Text>} />}>
     <div className="rg-page">
+      <div className="rg-actions"><Button onClick={refresh} disabled={refreshing}>{refreshing ? "Registerdaten werden geladen …" : "Daten aktualisieren"}</Button></div>
       <Section title="Handlungsbedarf">
         <div className="rg-kpi-grid">
-          <KpiTile tone="approval" title="Zur Freigabe" value={summary.pending} sub="Vier-Augen-Prüfung. Hinweis nur über diese Kachel, keine E-Mail."
+          <KpiTile tone="approval" title="Zur Freigabe" value={summary.pending} sub="Fälle für die Vier-Augen-Freigabe öffnen"
             onClick={() => openRegister("pending")} />
-          <KpiTile tone="warning" title="Offene Sperrschritte" value={runningSteps.length} sub="laufend oder wartend" onClick={() => openRegister("open")} />
+          <KpiTile tone="warning" title="Offene Sperrschritte" value={runningSteps.length} sub="Laufende und wartende Schritte" onClick={() => openRegister("open")} />
           <KpiTile tone="info" title="Cloud-Kunden ohne Tenant-Daten" value={summary.cloudMissing} sub="Tenant-IDs und LoB-Zuordnung ergänzen" onClick={() => openRegister("cloudMissing")} />
-          <KpiTile tone="warning" title="Länder-Kontakte prüfen" value={dueContacts} sub={`Regionen ungeprüft oder seit mindestens ${CONTACT_CHECK_INTERVAL_DAYS} Tagen fällig`} onClick={() => open("rg-contacts")} />
+          <KpiTile tone="warning" title="Länder-Kontakte prüfen" value={dueContacts} sub={`Noch nie geprüft oder letzte Prüfung vor mindestens ${CONTACT_CHECK_INTERVAL_DAYS} Tagen`} onClick={() => open("rg-contacts")} />
         </div>
       </Section>
 
@@ -98,10 +98,10 @@ export function RegisterDashboard() {
             <TableHeaderCell>Status</TableHeaderCell>
           </TableHeaderRow>}>
           {recent.map((p) => {
-            const pr = progress(p, variant);
-            const status = overallStatus(p, variant);
+            const pr = progress(p);
+            const status = overallStatus(p);
             return <TableRow key={p.id} rowKey={p.id}>
-              <TableCell><Link onClick={() => open("rg-detail", p.id)}>{p.name}</Link></TableCell>
+              <TableCell><Link accessibleRole="Button" onClick={() => open("rg-detail", p.id)}>{p.name}</Link></TableCell>
               <TableCell><Text>{p.country}</Text></TableCell>
               <TableCell><Text>{p.ets}</Text></TableCell>
               <TableCell><Text>{formatDate(p.gtsBlockedAt)}</Text></TableCell>

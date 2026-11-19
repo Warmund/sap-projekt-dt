@@ -11,13 +11,12 @@ export type RegisterView = "rg-dashboard" | "rg-register" | "rg-new" | "rg-detai
 type RegisterState = {
   partners: BlockedPartner[];
   contacts: CountryContact[];
-  variant: StepOrderVariant;
   registerFilter: RegisterFilter;
   setRegisterFilter: (filter: RegisterFilter) => void;
   openRegister: (filter: RegisterFilter) => void;
   selected: BlockedPartner | undefined;
   currentUser: string;
-  setVariant: (v: StepOrderVariant) => void;
+  setStepOrder: (id: string, stepOrder: StepOrderVariant) => Promise<boolean>;
   open: (view: RegisterView, partnerId?: string) => void;
   decide: (id: string, decision: Exclude<Decision, "pending">, comment: string) => Promise<boolean>;
   completeStep: (id: string, step: StepKey, result?: string) => Promise<boolean>;
@@ -32,7 +31,6 @@ const Ctx = createContext<RegisterState | null>(null);
 export function RegisterProvider({ children, currentUser, onNavigate, initialData }: { children: ReactNode; currentUser: string; onNavigate: (view: RegisterView) => void; initialData: RegisterData }) {
   const [data, setData] = useState(initialData);
   const [registerFilter, setRegisterFilter] = useState<RegisterFilter>("all");
-  const [variant, setVariant] = useState<StepOrderVariant>("A");
   const [selectedId, setSelectedId] = useState<string | undefined>(initialData.partners[0]?.id);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -50,12 +48,13 @@ export function RegisterProvider({ children, currentUser, onNavigate, initialDat
   };
   const version = (id: string) => data.partners.find((p) => p.id === id)?.version ?? -1;
   const value: RegisterState = {
-    ...data, variant, currentUser, registerFilter, setRegisterFilter,
-    openRegister: (filter) => { setRegisterFilter(filter); onNavigate("rg-register"); }, selected: data.partners.find((p) => p.id === selectedId), setVariant,
+    ...data, currentUser, registerFilter, setRegisterFilter,
+    openRegister: (filter) => { setRegisterFilter(filter); onNavigate("rg-register"); }, selected: data.partners.find((p) => p.id === selectedId),
+    setStepOrder: async (id, stepOrder) => !!await run({ kind: "setStepOrder", id, version: version(id), stepOrder }),
     open: (view, id) => { if (id) setSelectedId(id); onNavigate(view); },
     decide: async (id, decision, comment) => !!await run({ kind: "decide", id, version: version(id), decision, comment }),
-    completeStep: async (id, step, result) => !!await run({ kind: "complete", id, version: version(id), step, variant, result }),
-    advance: async (id) => !!await run({ kind: "advance", id, version: version(id), variant }),
+    completeStep: async (id, step, result) => !!await run({ kind: "complete", id, version: version(id), step, result }),
+    advance: async (id) => !!await run({ kind: "advance", id, version: version(id) }),
     addPartner: async (partner) => {
       const fresh = await run({ kind: "create", partner });
       if (fresh) setSelectedId(fresh.partners.find((p) => p.bpId === partner.bpId)?.id);

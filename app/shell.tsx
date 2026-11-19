@@ -17,7 +17,8 @@ import "@ui5/webcomponents-icons/dist/menu2.js";
 import "@ui5/webcomponents-icons/dist/question-mark.js";
 import "@ui5/webcomponents-icons/dist/bar-chart.js";
 import "@ui5/webcomponents-icons/dist/list.js";
-import "@ui5/webcomponents-icons/dist/action-settings.js";
+import "@ui5/webcomponents-icons/dist/add-document.js";
+import "@ui5/webcomponents-icons/dist/contacts.js";
 import "@ui5/webcomponents-icons/dist/people-connected.js";
 import type { RegisterData } from "../lib/register/repository";
 import { authClient } from "../lib/auth-client";
@@ -83,11 +84,11 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
         fixedItems={<SideNavigationItem text="Hilfe" icon="question-mark" href="https://www.sap.com/design-system/fiori-design-web/" target="_blank" />}>
         <SideNavigationItem text="Dashboard" icon="bar-chart" data-key="rg-dashboard" selected={view === "rg-dashboard"} />
         <SideNavigationGroup text="Sanktionsregister" expanded>
-          <SideNavigationItem text="Register" icon="list" data-key="rg-register" selected={view === "rg-register" || view === "rg-detail" || view === "rg-new"} />
+          <SideNavigationItem text="Register" icon="list" data-key="rg-register" selected={view === "rg-register" || view === "rg-detail"} />
+          <SideNavigationItem text="Neuer Datensatz" icon="add-document" data-key="rg-new" selected={view === "rg-new"} />
           <SideNavigationItem text="Nachbarabteilung" icon="people-connected" data-key="rg-tasks" selected={view === "rg-tasks"} />
+          <SideNavigationItem text="Länder-Kontakte" icon="contacts" data-key="rg-contacts" selected={view === "rg-contacts"} />
         </SideNavigationGroup>
-        <SideNavigationItem text="Administration" icon="action-settings" data-key="admin-imports"
-          selected={view === "admin-imports" || view === "admin-cloud" || view === "rg-contacts" || view === "users"} />
       </SideNavigation>}>
       <main className="app-content">
         {error && <MessageStrip design="Negative" onClose={() => setError("")}>{error}</MessageStrip>}
@@ -97,8 +98,12 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
     </RegisterProvider>
     <UserMenu open={!!menuOpener} opener={menuOpener} onClose={() => setMenuOpener(null)} onSignOutClick={(e) => { e.preventDefault(); signOut(); }}
       accounts={<UserMenuAccount titleText={user.name} subtitleText={user.email} avatarInitials={initials} selected />}
-      onItemClick={() => { setMenuOpener(null); setView("users"); }}>
-      {isAdmin && <UserMenuItem text="Nutzer verwalten" />}
+      onItemClick={({ detail }) => {
+        setMenuOpener(null);
+        setView(detail.item.dataset.key === "users" && isAdmin ? "users" : "admin-imports");
+      }}>
+      <UserMenuItem text="Administration" />
+      {isAdmin && <UserMenuItem text="Nutzer verwalten" data-key="users" />}
     </UserMenu>
   </ThemeProvider>;
 }

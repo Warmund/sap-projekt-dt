@@ -25,7 +25,7 @@ import { useRegister } from "./store";
 import { Section } from "./ui";
 
 export function RegisterNewEntry() {
-  const { addPartner, open, variant, currentUser } = useRegister();
+  const { addPartner, open, currentUser } = useRegister();
   const [filled, setFilled] = useState(false);
   const [tenants, setTenants] = useState<Tenant[] | null>(null);
   const [list, setList] = useState(GTS_SAMPLE.list);
@@ -42,7 +42,7 @@ export function RegisterNewEntry() {
     if (!g) { setError("Bitte zuerst die Daten aus GTS übernehmen (im Prototyp simuliert)."); return; }
     const now = new Date().toISOString();
     const partner: BlockedPartner = {
-      id: `neu-${Date.now()}`, bpId: g.bpId, erpId: g.erpId, name: g.name, country: g.country, ets: g.ets,
+      stepOrder: "A", id: `neu-${Date.now()}`, bpId: g.bpId, erpId: g.erpId, name: g.name, country: g.country, ets: g.ets,
       sanctionsList: list, listReference: reference || undefined, gtsBlockedAt: now, enteredBy: currentUser,
       decision: "pending", cloudCustomer: !!tenants?.length, tenants: tenants ?? [],
       specialCategory: sr ? "SR" : other ? "Sonstige" : null, specialComment: specialComment || undefined,
@@ -56,7 +56,7 @@ export function RegisterNewEntry() {
   };
 
   return <DynamicPage hidePinButton className="app-page"
-    titleArea={<DynamicPageTitle breadcrumbs={<Link onClick={() => open("rg-register")}>Register</Link>}
+    titleArea={<DynamicPageTitle breadcrumbs={<Link accessibleRole="Button" onClick={() => open("rg-register")}>Register</Link>}
       heading={<Title level="H1" size="H3">Neuer Datensatz aus GTS</Title>}
       subheading={<Text>Zielbild: entsteht automatisch, sobald EC Member 1 in SAP GTS sperrt. Im Prototyp von Hand.</Text>} />}>
     <div className="rg-page">
@@ -134,9 +134,9 @@ export function RegisterNewEntry() {
         </div>
 
         <aside className="rg-detail-side">
-          <Section title="Sperrschritte nach der Freigabe" sub={VARIANT_LABEL[variant]}>
+          <Section title="Sperrschritte nach der Freigabe" sub={VARIANT_LABEL.A}>
             <ol className="rg-mini-steps">
-              {PHASES[variant].map((phase, i) => <li key={phase.join("-")}>
+              {PHASES.A.map((phase, i) => <li key={phase.join("-")}>
                 <span className="rg-step-nr" aria-hidden="true">{i + 3}</span>
                 <div>{phase.map((k) => <div key={k}><Text className="rg-strong">{STEP_DEFS[k].label}</Text><br /><Text className="rg-muted">{STEP_DEFS[k].system}</Text></div>)}</div>
               </li>)}

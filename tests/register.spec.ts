@@ -42,7 +42,10 @@ test("authenticated register uses imported database rows after reload", async ({
     await page.reload();
     await page.locator('ui5-side-navigation-item[data-key="rg-register"]').click();
     await expect(page.getByText(`Sperr-Workflow (${count})`, { exact: true })).toBeVisible();
-    await page.locator('ui5-side-navigation-item[data-key="admin-imports"]').click();
+    await page.locator('ui5-side-navigation-item[data-key="rg-contacts"]').click();
+    await expect(page.getByText("Noch nicht geprüft", { exact: true }).first()).toBeVisible();
+    await page.locator("ui5-shellbar [data-profile-btn]").click();
+    await page.locator('ui5-user-menu-item[text="Administration"]').click();
     await expect(page.getByRole("heading", { name: "Administration" })).toBeVisible();
     await page.getByRole("tab", { name: "Cloud-Tenants" }).click();
     await expect(page.getByText(`${cloudMissing} Cloud-Kunden ohne Tenant-Daten.`, { exact: false })).toBeVisible();
