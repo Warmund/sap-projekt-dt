@@ -31,8 +31,8 @@ test("authenticated register uses imported database rows after reload", async ({
     await expect(page.locator("ui5-table-row")).toHaveCount(cloudMissing);
     await page.locator('ui5-side-navigation-item[data-key="rg-dashboard"]').click();
     await page.getByRole("button", { name: /Kunden im Register/ }).click();
-    await expect(page.getByText(`Sperr-Workflow (${count})`, { exact: true })).toBeVisible();
-    await page.getByRole("textbox", { name: "Suche", exact: true }).fill(partner.bpId);
+    await expect(page.getByRole("heading", { name: `Geschäftspartner (${count})`, exact: true })).toBeVisible();
+    await page.getByRole("searchbox", { name: "Suche", exact: true }).or(page.getByRole("textbox", { name: "Suche", exact: true })).fill(partner.bpId);
     await expect(page.getByText(partner.name, { exact: true })).toBeVisible();
     await page.getByText(partner.name, { exact: true }).click();
     await expect(page.getByText("Cloud-Kunde laut Quelldatei.", { exact: false })).toBeVisible();
@@ -41,7 +41,7 @@ test("authenticated register uses imported database rows after reload", async ({
     await expect(page.getByRole("heading", { name: "Sanktionsregister", exact: true })).toBeVisible();
     await page.reload();
     await page.locator('ui5-side-navigation-item[data-key="rg-register"]').click();
-    await expect(page.getByText(`Sperr-Workflow (${count})`, { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: `Geschäftspartner (${count})`, exact: true })).toBeVisible();
     await page.locator('ui5-side-navigation-item[data-key="rg-contacts"]').click();
     await expect(page.getByText("Noch nicht geprüft", { exact: true }).first()).toBeVisible();
     await page.locator("ui5-shellbar [data-profile-btn]").click();

@@ -10,6 +10,7 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 19.11.2026 | Registeransicht auf Suche und Ergebnistabelle reduziert. Erfassung erfolgt über Administration. | 4.8 |
 | Agent | 19.11.2026 | „Neuer Datensatz“ in die Sidebar-Gruppe „Administration“ verschoben | 4.7 |
 | Agent | 19.11.2026 | Frühere Sidebar wiederhergestellt und Administration ins Profilmenü verschoben | 4.6 |
 | Agent | 19.11.2026 | Mobile Registeraktionen umplatziert, Aktionslinks als Buttons ausgezeichnet und Schrittfolge pro Fall mit Sperre nach Entscheidung umgesetzt | 4.5 |

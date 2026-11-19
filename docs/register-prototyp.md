@@ -9,7 +9,7 @@ Neue Navigationsgruppe „Sanktionsregister“ in der bestehenden Shell mit sech
 | Ansicht | Inhalt |
 | --- | --- |
 | Dashboard | Kachel „Zur Freigabe“ statt E-Mail-Hinweis, offene Sperrschritte, Cloud-Tenants, fällige Länder-Kontakte, Kennzahlen nach Monat, Sanktionsliste, Land, ETS und Schrittart |
-| Register | Teil 1 Sperr-Workflow, Teil 2 „Sanktioniert ohne Sperre“, Suche über Name, BP-ID, ERP-ID und Tenant-ID, Filter, CSV-Export |
+| Register | Ergebnistabelle mit Suche über Name, BP-ID, ERP-ID und Tenant-ID. Die Zeilen öffnen die Fall-Details. |
 | Neuer Datensatz | Simulierte Übernahme aus GTS, Sanktionsliste als Auswahlliste, Cloud-Prüfung mit Tenants je LoB, Sonderkategorie SR |
 | Detail | Vier-Augen-Freigabe mit drei Ausgängen (freigeben, sanktioniert ohne Sperre, ablehnen), Sperrschritte mit Status, Tenants, Empfänger der Benachrichtigung, E-Mail-Entwurf mit Platzhaltern, Audit-Trail |
 | Nachbarabteilung | Eingeschränkte Sicht je Team, nur eigene Schritte bestätigen, „Keine Tickets vorhanden“ |
@@ -37,7 +37,7 @@ Die Migration und der CSV-Import sind angewendet. Mit SAP sind insbesondere die 
 
 ## Dashboard-Anbindung (17.11.2026)
 
-Das Register-Dashboard ist die Startansicht. Bestandszahlen, Länder-/ETS-/Listenverteilungen und historische Sperrdaten verwenden alle gespeicherten Kunden, auch noch nicht freigegebene CSV-Fälle. Offene Sperrschritte zählen nur freigegebene laufende oder wartende Schritte. Fehlende Cloud-Tenant-Daten werden als eigene Kennzahl ausgewiesen. Die Zeitachse zeigt alle vorhandenen Jahre; die Jahresauswahl wechselt auf zwölf Monate des gewählten Jahres. Kennzahlen öffnen Registerfilter für Freigaben, offene Schritte, Cloud-Datenlücken, SR und Fälle ohne Sperre. Der Filter ist in der Liste sichtbar und änderbar; „Alle Kunden“ enthält auch abgelehnte Fälle. Kontakte sind ab sieben Tagen oder ohne Prüfdatum fällig.
+Das Register-Dashboard ist die Startansicht. Bestandszahlen, Länder-/ETS-/Listenverteilungen und historische Sperrdaten verwenden alle gespeicherten Kunden, auch noch nicht freigegebene CSV-Fälle. Offene Sperrschritte zählen nur freigegebene laufende oder wartende Schritte. Fehlende Cloud-Tenant-Daten werden als eigene Kennzahl ausgewiesen. Die Zeitachse zeigt alle vorhandenen Jahre; die Jahresauswahl wechselt auf zwölf Monate des gewählten Jahres. Kennzahlen öffnen Registerfilter für Freigaben, offene Schritte, Cloud-Datenlücken, SR und Fälle ohne Sperre. Die Übersicht benennt die Auswahl aus dem Dashboard und bietet die Rückkehr zu allen Kunden an. Kontakte sind ab sieben Tagen oder ohne Prüfdatum fällig.
 
 Eigene Änderungen aktualisieren das Dashboard nach erfolgreicher Speicherung. „Daten aktualisieren“ lädt den aktuellen Datenbankstand anderer Sitzungen. Keine automatische Freigabe, kein Polling und keine neuen externen Systemanbindungen.
 

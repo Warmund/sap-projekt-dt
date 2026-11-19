@@ -40,12 +40,11 @@
 .rg-column-bar { width: 100%; max-width: 3rem; min-height: 2px; border-radius: 0.375rem 0.375rem 0 0; background: var(--sapChart_OrderedColor_1, #168eff); }
 .rg-column-value, .rg-column-label { font-size: var(--sapFontSmallSize); color: var(--sapContent_LabelColor); }
 
-.rg-filters { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; align-items: flex-end; padding: 1rem 1.25rem; background: var(--sapTile_Background, #fff); border-radius: var(--sapTile_BorderCornerRadius, 1rem); box-shadow: var(--sapContent_Shadow0); }
 .rg-field { display: grid; gap: 0.25rem; min-width: 10rem; }
 .rg-field ui5-input, .rg-field ui5-select, .rg-field ui5-textarea { width: 100%; }
-.rg-field-wide { flex: 2 1 18rem; }
-.rg-filters .rg-field:not(.rg-field-wide) { flex: 1 1 10rem; }
 .rg-table-wrap { background: var(--sapTile_Background, #fff); border-radius: var(--sapTile_BorderCornerRadius, 1rem); box-shadow: var(--sapContent_Shadow0); overflow-x: auto; }
+.rg-table-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--sapList_BorderColor); }
+.rg-table-toolbar ui5-input { width: min(100%, 21rem); }
 .rg-cell-stack { display: grid; gap: 0.125rem; }
 .rg-step-pills { display: flex; flex-wrap: wrap; gap: 0.25rem; }
 
@@ -81,7 +80,7 @@
 .rg-pre { white-space: pre-line; }
 
 @media (max-width: 600px) {
-  .rg-section, .rg-filters { padding: 0.875rem; }
+  .rg-section { padding: 0.875rem; }
   .rg-bars li { grid-template-columns: minmax(5rem, 8rem) 1fr 2rem; }
   .rg-facts { grid-template-columns: 1fr; }
 }
