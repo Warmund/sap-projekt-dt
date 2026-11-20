@@ -3,16 +3,15 @@ import type { BlockedPartner, Decision, OverallStatus, StepKey, StepStatus } fro
 
 export const STEP_DEFS: Record<StepKey, { label: string; system: string; team: string; doneText: string; runningText: string; note?: string }> = {
   suser: { label: "S-User sperren", system: "W7", team: "S-User-Team", doneText: "Nach Freigabe automatisch abgeschlossen (Demo)", runningText: "" },
-  ticketsShn: { label: "Offene Support-Tickets schließen", system: "Support", team: "Support", doneText: "Ticketprüfung abgeschlossen und SHN aktiviert", runningText: "Offene Support-Tickets schließen, danach SHN aktivieren", note: "SHN auch aktivieren, wenn keine Tickets offen sind." },
+  ticketsShn: { label: "Offene Support-Tickets in ServiceNow schließen", system: "ServiceNow", team: "Support", doneText: "Ticketprüfung abgeschlossen und SHN aktiviert", runningText: "Offene Support-Tickets in ServiceNow schließen, danach SHN aktivieren", note: "SHN auch aktivieren, wenn keine Tickets offen sind." },
   rcsc: { label: "I7P Control Table Board", system: "RCSC", team: "Remote-Support", doneText: "I7P Control Table Board bearbeitet", runningText: "I7P Control Table Board bearbeiten" },
   cloud: { label: "Cloud-Sperre je LoB", system: "Ticket je Line of Business", team: "Cloud-LoB", doneText: "Alle Tenants gesperrt", runningText: "Tenants werden von den LoBs gesperrt" },
   notify: { label: "Benachrichtigung", system: "E-Mail", team: "Export Control", doneText: "E-Mail-Versand bestätigt", runningText: "E-Mail unter „Benachrichtigungen“ vorbereiten" },
   irdp: { label: "IRDP-Flag setzen", system: "Launchpad", team: "Export Control", doneText: "IRDP-Flag gesetzt", runningText: "IRDP-Flag im Launchpad setzen" },
-  serviceNow: { label: "ServiceNow", system: "ServiceNow", team: "Support", doneText: "ServiceNow-Schritt bestätigt", runningText: "ServiceNow-Schritt bearbeiten" },
   bcp: { label: "BCP-Ticket", system: "BCP", team: "Support", doneText: "BCP-Ticket bestätigt", runningText: "BCP-Ticket bearbeiten" },
 };
 
-export const STEP_ORDER: readonly StepKey[] = ["suser", "ticketsShn", "rcsc", "notify", "irdp", "serviceNow", "bcp", "cloud"];
+export const STEP_ORDER: readonly StepKey[] = ["suser", "ticketsShn", "rcsc", "notify", "irdp", "bcp", "cloud"];
 
 export function isApplicable(p: BlockedPartner, step: StepKey) {
   return step !== "cloud" || p.cloudCustomer;

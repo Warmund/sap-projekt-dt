@@ -59,13 +59,13 @@ test("persistent lifecycle: two-person review, ordering, stale writes, audit, mi
     for (const partner of notified) assert.equal(partner.completed.notify?.result, "E-Mail-Versand bestätigt");
     p = notified.find((partner) => partner.bpId === bpId)!;
 
-    for (const step of ["irdp", "serviceNow", "bcp"] as const) {
+    for (const step of ["irdp", "bcp"] as const) {
       await changeRegister({ kind: "complete", id: p.id, version: p.version!, step, result: "Confirmed by test" }, reviewer);
       p = (await readRegister()).partners.find((p) => p.bpId === bpId)!;
       assert.equal(p.completed[step]?.by, reviewer.name);
     }
     await assert.rejects(changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "cloud" }, reviewer), /Cloud-Tenants fehlen/);
-    assert.equal(p.audit.length, 9);
+    assert.equal(p.audit.length, 8);
     assert.equal(p.decision, "approved");
     await db.registerPartner.update({ where: { id: p.id }, data: {
       tenants: { create: { lob: "Test LoB", product: "Test Product", tenantId: "test-tenant", ticket: "test-ticket" } },

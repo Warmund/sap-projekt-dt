@@ -17,7 +17,7 @@ function partnerView(p: PartnerRow): BlockedPartner {
     tenants: p.tenants.map(({ lob, product, tenantId, ticket }) => ({ lob, product, tenantId, ticket })),
     specialCategory: p.specialCategory, specialComment: p.specialComment ?? undefined, comment: p.comment,
     completed: Object.fromEntries(p.steps.flatMap(({ key, at, by, result }) =>
-      key === "tickets" || key === "remote" || (key === "notify" && result.startsWith("SIMULIERT: ")) ? [] : [[key, { at: at.toISOString(), by, result }]])),
+      key === "tickets" || key === "remote" || key === "serviceNow" || (key === "notify" && result.startsWith("SIMULIERT: ")) ? [] : [[key, { at: at.toISOString(), by, result }]])),
     audit: p.audit.map(({ at, by, text }) => ({ at: at.toISOString(), by, text })),
     spl: p.spl, ruItConsultancyBan: p.ruItConsultancyBan, ukraineCrisis: p.ukraineCrisis, version: p.version,
   };

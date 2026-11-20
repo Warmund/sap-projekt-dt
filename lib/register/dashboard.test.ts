@@ -19,7 +19,7 @@ test("imported pending customers count towards inventory and history, not active
   assert.equal(summary.total, 4); assert.equal(summary.pending, 1); assert.equal(summary.approved, 1);
   assert.equal(summary.noBlock, 1); assert.equal(summary.sr, 1); assert.equal(summary.cloudMissing, 1);
   assert.equal(summary.dueContacts, 2);
-  assert.equal(summary.runningSteps.length, 6);
+  assert.equal(summary.runningSteps.length, 5);
   assert.deepEqual(blockingTimeline(partners, "all"), [{ label: "2022", value: 3 }, { label: "2023", value: 1 }]);
   const months = blockingTimeline(partners, "2023");
   assert.equal(months.length, 12); assert.equal(months[4].value, 1); assert.equal(months.reduce((s, m) => s + m.value, 0), 1);

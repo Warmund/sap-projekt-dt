@@ -1,7 +1,7 @@
 // Fachliche Typen des Sanktionsregisters.
 
 /** Sperrschritte nach der Vier-Augen-Freigabe. */
-export type StepKey = "suser" | "ticketsShn" | "rcsc" | "notify" | "irdp" | "serviceNow" | "bcp" | "cloud";
+export type StepKey = "suser" | "ticketsShn" | "rcsc" | "notify" | "irdp" | "bcp" | "cloud";
 
 export type StepStatus = "done" | "running" | "waiting" | "pendingApproval" | "skipped" | "notApplicable";
 
