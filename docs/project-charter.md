@@ -4,12 +4,13 @@
 
 **Author:** Projektteam der Frankfurt University of Applied Sciences
 
-**Status:** Arbeitsstand, 19.11.2026
+**Status:** Arbeitsstand, 20.11.2026
 
 ## Change log
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 20.11.2026 | Skript für markierte Beispielwerte ergänzt (Entscheidungen, Sperrschritte, Tenants, Sanktionslisten, Länder-Kontakte), damit die Demo alle Funktionen zeigt; vollständig per --undo entfernbar | 5.3 |
 | Agent | 19.11.2026 | Deutsch und Englisch für die Oberfläche ergänzt. Die Sprache wird in den Einstellungen gewählt und im Browser gespeichert. | 5.2 |
 | Agent | 19.11.2026 | Register um auf- und absteigende Sortierung für Kunden, Land, ETS, Sanktionsliste, Cloud, Sperrdatum und Status ergänzt | 5.1 |
 | Agent | 19.11.2026 | Register um aufklappbare Filter für Land, ETS, Sanktionsliste, Cloud, GTS-Sperrdatum und Status ergänzt | 5.0 |

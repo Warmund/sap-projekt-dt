@@ -72,3 +72,19 @@ RUN_REGISTER_E2E=1 npx playwright test tests/register.spec.ts
 Der Integrationstest schreibt ausschließlich einen eindeutig markierten temporären Testkunden und entfernt ihn anschließend. Der Browser-Test legt einen temporären Test-Login an und entfernt ihn ebenfalls. Die normalen Parser-Tests benötigen keine Datenbank.
 
 Der Build meldet außerdem eine bekannte Sicherheitslücke der bereits installierten Next.js-Version 16.4.3. Ein Framework-Upgrade ist noch offen und war nicht Teil dieses Imports.
+
+## Beispielwerte für die Demo
+
+Die CSV enthält keine Freigaben, Schritte, Tenants, Sanktionslisten oder Länder-Kontakte. Damit die Demo alle Funktionen zeigt, ergänzt `scripts/demo-values.ts` erfundene Werte. Alles ist erkennbar markiert: Verlaufseinträge beginnen mit „BEISPIELWERT“, Sanktionslisten mit „Beispiel:“, Tenant-IDs mit „TEN-DEMO-“, Personen enden auf „(Beispiel)“.
+
+```bash
+npm run demo:values -- --dry-run   # nur anzeigen
+npm run demo:values                # schreiben
+npm run demo:values -- --undo      # alle Beispielwerte entfernen
+```
+
+- Bearbeitet nur unberührte Kunden (zur Prüfung, ohne Schritte, noch ohne Beispielwerte). Ein zweiter Lauf ändert nichts.
+- Verteilung nach Sperrdatum: die 8 jüngsten Fälle bleiben zur Prüfung, ETS5 wird „sanktioniert ohne Sperre“, ETS2 wird als Fehlalarm abgelehnt, 8 weitere freigegebene Fälle stehen mitten in den Sperrschritten, der Rest ist abgeschlossen.
+- Cloud-Kunden ohne Tenants erhalten 1 bis 3 Tenants, leere Kontaktfelder werden gefüllt.
+- `--undo` entfernt nur Beispielwerte. Was das Team danach selbst erledigt hat, bleibt erhalten; ein Fall mit eigenen Rückmeldungen behält dabei seine Freigabe.
+- Lokal mit Testdatenbank geprüft (50 Testkunden im CSV-Format): Verteilung, Wiederholbarkeit, chronologischer Verlauf, App-Aktion auf einem Beispielfall und `--undo`.
