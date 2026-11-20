@@ -433,6 +433,8 @@ const english: Record<string, string> = {
   "Auswahl": "Selection",
   "{0} auswählen": "Select {0}",
   "SCG inklusive BCG": "SCG including BCG",
+  "SCG bestätigt": "SCG confirmed",
+  "SCG manuell bearbeiten": "Handle SCG manually",
   "SCG inklusive BCG bestätigt": "SCG including BCG confirmed",
   "SCG inklusive BCG manuell bearbeiten": "Handle SCG including BCG manually",
   "Hier erscheinen freigegebene Kunden, deren E-Mail-Versand noch offen ist.": "Approved customers whose email is still pending appear here.",

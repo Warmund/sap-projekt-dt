@@ -5,7 +5,7 @@ export const STEP_DEFS: Record<StepKey, { label: string; system: string; team: s
   suser: { label: "S-User sperren", system: "W7", team: "S-User-Team", doneText: "Nach Freigabe automatisch abgeschlossen (Demo)", runningText: "" },
   ticketsShn: { label: "Offene Support-Tickets in ServiceNow schließen", system: "ServiceNow", team: "Support", doneText: "Ticketprüfung abgeschlossen und SHN aktiviert", runningText: "Offene Support-Tickets in ServiceNow schließen, danach SHN aktivieren", note: "SHN auch aktivieren, wenn keine Tickets offen sind." },
   rcsc: { label: "I7P Control Table Board", system: "RCSC", team: "Remote-Support", doneText: "I7P Control Table Board bearbeitet", runningText: "I7P Control Table Board bearbeiten" },
-  scg: { label: "SCG inklusive BCG", system: "Partner Teams", team: "Partner Teams", doneText: "SCG inklusive BCG bestätigt", runningText: "SCG inklusive BCG manuell bearbeiten" },
+  scg: { label: "SCG", system: "Partner Teams", team: "Partner Teams", doneText: "SCG bestätigt", runningText: "SCG manuell bearbeiten" },
   cloud: { label: "Cloud-Sperre je LoB", system: "Ticket je Line of Business", team: "Partner Teams", doneText: "Alle Tenants gesperrt", runningText: "Tenants werden von den LoBs gesperrt" },
   notify: { label: "Benachrichtigung", system: "E-Mail", team: "Export Control", doneText: "E-Mail-Versand bestätigt", runningText: "E-Mail unter „Benachrichtigungen“ vorbereiten" },
   irdp: { label: "IRDP-Flag setzen", system: "Launchpad", team: "Export Control", doneText: "IRDP-Flag gesetzt", runningText: "IRDP-Flag im Launchpad setzen" },
