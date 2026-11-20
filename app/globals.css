@@ -1,8 +1,10 @@
 html, body {
   margin: 0;
   min-height: 100%;
-  background: #fff;
+  background: var(--sapBackgroundColor, #fff);
 }
+
+html[data-theme="dark"] { color-scheme: dark; }
 
 .user-admin { display: grid; gap: 1rem; padding: 1.5rem; overflow-x: auto; }
 .user-admin-section { display: grid; gap: 1rem; padding: 1.25rem; background: var(--sapTile_Background, #fff); border: 1px solid var(--sapTile_BorderColor, #d9e2ec); border-radius: var(--sapTile_BorderCornerRadius, 1rem); box-shadow: var(--sapContent_Shadow0); }
@@ -126,6 +128,16 @@ html, body {
   color: var(--sapContent_IconColor, #0070f2);
   animation: workspace-loading-spin 900ms linear infinite;
 }
+
+/* Fallbacks for the moment before the UI5 dark theme parameters are loaded. */
+html[data-theme="dark"], html[data-theme="dark"] body { background: var(--sapBackgroundColor, #12171c); }
+html[data-theme="dark"] .workspace-loading { background: var(--sapBackgroundColor, #12171c); color: var(--sapTextColor, #eaecee); }
+html[data-theme="dark"] .workspace-loading-header {
+  background: var(--sapShell_Background, #1d232a);
+  color: var(--sapShell_TextColor, #eaecee);
+  border-bottom-color: var(--sapShell_BorderColor, #2c3540);
+}
+html[data-theme="dark"] .workspace-loading-spinner { color: var(--sapContent_IconColor, #4db1ff); }
 
 @keyframes workspace-loading-spin { to { transform: rotate(360deg); } }
 
