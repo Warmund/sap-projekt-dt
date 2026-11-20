@@ -157,7 +157,7 @@ export function RegisterDetail() {
               <dt>{t("Land")}</dt><dd>{t(p.country)}</dd>
               <dt>{t("ETS-Kategorie")}</dt><dd>{p.ets} ({t(ETS_INFO[p.ets])})</dd>
               <dt>{t("Region")}</dt><dd>{p.region || t("Nicht angegeben")}</dd>
-              <dt>{t("SPL-Kennzeichen")}</dt><dd>{p.spl == null ? t("Nicht angegeben") : p.spl ? t("Ja") : t("Nein")}</dd>
+              <dt>SPL</dt><dd>{p.spl == null ? t("Nicht angegeben") : p.spl ? t("Ja") : t("Nein")}</dd>
               <dt>RU IT Consultancy Ban</dt><dd>{p.ruItConsultancyBan == null ? t("Nicht angegeben") : p.ruItConsultancyBan ? t("Ja") : t("Nein")}</dd>
               <dt>{t("Ukraine Crisis")}</dt><dd>{p.ukraineCrisis == null ? t("Nicht angegeben") : p.ukraineCrisis ? t("Ja") : t("Nein")}</dd>
               <dt>{t("Sanktionsliste")}</dt><dd>{t(p.sanctionsList)}</dd>

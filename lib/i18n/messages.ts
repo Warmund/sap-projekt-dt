@@ -327,7 +327,6 @@ const english: Record<string, string> = {
   "Sperrschritte laufen": "Blocking steps in progress",
   "Sperrschritte mit Status": "Blocking steps and status",
   "Sperrschritte nach der Freigabe": "Blocking steps after approval",
-  "SPL-Kennzeichen": "SPL license plate",
   "Sprache": "Language",
   "SR-Kennzeichen aus dem Kundenbestand": "SR license plate from the customer base",
   "SR-Kunde": "SR customer",
