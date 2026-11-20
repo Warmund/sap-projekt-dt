@@ -25,7 +25,7 @@ const DEMO_PARTNERS: readonly GtsPartner[] = [
     country: "Österreich", region: "DACH", gtsBlockedAt: "2026-11-20T09:15:00.000Z",
     ets: "ETS3", sanctionsList: "EU-Sanktionsliste", listReference: "DEMO-EU-4913",
     spl: false, ruItConsultancyBan: false, ukraineCrisis: false,
-    specialCategory: "SR", specialComment: "Demo-Sonderkategorie", comment: "",
+    specialCategory: "SR", comment: "",
     cloudCustomer: false, tenants: [],
   },
 ];

@@ -137,7 +137,7 @@ export function RegisterDetail() {
               <dt>{t("Sanktionsliste")}</dt><dd>{t(p.sanctionsList)}</dd>
               {p.listReference && <><dt>{t("Referenz auf Listeneintrag")}</dt><dd>{p.listReference}</dd></>}
               <dt>{t("Cloud-Kunde")}</dt><dd>{p.cloudCustomer ? t("Ja, {0}", p.tenants.length ? t("{0} Tenants", p.tenants.length) : t("Tenant-Daten fehlen")) : t("Nein")}</dd>
-              <dt>{t("Sonderkategorie")}</dt><dd>{t(p.specialCategory ?? "keine")}{p.specialComment ? `, ${p.specialComment}` : ""}</dd>
+              <dt>{t("Sonderkategorie")}</dt><dd>{t(p.specialCategory === "SR" ? "SuccessRoom (SR)" : p.specialCategory ?? "keine")}{p.specialComment ? `, ${p.specialComment}` : ""}</dd>
               <dt>{t("Kommentar")}</dt><dd>{p.comment === "Keine Anmerkungen." ? t(p.comment) : p.comment}</dd>
             </dl>
           </Section>

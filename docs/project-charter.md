@@ -10,6 +10,7 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 20.11.2026 | SR als SuccessRoom benannt und als reine Kundeninformation in Vorschau und Register angezeigt | 5.13 |
 | Agent | 20.11.2026 | Erfassung neuer GTS-Fälle auf Business Partner ID mit schreibgeschützter Vorschau der simulierten Quelldaten umgestellt | 5.12 |
 | Agent | 20.11.2026 | Ladeansicht für den Start ergänzt und aktuelle Registeransicht samt ausgewähltem Fall beim Neuladen beibehalten | 5.11 |
 | Agent | 20.11.2026 | Drei Berechtigungsgruppen eingeführt. Export Kontrolle kann verwalten und bearbeiten, Display only liest, SCG bestätigt nur IRDP und BCP. | 5.10 |
@@ -121,7 +122,7 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 ## 2 Assumptions and Constraints
 
 - Die gemeinsame Umsetzung ist ein schneller, demonstrierbarer MVP beziehungsweise POC, keine produktive SAP-Lösung.
-- Neue GTS-Fälle werden über die Business Partner ID gesucht. Das Register zeigt Quelldaten vor dem Anlegen zur Vier-Augen-Freigabe schreibgeschützt an. Der MVP simuliert den Abruf mit zwei Testfällen. Die spätere Anbindung an SAP GTS wird im Solution Design betrachtet.
+- Neue GTS-Fälle werden über die Business Partner ID gesucht. Das Register zeigt Quelldaten vor dem Anlegen zur Vier-Augen-Freigabe schreibgeschützt an. Der MVP simuliert den Abruf mit zwei Testfällen. SuccessRoom (SR) ist eine Kundeninformation und ändert weder Freigabe noch Sperrschritte. Die spätere Anbindung an SAP GTS wird im Solution Design betrachtet.
 - Es werden ausschließlich synthetische Mock-Daten verwendet.
 - Der technische Stack ist Next.js 16 mit TypeScript, UI5 Web Components for React, Prisma 7 und PostgreSQL 18.
 - Die Internet-Demo soll dem Projektteam und ausgewählten SAP-Ansprechpersonen zugänglich sein; Vercel soll möglichst im kostenlosen Tarif genutzt werden. Ein Vercel-Konto darf für Besucher nicht erforderlich sein; die konkrete Zugriffsschutzlösung ist offen. Änderungen am Hauptbranch sollen automatisch deployt werden.

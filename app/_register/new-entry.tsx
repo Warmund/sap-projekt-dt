@@ -137,7 +137,7 @@ function GtsPreview({ partner }: { partner: GtsPartner }) {
           ["SPL", yesNo(partner.spl)],
           ["RU IT Consultancy Ban", yesNo(partner.ruItConsultancyBan)],
           [t("Ukraine Crisis"), yesNo(partner.ukraineCrisis)],
-          [t("Sonderkategorie"), partner.specialCategory ? t(partner.specialCategory) : t("keine")],
+          [t("Sonderkategorie"), t(partner.specialCategory === "SR" ? "SuccessRoom (SR)" : partner.specialCategory ?? "keine")],
           [t("Kommentar zur Sonderkategorie"), partner.specialComment ? t(partner.specialComment) : missing],
           [t("Kommentar"), partner.comment || missing],
         ]} />

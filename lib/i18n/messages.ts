@@ -305,7 +305,6 @@ const english: Record<string, string> = {
   "Single Sign-on ist noch nicht verfügbar.": "Single sign-on is not yet available.",
   "So geht es weiter": "This is how it continues",
   "Sonderkategorie": "Special category",
-  "Sonderkategorie SR": "Special category SR",
   "Sonstige": "Other",
   "Sonstige Sonderkategorie": "Other special category",
   "Sortieren nach": "Sort by",
@@ -328,9 +327,6 @@ const english: Record<string, string> = {
   "Sperrschritte mit Status": "Blocking steps and status",
   "Sperrschritte nach der Freigabe": "Blocking steps after approval",
   "Sprache": "Language",
-  "SR-Kennzeichen aus dem Kundenbestand": "SR license plate from the customer base",
-  "SR-Kunde": "SR customer",
-  "SR-Kunden bekommen eine eigene Kachel im Dashboard. Bedeutung von SR mit SAP bestätigen.": "SR customers get their own tile in the dashboard. Confirm meaning of SR with SAP.",
   "Stammdaten": "Master data",
   "starten nach der Freigabe": "Start after approval",
   "Startet erst, wenn alle Tickets geschlossen sind": "Starts when all tickets are closed",
@@ -456,7 +452,6 @@ const english: Record<string, string> = {
   "Die simuliert übernommenen Daten sind schreibgeschützt.": "The simulated GTS data is read-only.",
   "Sanktionsdaten": "Sanctions data",
   "Cloud-Nutzung": "Cloud usage",
-  "Demo-Sonderkategorie": "Demo special category",
   "Überblick": "Overview"
 };
 

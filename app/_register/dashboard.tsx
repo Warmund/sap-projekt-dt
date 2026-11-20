@@ -56,7 +56,6 @@ export function RegisterDashboard() {
           <KpiTile title={t("Kunden im Register")} value={summary.total} sub={t("Alle importierten und manuell erfassten Kunden")} onClick={() => openRegister("all")} />
           <KpiTile title={t("Freigegebene Fälle")} value={summary.approved} sub={t("Vier-Augen-Prüfung abgeschlossen, mit Sperrschritten")} onClick={() => openRegister("approved")} />
           <KpiTile title={t("Sanktioniert ohne Sperre")} value={summary.noBlock} sub={t("Bestätigte Fälle ohne Sperrschritte")} onClick={() => openRegister("noBlock")} />
-          <KpiTile title={t("Sonderkategorie SR")} value={summary.sr} sub={t("SR-Kennzeichen aus dem Kundenbestand")} onClick={() => openRegister("sr")} />
         </div>
       </Section>
 

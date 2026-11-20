@@ -146,7 +146,7 @@ function RegisterResults() {
           {rows.map((p) => <TableRow key={p.id} rowKey={p.id} interactive>
             <TableCell><div className="rg-cell-stack">
               <Text className="rg-strong">{p.name}</Text>
-              <Text className="rg-muted">{t("BP")} {p.bpId} · ERP {p.erpId}{p.specialCategory ? ` · ${t(p.specialCategory)}` : ""}</Text>
+              <Text className="rg-muted">{t("BP")} {p.bpId} · ERP {p.erpId}{p.specialCategory ? ` · ${t(p.specialCategory === "SR" ? "SuccessRoom (SR)" : p.specialCategory)}` : ""}</Text>
             </div></TableCell>
             <TableCell><Text>{t(p.country)}</Text></TableCell>
             <TableCell><Text>{p.ets}</Text></TableCell>

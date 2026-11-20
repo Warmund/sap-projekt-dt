@@ -29,7 +29,7 @@ Neue Datensätze starten grundsätzlich mit `pending`. Die Person, die einen neu
 | Date of blocking | `gtsBlockedAt`, `gtsDateOnly` | TT.MM.JJJJ, technisch UTC-Mitternacht; Anzeige als Datum ohne erfundene Uhrzeit |
 | Comment | `comment` | Vollständig, einschließlich Kommas und Sonderzeichen |
 | SPL | `spl` | Eigenständiges Ja/Nein-Kennzeichen; keine Ableitung einer konkreten Sanktionsliste |
-| SR | `specialCategory` | Yes → SR, No → keine Sonderkategorie |
+| SR | `specialCategory` | Yes → SuccessRoom (SR) als Kundeninfo, No → keine Sonderkategorie |
 | Cloud | `cloudCustomer` | Eigenständiges Ja/Nein-Kennzeichen |
 | RU IT consultancy BAN | `ruItConsultancyBan` | Eigenständiges Ja/Nein-Kennzeichen |
 | Ukraine Crisis | `ukraineCrisis` | Eigenständiges Ja/Nein-Kennzeichen |
