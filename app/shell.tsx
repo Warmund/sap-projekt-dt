@@ -1,6 +1,7 @@
 "use client";
 import { useLanguage } from "./language";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { boot } from "@ui5/webcomponents-base/dist/Boot.js";
 import { ThemeProvider } from "@ui5/webcomponents-react/ThemeProvider";
 import { NavigationLayout, type NavigationLayoutDomRef } from "@ui5/webcomponents-react/NavigationLayout";
 import { ShellBar } from "@ui5/webcomponents-react/ShellBar";
@@ -25,8 +26,8 @@ import "@ui5/webcomponents-icons/dist/people-connected.js";
 import type { RegisterData } from "../lib/register/repository";
 import { canEditWorkspace, workspaceRole } from "../lib/roles";
 import { authClient } from "../lib/auth-client";
-import { Administration, type AdministrationView } from "./administration";
-import { RegisterProvider, type RegisterView } from "./_register/store";
+import { Administration } from "./administration";
+import { RegisterProvider } from "./_register/store";
 import { RegisterDashboard } from "./_register/dashboard";
 import { RegisterList } from "./_register/register-list";
 import { RegisterNewEntry } from "./_register/new-entry";
@@ -37,16 +38,41 @@ import { RegisterTasks } from "./_register/tasks";
 import { Settings } from "./settings";
 import "@ui5/webcomponents-icons/dist/action-settings.js";
 
-type View = AdministrationView | RegisterView | "settings";
+import { WorkspaceLoading } from "./workspace-loading";
+import { readWorkspaceView, type WorkspaceView } from "./workspace-view";
 
-export function Shell({ user, initialRegister }: { user: { id: string; name: string; email: string; role: string }; initialRegister: RegisterData }) {
+export function Shell({ user, initialRegister, initialView, initialPartnerId }: {
+  user: { id: string; name: string; email: string; role: string };
+  initialRegister: RegisterData;
+  initialView: WorkspaceView;
+  initialPartnerId?: string;
+}) {
   const { t } = useLanguage();
   const layoutRef = useRef<NavigationLayoutDomRef>(null);
   const [mode, setMode] = useState<"Auto" | "Collapsed" | "Expanded">("Auto");
-  const [view, setView] = useState<View>("rg-dashboard");
+  const [view, setView] = useState(initialView);
+  const [ready, setReady] = useState(false);
   const [menuOpener, setMenuOpener] = useState<HTMLElement | null>(null);
   const [error, setError] = useState("");
   const initials = user.name.split(/\s+/).map((p) => p[0]).join("").slice(0, 2).toUpperCase();
+
+  useEffect(() => {
+    let active = true;
+    void boot().then(() => {
+      if (active) setReady(true);
+    });
+    return () => { active = false; };
+  }, []);
+
+  function navigate(nextView: WorkspaceView, partnerId?: string) {
+    setView(nextView);
+    const url = new URL(window.location.href);
+    if (nextView === "rg-dashboard") url.searchParams.delete("view");
+    else url.searchParams.set("view", nextView);
+    if (nextView === "rg-detail" && partnerId) url.searchParams.set("case", partnerId);
+    else url.searchParams.delete("case");
+    window.history.replaceState(null, "", url);
+  }
 
   const signOut = async () => {
     setMenuOpener(null);
@@ -65,7 +91,7 @@ export function Shell({ user, initialRegister }: { user: { id: string; name: str
       case "users":
       case "rg-contacts":
       case "admin-imports":
-      case "admin-cloud": return <Administration view={view} canEdit={canEdit} currentUserId={user.id} onSelect={setView} />;
+      case "admin-cloud": return <Administration view={view} canEdit={canEdit} currentUserId={user.id} onSelect={navigate} />;
       case "rg-dashboard": return <RegisterDashboard />;
       case "rg-register": return <RegisterList />;
       case "rg-new": return canEdit ? <RegisterNewEntry /> : <RegisterDashboard />;
@@ -76,19 +102,21 @@ export function Shell({ user, initialRegister }: { user: { id: string; name: str
     }
   };
 
+  if (!ready) return <WorkspaceLoading />;
+
   return <ThemeProvider>
-    <RegisterProvider initialData={initialRegister} currentUser={user.name} role={role} onNavigate={setView}>
+    <RegisterProvider initialData={initialRegister} currentUser={user.name} role={role} initialPartnerId={initialPartnerId} onNavigate={navigate}>
     <NavigationLayout ref={layoutRef} mode={mode} className="app-layout"
       header={<ShellBar
         startButton={<Button icon="menu2" design="Transparent" tooltip={t("Navigation ein-/ausblenden")} accessibleName={t("Navigation ein-/ausblenden")}
           onClick={() => setMode(layoutRef.current?.isSideCollapsed() ? "Expanded" : "Collapsed")} />}
-        branding={<ShellBarBranding logo={<img src="/sap-logo.svg" alt="SAP" />} onClick={() => setView("rg-dashboard")}>SAP-Project-DT</ShellBarBranding>}
+        branding={<ShellBarBranding logo={<img src="/sap-logo.svg" alt="SAP" />} onClick={() => navigate("rg-dashboard")}>SAP-Project-DT</ShellBarBranding>}
         secondaryTitle="Export Control"
         profile={<Avatar initials={initials} accessibleName={user.name} />}
         onProfileClick={(e) => setMenuOpener(e.detail.targetRef)} />}
       sideContent={<SideNavigation accessibleName={t("Hauptnavigation")}
         onSelectionChange={(e) => {
-          setView(e.detail.item.dataset.key as View);
+          navigate(readWorkspaceView(e.detail.item.dataset.key));
           // On size S the navigation is an overlay and should close after selection (Fiori guideline).
           if (window.matchMedia("(max-width: 599px)").matches) setMode("Collapsed");
         }}
@@ -115,7 +143,7 @@ export function Shell({ user, initialRegister }: { user: { id: string; name: str
       accounts={<UserMenuAccount titleText={user.name} subtitleText={user.email} avatarInitials={initials} selected />}
       onItemClick={({ detail }) => {
         setMenuOpener(null);
-        setView(detail.item.dataset.key === "users" ? "users" : "admin-imports");
+        navigate(detail.item.dataset.key === "users" ? "users" : "admin-imports");
       }}>
       <UserMenuItem text="Administration" />
       <UserMenuItem text={t(canEdit ? "Nutzer verwalten" : "Nutzerliste")} data-key="users" />

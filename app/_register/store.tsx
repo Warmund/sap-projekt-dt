@@ -23,18 +23,18 @@ type RegisterState = {
   decide: (id: string, decision: Exclude<Decision, "pending">, comment: string) => Promise<boolean>;
   completeStep: (id: string, step: StepKey, result?: string) => Promise<boolean>;
   confirmNotifications: (customers: { id: string; version: number }[]) => Promise<boolean>;
-  addPartner: (p: BlockedPartner) => Promise<boolean>;
+  addPartner: (p: BlockedPartner) => Promise<string | undefined>;
   updateContact: (c: CountryContact) => Promise<boolean>;
   reset: () => Promise<void>;
 };
 const Ctx = createContext<RegisterState | null>(null);
 
 /** Database is authoritative; failed writes never become local success states. */
-export function RegisterProvider({ children, currentUser, role, onNavigate, initialData }: { children: ReactNode; currentUser: string; role: WorkspaceRole; onNavigate: (view: RegisterView) => void; initialData: RegisterData }) {
+export function RegisterProvider({ children, currentUser, role, onNavigate, initialData, initialPartnerId }: { children: ReactNode; currentUser: string; role: WorkspaceRole; onNavigate: (view: RegisterView, partnerId?: string) => void; initialData: RegisterData; initialPartnerId?: string }) {
   const { t } = useLanguage();
   const [data, setData] = useState(initialData);
   const [registerFilter, setRegisterFilter] = useState<RegisterFilter>("all");
-  const [selectedId, setSelectedId] = useState<string | undefined>(initialData.partners[0]?.id);
+  const [selectedId, setSelectedId] = useState(initialPartnerId);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const busy = useRef(false);
@@ -53,14 +53,13 @@ export function RegisterProvider({ children, currentUser, role, onNavigate, init
   const value: RegisterState = {
     ...data, currentUser, role, registerFilter, setRegisterFilter,
     openRegister: (filter) => { setRegisterFilter(filter); onNavigate("rg-register"); }, selected: data.partners.find((p) => p.id === selectedId),
-    open: (view, id) => { if (id) setSelectedId(id); onNavigate(view); },
+    open: (view, id) => { if (id) setSelectedId(id); onNavigate(view, id); },
     decide: async (id, decision, comment) => !!await run({ kind: "decide", id, version: version(id), decision, comment }),
     completeStep: async (id, step, result) => !!await run({ kind: "complete", id, version: version(id), step, result }),
     confirmNotifications: async (customers) => !!await run({ kind: "confirmNotifications", customers }),
     addPartner: async (partner) => {
       const fresh = await run({ kind: "create", partner });
-      if (fresh) setSelectedId(fresh.partners.find((p) => p.bpId === partner.bpId)?.id);
-      return !!fresh;
+      return fresh?.partners.find((p) => p.bpId === partner.bpId)?.id;
     },
     updateContact: async (contact) => !!await run({ kind: "contact", contact }),
     reset: async () => {

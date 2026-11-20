@@ -441,6 +441,7 @@ const english: Record<string, string> = {
   "Partner Teams bestätigen hier die manuellen Sperrschritte.": "Partner Teams confirm the manual blocking steps here.",
   "Export Kontrolle": "Export Control",
   "Deine Gruppe hat keine Berechtigung für diese Aktion.": "Your group does not have permission for this action.",
+  "Anwendung wird geladen": "Loading application",
   "Überblick": "Overview"
 };
 

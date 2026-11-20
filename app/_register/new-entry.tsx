@@ -54,7 +54,8 @@ export function RegisterNewEntry() {
         { at: now, by: t("System"), text: "Datensatz im Register angelegt" },
       ],
     };
-    if (await addPartner(partner)) open("rg-detail");
+    const id = await addPartner(partner);
+    if (id) open("rg-detail", id);
   };
 
   return <DynamicPage hidePinButton className="app-page"
