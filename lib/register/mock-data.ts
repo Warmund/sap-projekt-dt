@@ -1,6 +1,8 @@
 // Synthetische Mock-Daten. Alle Namen, IDs und Personen sind frei erfunden.
 import type { BlockedPartner, CountryContact, Decision, EtsCategory, SpecialCategory, StepKey, Tenant } from "./types";
 
+import { STEP_DEFS, STEP_ORDER } from "./workflow";
+
 type Seed = {
   id: string; name: string; country: string; ets: EtsCategory; list: string; gts: string;
   decision: Decision; done?: StepKey[]; tenants?: Tenant[]; special?: SpecialCategory; comment?: string; decisionComment?: string;
@@ -9,10 +11,8 @@ type Seed = {
 const EC1 = ["A. Becker", "S. Wolf"];
 const EC2 = "M. Klein";
 
-const RESULTS: Record<StepKey, string> = {
+const RESULTS: Partial<Record<StepKey, string>> = {
   suser: "S-User gesperrt",
-  tickets: "Tickets geschlossen",
-  remote: "Remote-Zugang gesperrt",
   cloud: "Alle Tenants gesperrt",
   notify: "AE und Landesverantwortliche informiert",
 };
@@ -38,11 +38,11 @@ function build(s: Seed, index: number): BlockedPartner {
   }
   (s.done ?? []).forEach((step, i) => {
     const at = addMinutes(s.gts, 120 + i * 90);
-    completed[step] = { at, by: `Rückmeldung ${step === "cloud" ? "Cloud-LoB" : step === "notify" ? "Export Control" : "Team"}`, result: RESULTS[step] };
-    audit.push({ at, by: completed[step]!.by, text: RESULTS[step] });
+    completed[step] = { at, by: `Rückmeldung ${step === "cloud" ? "Cloud-LoB" : step === "notify" ? "Export Control" : "Team"}`, result: RESULTS[step] ?? STEP_DEFS[step].doneText };
+    audit.push({ at, by: completed[step]!.by, text: completed[step]!.result });
   });
   return {
-    id: s.id, stepOrder: "A", bpId, erpId: `${4000 + index * 13}-${ISO[s.country] ?? "XX"}`,
+    id: s.id, bpId, erpId: `${4000 + index * 13}-${ISO[s.country] ?? "XX"}`,
     name: s.name, country: s.country, ets: s.ets, sanctionsList: s.list, gtsBlockedAt: s.gts,
     enteredBy, decision: s.decision, decidedAt, decidedBy: decidedAt ? EC2 : undefined, decisionComment: s.decisionComment,
     cloudCustomer: !!s.tenants?.length, tenants: s.tenants ?? [], specialCategory: s.special ?? null,
@@ -51,7 +51,7 @@ function build(s: Seed, index: number): BlockedPartner {
   };
 }
 
-const ALL: StepKey[] = ["suser", "tickets", "remote", "cloud", "notify"];
+const ALL = [...STEP_ORDER];
 
 const SEEDS: Seed[] = [
   { id: "muster-trading", name: "Muster Trading Co., Ltd.", country: "China", ets: "ETS4", list: "US-SDN-Liste", gts: "2026-11-05T07:52:00Z", decision: "pending",
@@ -63,10 +63,10 @@ const SEEDS: Seed[] = [
   { id: "nordwind-logistik", name: "Nordwind Logistik OOO", country: "Russland", ets: "ETS6", list: "Länderentscheidung SAP", gts: "2026-11-10T09:15:00Z", decision: "pending",
     tenants: [{ lob: "Ariba", product: "Ariba Network", tenantId: "TEN-9011", ticket: "CLD-30140" }] },
   { id: "kaspi-handel", name: "Kaspi Handel LLP", country: "Kasachstan", ets: "ETS4", list: "EU-Sanktionsliste", gts: "2026-11-11T13:40:00Z", decision: "pending" },
-  { id: "beispiel-handels", name: "Beispiel Handels OOO", country: "Russland", ets: "ETS6", list: "Länderentscheidung SAP", gts: "2026-11-03T08:10:00Z", decision: "approved", done: ["suser", "tickets"],
+  { id: "beispiel-handels", name: "Beispiel Handels OOO", country: "Russland", ets: "ETS6", list: "Länderentscheidung SAP", gts: "2026-11-03T08:10:00Z", decision: "approved", done: ["suser", "ticketsShn"],
     tenants: [{ lob: "SuccessFactors", product: "Employee Central", tenantId: "TEN-6620", ticket: "CLD-30098" }] },
   { id: "testfirma-alpha", name: "Testfirma Alpha JSC", country: "Belarus", ets: "ETS6", list: "Länderentscheidung SAP", gts: "2026-10-29T10:05:00Z", decision: "approved", done: ["suser"] },
-  { id: "nordlicht-shipping", name: "Nordlicht Shipping Ltd.", country: "VAE", ets: "ETS4", list: "EU-Sanktionsliste", gts: "2026-10-27T12:30:00Z", decision: "approved", done: ["suser", "tickets", "remote"], special: "SR",
+  { id: "nordlicht-shipping", name: "Nordlicht Shipping Ltd.", country: "VAE", ets: "ETS4", list: "EU-Sanktionsliste", gts: "2026-10-27T12:30:00Z", decision: "approved", done: ["suser", "ticketsShn", "rcsc"], special: "SR",
     tenants: [
       { lob: "SuccessFactors", product: "Employee Central", tenantId: "TEN-6904", ticket: "CLD-30087" },
       { lob: "SuccessFactors", product: "Learning", tenantId: "TEN-6905", ticket: "CLD-30087" },

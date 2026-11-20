@@ -97,6 +97,11 @@ enum RegisterStepKey {
   remote
   cloud
   notify
+  ticketsShn
+  rcsc
+  irdp
+  serviceNow
+  bcp
 }
 
 enum RegisterSpecialCategory {

@@ -20,7 +20,7 @@ import { TableHeaderCell } from "@ui5/webcomponents-react/TableHeaderCell";
 import { TableRow } from "@ui5/webcomponents-react/TableRow";
 import { TableCell } from "@ui5/webcomponents-react/TableCell";
 import { GTS_SAMPLE, SANCTIONS_LISTS } from "../../lib/register/mock-data";
-import { PHASES, STEP_DEFS, VARIANT_LABEL } from "../../lib/register/workflow";
+import { STEP_ORDER, STEP_DEFS } from "../../lib/register/workflow";
 import type { BlockedPartner, Tenant } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { Section } from "./ui";
@@ -44,7 +44,7 @@ export function RegisterNewEntry() {
     if (!g) { setError("Bitte zuerst die Daten aus GTS übernehmen (im Prototyp simuliert)."); return; }
     const now = new Date().toISOString();
     const partner: BlockedPartner = {
-      stepOrder: "A", id: `neu-${Date.now()}`, bpId: g.bpId, erpId: g.erpId, name: g.name, country: g.country, ets: g.ets,
+      id: `neu-${Date.now()}`, bpId: g.bpId, erpId: g.erpId, name: g.name, country: g.country, ets: g.ets,
       sanctionsList: list, listReference: reference || undefined, gtsBlockedAt: now, enteredBy: currentUser,
       decision: "pending", cloudCustomer: !!tenants?.length, tenants: tenants ?? [],
       specialCategory: sr ? "SR" : other ? "Sonstige" : null, specialComment: specialComment || undefined,
@@ -136,11 +136,11 @@ export function RegisterNewEntry() {
         </div>
 
         <aside className="rg-detail-side">
-          <Section title={t("Sperrschritte nach der Freigabe")} sub={t(VARIANT_LABEL.A)}>
+          <Section title={t("Sperrschritte nach der Freigabe")}>
             <ol className="rg-mini-steps">
-              {PHASES.A.map((phase, i) => <li key={phase.join("-")}>
+              {STEP_ORDER.map((key, i) => <li key={key}>
                 <span className="rg-step-nr" aria-hidden="true">{i + 3}</span>
-                <div>{phase.map((k) => <div key={k}><Text className="rg-strong">{t(STEP_DEFS[k].label)}</Text><br /><Text className="rg-muted">{t(STEP_DEFS[k].system)}</Text></div>)}</div>
+                <div><Text className="rg-strong">{t(STEP_DEFS[key].label)}</Text><br /><Text className="rg-muted">{t(STEP_DEFS[key].system)}</Text></div>
               </li>)}
             </ol>
           </Section>
@@ -149,7 +149,7 @@ export function RegisterNewEntry() {
               <li>{t("Datensatz zählt auf der Dashboard-Kachel „Zur Freigabe“, keine E-Mail")}</li>
               <li>{t("EC Member 2 entscheidet: freigeben, sanktioniert ohne Sperre oder ablehnen")}</li>
               <li>{t("Bei Freigabe laufen die Sperrschritte, jeder meldet seinen Status ins Register")}</li>
-              <li>{t("Zum Schluss E-Mail an Account Executive und Landesverantwortliche")}</li>
+              <li>{t("E-Mail an Account Executive und Landesverantwortliche vorbereiten")}</li>
             </ol>
           </Section>
         </aside>

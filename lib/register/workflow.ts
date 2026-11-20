@@ -1,43 +1,35 @@
 // Workflow-Logik des Sanktionsregisters, unabhängig von React und Next.js.
-import type { BlockedPartner, Decision, OverallStatus, StepKey, StepOrderVariant, StepStatus } from "./types";
+import type { BlockedPartner, Decision, OverallStatus, StepKey, StepStatus } from "./types";
 
 export const STEP_DEFS: Record<StepKey, { label: string; system: string; team: string; doneText: string; runningText: string; note?: string }> = {
-  suser: { label: "S-User sperren", system: "W7", team: "S-User-Team", doneText: "S-User gesperrt", runningText: "Sperre in W7 läuft" },
-  tickets: { label: "Offene Support-Tickets schließen", system: "ServiceNow, BCP", team: "Support", doneText: "Tickets geschlossen", runningText: "Schließung läuft, alternativ Rückmeldung „keine Tickets“" },
-  remote: { label: "Remote-Verbindung sperren", system: "RCSC und Secure Support", team: "Remote-Support", doneText: "Remote-Zugang gesperrt", runningText: "Sperre läuft", note: "Startet erst, wenn alle Tickets geschlossen sind" },
+  suser: { label: "S-User sperren", system: "W7", team: "S-User-Team", doneText: "Nach Freigabe automatisch abgeschlossen (Demo)", runningText: "" },
+  ticketsShn: { label: "Offene Support-Tickets schließen", system: "Support", team: "Support", doneText: "Ticketprüfung abgeschlossen und SHN aktiviert", runningText: "Offene Support-Tickets schließen, danach SHN aktivieren", note: "SHN auch aktivieren, wenn keine Tickets offen sind." },
+  rcsc: { label: "I7P Control Table Board", system: "RCSC", team: "Remote-Support", doneText: "I7P Control Table Board bearbeitet", runningText: "I7P Control Table Board bearbeiten" },
   cloud: { label: "Cloud-Sperre je LoB", system: "Ticket je Line of Business", team: "Cloud-LoB", doneText: "Alle Tenants gesperrt", runningText: "Tenants werden von den LoBs gesperrt" },
   notify: { label: "Benachrichtigung", system: "E-Mail an AE und Landesverantwortliche", team: "Export Control", doneText: "Account Executive und Landesverantwortliche informiert", runningText: "E-Mail-Entwurf bereit" },
+  irdp: { label: "IRDP-Flag setzen", system: "Launchpad", team: "Export Control", doneText: "IRDP-Flag gesetzt", runningText: "IRDP-Flag im Launchpad setzen" },
+  serviceNow: { label: "ServiceNow", system: "ServiceNow", team: "Support", doneText: "ServiceNow-Schritt bestätigt", runningText: "ServiceNow-Schritt bearbeiten" },
+  bcp: { label: "BCP-Ticket", system: "BCP", team: "Support", doneText: "BCP-Ticket bestätigt", runningText: "BCP-Ticket bearbeiten" },
 };
 
-export const PHASES: Record<StepOrderVariant, StepKey[][]> = {
-  A: [["suser"], ["tickets"], ["remote"], ["cloud"], ["notify"]],
-  B: [["tickets"], ["remote"], ["suser", "cloud"], ["notify"]],
-};
-
-export const VARIANT_LABEL: Record<StepOrderVariant, string> = {
-  A: "Variante A laut SAP-Folien: S-User zuerst, dann Tickets, Remote, Cloud",
-  B: "Variante B laut Call 06.11.: Tickets, dann Remote, dann S-User und Cloud parallel",
-};
+export const STEP_ORDER: readonly StepKey[] = ["suser", "ticketsShn", "rcsc", "notify", "irdp", "serviceNow", "bcp", "cloud"];
 
 export function isApplicable(p: BlockedPartner, step: StepKey) {
   return step !== "cloud" || p.cloudCustomer;
 }
 
-/** Status je Sperrschritt für die gewählte Reihenfolge. */
+/** Status je Sperrschritt in Prozessreihenfolge. */
 export function stepStatuses(p: BlockedPartner): Record<StepKey, StepStatus> {
   const result = {} as Record<StepKey, StepStatus>;
   let blocked = false;
-  for (const phase of PHASES[p.stepOrder]) {
-    let phaseOpen = false;
-    for (const step of phase) {
-      if (!isApplicable(p, step)) { result[step] = "notApplicable"; continue; }
-      if (p.decision === "pending") { result[step] = "pendingApproval"; continue; }
-      if (p.decision !== "approved") { result[step] = "skipped"; continue; }
-      if (p.completed[step]) { result[step] = "done"; continue; }
-      result[step] = blocked ? "waiting" : "running";
-      phaseOpen = true;
-    }
-    if (phaseOpen) blocked = true;
+  for (const step of STEP_ORDER) {
+    if (!isApplicable(p, step)) { result[step] = "notApplicable"; continue; }
+    if (p.decision === "pending") { result[step] = "pendingApproval"; continue; }
+    if (p.decision !== "approved") { result[step] = "skipped"; continue; }
+    // Older approvals predate the automatic demo completion record.
+    if (p.completed[step] || step === "suser") { result[step] = "done"; continue; }
+    result[step] = blocked ? "waiting" : "running";
+    blocked = true;
   }
   return result;
 }
@@ -64,9 +56,13 @@ const DECISION_TEXT: Record<Exclude<Decision, "pending">, string> = {
 export function decide(p: BlockedPartner, decision: Exclude<Decision, "pending">, by: string, comment: string, now = new Date()): BlockedPartner {
   if (p.decision !== "pending") return p;
   const at = now.toISOString();
+  const automatic = decision === "approved" && !p.completed.suser;
+  const result = STEP_DEFS.suser.doneText;
   return {
     ...p, decision, decidedBy: by, decidedAt: at, decisionComment: comment || undefined,
-    audit: [...p.audit, { at, by: `${by} (EC Member 2)`, text: DECISION_TEXT[decision] + (comment ? `: ${comment}` : "") }],
+    completed: automatic ? { ...p.completed, suser: { at, by: "System", result } } : p.completed,
+    audit: [...p.audit, { at, by: `${by} (EC Member 2)`, text: DECISION_TEXT[decision] + (comment ? `: ${comment}` : "") },
+      ...(automatic ? [{ at, by: "System", text: result }] : [])],
   };
 }
 
@@ -91,13 +87,8 @@ export function advance(p: BlockedPartner, now = new Date()): BlockedPartner {
 }
 
 function defaultResult(p: BlockedPartner, step: StepKey) {
-  switch (step) {
-    case "suser": return "12 S-User gesperrt";
-    case "tickets": return "2 Tickets geschlossen";
-    case "remote": return "Remote-Zugang gesperrt";
-    case "cloud": return `${p.tenants.length} von ${p.tenants.length} Tenants gesperrt`;
-    case "notify": return STEP_DEFS.notify.doneText;
-  }
+  if (step === "cloud") return `${p.tenants.length} von ${p.tenants.length} Tenants gesperrt`;
+  return STEP_DEFS[step].doneText;
 }
 
 export function daysSince(iso: string, now = new Date()) {

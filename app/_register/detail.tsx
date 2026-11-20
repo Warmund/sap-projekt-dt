@@ -11,8 +11,6 @@ import { Button } from "@ui5/webcomponents-react/Button";
 import { Input } from "@ui5/webcomponents-react/Input";
 import { Link } from "@ui5/webcomponents-react/Link";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
-import { Select } from "@ui5/webcomponents-react/Select";
-import { Option } from "@ui5/webcomponents-react/Option";
 import { Dialog } from "@ui5/webcomponents-react/Dialog";
 import { Timeline } from "@ui5/webcomponents-react/Timeline";
 import { TimelineItem } from "@ui5/webcomponents-react/TimelineItem";
@@ -24,14 +22,14 @@ import { TableCell } from "@ui5/webcomponents-react/TableCell";
 import "@ui5/webcomponents-icons/dist/email.js";
 import "@ui5/webcomponents-icons/dist/history.js";
 import { ETS_INFO } from "../../lib/register/mock-data";
-import { PHASES, progress, overallStatus, stepStatuses, STEP_DEFS, VARIANT_LABEL } from "../../lib/register/workflow";
+import { STEP_ORDER, progress, overallStatus, stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
 import type { BlockedPartner } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { Section, StatusBadge, StepBadge } from "./ui";
 
 export function RegisterDetail() {
   const { t, date, dateTime } = useLanguage();
-  const { selected: p, setStepOrder, decide, advance, contacts, open, reset } = useRegister();
+  const { selected: p, decide, advance, contacts, open, reset } = useRegister();
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState(false);
   const [mailOpen, setMailOpen] = useState(false);
@@ -70,16 +68,6 @@ export function RegisterDetail() {
         <div className="rg-approval-text">
           <Title id="rg-approval-title" level="H2" size="H5">{t("Vier-Augen-Freigabe durch EC Member 2")}</Title>
           <Text>{t("Erfasst von")} {p.enteredBy} {t("(EC Member 1). Mit der Freigabe starten die Sperrschritte.")}</Text>
-          <Label for="rg-step-order">{t("Schrittfolge")}</Label>
-          <Select id="rg-step-order" accessibleName={t("Schrittfolge")} value={p.stepOrder} onChange={(e) => {
-            const value = e.target.value;
-            e.target.value = p.stepOrder;
-            if (value === "A" || value === "B") void setStepOrder(p.id, value);
-          }}>
-            <Option value="A">{t("A: S-User zuerst")}</Option>
-            <Option value="B">{t("B: Tickets zuerst")}</Option>
-          </Select>
-          <Text className="rg-muted">{t("Die Schrittfolge wird für diesen Fall gespeichert. Sobald du entschieden hast, ist sie festgelegt.")}</Text>
           <Label for="rg-decision-comment" required={commentError}>{t("Kommentar zur Entscheidung")}</Label>
           <Input id="rg-decision-comment" value={comment} valueState={commentError ? "Negative" : "None"}
             placeholder={t("z. B. nur Zahlungsbeschränkungen, keine Sperre nötig")} onInput={(e) => { setComment(e.target.value); setCommentError(false); }} />
@@ -101,7 +89,7 @@ export function RegisterDetail() {
 
       <div className="rg-detail-grid">
         <div className="rg-detail-main">
-          <Section title={t("Sperrschritte mit Status")} sub={t(VARIANT_LABEL[p.stepOrder])}
+          <Section title={t("Sperrschritte mit Status")}
             actions={<>
               <Text className="rg-muted">{p.decision === "approved" ? t("{0} von {1} erledigt", pr.done, pr.total) : p.decision === "pending" ? t("starten nach der Freigabe") : t("keine Sperrschritte")}</Text>
               {canAdvance && <Button onClick={() => advance(p.id)}>{t("Rückmeldung simulieren")}</Button>}
@@ -111,16 +99,17 @@ export function RegisterDetail() {
               <StepRow nr="1" title={t("Datensatz im Register")} system={t("Register")} status="done" result={t("Automatisch angelegt (im Prototyp von Hand)")} />
               <StepRow nr="2" title={t("Vier-Augen-Freigabe")} system={t("Register")} status={p.decision === "pending" ? "running" : "done"}
                 result={p.decision === "pending" ? t("Hinweis über die Dashboard-Kachel „Zur Freigabe“") : `${p.decidedBy} (EC Member 2), ${dateTime(p.decidedAt!)}`} />
-              {PHASES[p.stepOrder].map((phase, i) => <li key={phase.join("-")} className="rg-step">
-                <span className="rg-step-nr" aria-hidden="true">{i + 3}</span>
-                <div className="rg-step-body">
-                  {phase.length > 1 && <Text className="rg-parallel">Parallel</Text>}
-                  <div className="rg-step-cards">
-                    {phase.map((k) => <StepCard key={k} title={t(STEP_DEFS[k].label)} system={t(STEP_DEFS[k].system)} status={st[k]}
-                      result={p.completed[k]?.result ?? (st[k] === "running" ? STEP_DEFS[k].runningText : undefined)} note={STEP_DEFS[k].note && t(STEP_DEFS[k].note!)} />)}
+              {STEP_ORDER.map((key, index) => {
+                const step = STEP_DEFS[key];
+                return <li key={key} className="rg-step">
+                  <span className="rg-step-nr" aria-hidden="true">{index + 3}</span>
+                  <div className="rg-step-body">
+                    <StepCard title={t(step.label)} system={t(step.system)} status={st[key]}
+                      result={p.completed[key]?.result ?? (st[key] === "running" ? step.runningText : key === "suser" && st[key] === "done" ? step.doneText : undefined)}
+                      note={step.note && t(step.note)} />
                   </div>
-                </div>
-              </li>)}
+                </li>;
+              })}
             </ol>
           </Section>
 
@@ -140,7 +129,7 @@ export function RegisterDetail() {
             </Table>
           </Section>}
 
-          <Section title={t("Benachrichtigung (letzter Schritt)")} actions={<Button icon="email" onClick={() => setMailOpen(true)}>{t("E-Mail-Entwurf öffnen")}</Button>}>
+          <Section title={t("Benachrichtigung")} actions={<Button icon="email" onClick={() => setMailOpen(true)}>{t("E-Mail-Entwurf öffnen")}</Button>}>
             <div className="rg-recipients">
               {recipients.map((r) => <div key={r.role} className="rg-recipient"><Text className="rg-strong">{t(r.role)}</Text><Text>{r.name}</Text></div>)}
             </div>

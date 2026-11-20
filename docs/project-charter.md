@@ -4,12 +4,13 @@
 
 **Author:** Projektteam der Frankfurt University of Applied Sciences
 
-**Status:** Arbeitsstand, 19.11.2026
+**Status:** Arbeitsstand, 20.11.2026
 
 ## Change log
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 20.11.2026 | Einheitliche Sperrfolge nach Freigabe mit automatischem Demo-Abschluss für S-User, SHN, RCSC, IRDP, ServiceNow, BCP und Cloud als letztem Schritt | 5.3 |
 | Agent | 19.11.2026 | Deutsch und Englisch für die Oberfläche ergänzt. Die Sprache wird in den Einstellungen gewählt und im Browser gespeichert. | 5.2 |
 | Agent | 19.11.2026 | Register um auf- und absteigende Sortierung für Kunden, Land, ETS, Sanktionsliste, Cloud, Sperrdatum und Status ergänzt | 5.1 |
 | Agent | 19.11.2026 | Register um aufklappbare Filter für Land, ETS, Sanktionsliste, Cloud, GTS-Sperrdatum und Status ergänzt | 5.0 |
@@ -127,6 +128,7 @@ Quantitative Zielwerte für Zeitersparnis, Datenqualität oder Kostenreduktion s
 - Die Administration ist über das Profilmenü erreichbar und bündelt geplante Datenprodukte für GTS-Sperrfälle und Cloud-Tenants. Die Pflege der Länder-Kontakte bleibt bis zur Klärung von Quelle und Zugriff manuell. Die Nutzerverwaltung ist weiterhin der technischen Admin-Rolle vorbehalten.
 - Das Dashboard ist die Startansicht nach der Anmeldung. Bestandskennzahlen berücksichtigen alle Kunden, Workflowkennzahlen ausschließlich tatsächlich freigegebene Schritte. Historische Sperrdaten werden nach Jahr beziehungsweise Monat ausgewertet; Kacheln öffnen die passende Registerauswahl. Andere Nutzeränderungen können mit „Daten aktualisieren“ nachgeladen werden.
 - Vier-Augen-Prüfung neuer Registereinträge und Versionsprüfung bei konkurrierenden Änderungen werden serverseitig durchgesetzt. Fachliche EC-/Teamrollen sind noch offen; im MVP dürfen angemeldete Projektmitglieder das Register bearbeiten.
+- Es gilt eine feste Folge nach der Vier-Augen-Freigabe: S-User (automatischer Abschluss im MVP), offene Support-Tickets prüfen und schließen, danach SHN aktivieren, I7P Control Table Board in RCSC bearbeiten, Benachrichtigung, IRDP-Flag im Launchpad, ServiceNow, BCP-Ticket und zuletzt Cloud-Sperre je LoB für Cloud-Kunden. Die tatsächliche Ausführung in externen Systemen bleibt außerhalb der Demo.
 - Echter E-Mail-Versand ist kein Bestandteil des MVP. Benachrichtigungen werden testbar simuliert und protokolliert beziehungsweise als In-App-Aufgaben angezeigt.
 - Kubernetes, SAP BTP, Microservices, Hochverfügbarkeit, Backups und Betriebsmonitoring sind nicht Bestandteil des MVP. Vercel Web Analytics wird für Seitenaufrufe eingebunden.
 - Externe Systemabfragen sind laut Kick-off nur zulässig, wenn Informationen nicht auf SAP zurückgeführt werden können; die konkrete Auslegung muss SAP noch klären.

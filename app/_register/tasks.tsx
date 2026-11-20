@@ -8,21 +8,16 @@ import { Text } from "@ui5/webcomponents-react/Text";
 import { Button } from "@ui5/webcomponents-react/Button";
 import { Link } from "@ui5/webcomponents-react/Link";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
-import { SegmentedButton } from "@ui5/webcomponents-react/SegmentedButton";
-import { SegmentedButtonItem } from "@ui5/webcomponents-react/SegmentedButtonItem";
+import { Select } from "@ui5/webcomponents-react/Select";
+import { Option } from "@ui5/webcomponents-react/Option";
 import { IllustratedMessage } from "@ui5/webcomponents-react/IllustratedMessage";
 import "@ui5/webcomponents-fiori/dist/illustrations/NoTasks.js";
-import { stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
+import { stepStatuses, STEP_DEFS, STEP_ORDER } from "../../lib/register/workflow";
 import type { StepKey } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { StepBadge } from "./ui";
 
-const TEAMS: { key: StepKey; label: string }[] = [
-  { key: "cloud", label: "Cloud-LoB" },
-  { key: "tickets", label: "Support (Tickets)" },
-  { key: "remote", label: "Remote-Support" },
-  { key: "suser", label: "S-User-Team (W7)" },
-];
+const TASK_STEPS = STEP_ORDER.filter((key) => key !== "suser");
 
 /** Sicht einer Nachbarabteilung: nur eigene Schritte, nur Erledigung bestätigen. */
 export function RegisterTasks() {
@@ -37,44 +32,31 @@ export function RegisterTasks() {
 
   return <DynamicPage hidePinButton className="app-page"
     titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">{t("Meine Sperrschritte")}</Title>}
-      subheading={<Text>{t("Sicht einer Nachbarabteilung ·")} {t(TEAMS.find((item) => item.key === team)?.label ?? "")}</Text>} />}>
+      subheading={<Text>{t("Sicht einer Nachbarabteilung ·")} {t(STEP_DEFS[team].team)}</Text>} />}>
     <div className="rg-page rg-narrow">
       <MessageStrip hideCloseButton design="Information">
         {t("Eingeschränkte Rolle: Nachbarabteilungen sehen nur ihre eigenen Schritte und bestätigen deren Erledigung. Stammdaten, Freigaben und Schritte anderer Teams sind nicht änderbar.")}
       </MessageStrip>
-      <SegmentedButton accessibleName={t("Team (Demo)")} onSelectionChange={(e) => setTeam(e.detail.selectedItems[0]?.dataset.key as StepKey)}>
-        {TEAMS.map((item) => <SegmentedButtonItem key={item.key} data-key={item.key} selected={team === item.key}>{t(item.label)}</SegmentedButtonItem>)}
-      </SegmentedButton>
+      <Select accessibleName={t("Sperrschritt (Demo)")} value={team}
+        onChange={(event) => setTeam(event.target.value as StepKey)}>
+        {TASK_STEPS.map((step) => <Option key={step} value={step}>{t(STEP_DEFS[step].label)}</Option>)}
+      </Select>
 
       {tasks.length === 0
         ? <IllustratedMessage name="NoTasks" titleText={t("Keine offenen Schritte")} subtitleText={t("Für dieses Team ist gerade nichts zu tun.")} />
         : tasks.map(({ p, status }) => <article key={p.id} className="rg-task">
           <div className="rg-task-text">
             <div className="rg-title-row"><Title level="H2" size="H5">{t(STEP_DEFS[team].label)}</Title><StepBadge status={status} /></div>
-            <Text><Link accessibleRole="Button" onClick={() => open("rg-detail", p.id)}>{p.name}</Link> · {t(detailFor(team, p.tenants.map((tenant) => `${tenant.tenantId} (${tenant.product})`)))}</Text>
-            <Text className="rg-muted">{status === "waiting" ? t(waitingText(team)) : t("Freigegeben am {0}", date(p.decidedAt!))}</Text>
+            <Text><Link accessibleRole="Button" onClick={() => open("rg-detail", p.id)}>{p.name}</Link> · {t(STEP_DEFS[team].runningText)}{team === "cloud" && p.tenants.length > 0 && ` · ${p.tenants.map((tenant) => `${tenant.tenantId} (${tenant.product})`).join(", ")}`}</Text>
+            <Text className="rg-muted">{status === "waiting" ? t("Wartet auf vorherige Sperrschritte") : t("Freigegeben am {0}", date(p.decidedAt!))}</Text>
           </div>
           {status === "running" && <div className="rg-actions">
             <Button design="Transparent">{t("Rückfrage an Export Control")}</Button>
-            {team === "tickets" && <Button onClick={() => completeStep(p.id, "tickets", "Keine offenen Tickets vorhanden")}>{t("Keine Tickets vorhanden")}</Button>}
-            <Button design="Positive" onClick={() => completeStep(p.id, team)}>{t("Erledigung bestätigen")}</Button>
+            <Button design="Positive" onClick={() => completeStep(p.id, team)}>{t(team === "ticketsShn" ? "Ticketprüfung und SHN bestätigen" : "Erledigung bestätigen")}</Button>
           </div>}
         </article>)}
 
       <Text className="rg-muted">{t("Eingang im Zielbild über einen einheitlichen Weg für alle Teams und LoBs, z. B. eine E-Mail, die automatisch ein Ticket erzeugt. Die Bestätigung hier ersetzt die Antwort per E-Mail und die eigene Excel-Liste.")}</Text>
     </div>
   </DynamicPage>;
-}
-
-function detailFor(team: StepKey, tenants: string[]) {
-  switch (team) {
-    case "cloud": return tenants.join(", ");
-    case "tickets": return "offene Tickets in ServiceNow und BCP prüfen und schließen";
-    case "remote": return "RCSC-Zugang und Secure Support";
-    default: return "S-User in W7";
-  }
-}
-
-function waitingText(team: StepKey) {
-  return team === "remote" ? "Startet, sobald alle Tickets geschlossen sind" : "Wartet auf vorherige Sperrschritte";
 }

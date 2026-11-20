@@ -5,7 +5,7 @@ import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
 import { loadRegister, mutateRegister } from "./actions";
 import type { RegisterFilter } from "../../lib/register/dashboard";
 import type { RegisterCommand, RegisterData } from "../../lib/register/repository";
-import type { BlockedPartner, CountryContact, Decision, StepKey, StepOrderVariant } from "../../lib/register/types";
+import type { BlockedPartner, CountryContact, Decision, StepKey } from "../../lib/register/types";
 import "./register.css";
 
 export type RegisterView = "rg-dashboard" | "rg-register" | "rg-new" | "rg-detail" | "rg-tasks" | "rg-contacts";
@@ -17,7 +17,6 @@ type RegisterState = {
   openRegister: (filter: RegisterFilter) => void;
   selected: BlockedPartner | undefined;
   currentUser: string;
-  setStepOrder: (id: string, stepOrder: StepOrderVariant) => Promise<boolean>;
   open: (view: RegisterView, partnerId?: string) => void;
   decide: (id: string, decision: Exclude<Decision, "pending">, comment: string) => Promise<boolean>;
   completeStep: (id: string, step: StepKey, result?: string) => Promise<boolean>;
@@ -52,7 +51,6 @@ export function RegisterProvider({ children, currentUser, onNavigate, initialDat
   const value: RegisterState = {
     ...data, currentUser, registerFilter, setRegisterFilter,
     openRegister: (filter) => { setRegisterFilter(filter); onNavigate("rg-register"); }, selected: data.partners.find((p) => p.id === selectedId),
-    setStepOrder: async (id, stepOrder) => !!await run({ kind: "setStepOrder", id, version: version(id), stepOrder }),
     open: (view, id) => { if (id) setSelectedId(id); onNavigate(view); },
     decide: async (id, decision, comment) => !!await run({ kind: "decide", id, version: version(id), decision, comment }),
     completeStep: async (id, step, result) => !!await run({ kind: "complete", id, version: version(id), step, result }),

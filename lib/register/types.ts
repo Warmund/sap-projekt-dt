@@ -1,15 +1,12 @@
 // Fachliche Typen des Sanktionsregisters.
 
 /** Sperrschritte nach der Vier-Augen-Freigabe. */
-export type StepKey = "suser" | "tickets" | "remote" | "cloud" | "notify";
+export type StepKey = "suser" | "ticketsShn" | "rcsc" | "notify" | "irdp" | "serviceNow" | "bcp" | "cloud";
 
 export type StepStatus = "done" | "running" | "waiting" | "pendingApproval" | "skipped" | "notApplicable";
 
 /** Ergebnis der Vier-Augen-Prüfung durch EC Member 2. */
 export type Decision = "pending" | "approved" | "sanctionedNoBlock" | "declined";
-
-/** A: Reihenfolge laut SAP-Folien, B: Reihenfolge laut Call vom 06.11.2026. */
-export type StepOrderVariant = "A" | "B";
 
 export type EtsCategory = "ETS1" | "ETR1" | "ETS2" | "ETS3" | "ETS4" | "ETS5" | "ETS6";
 
@@ -20,7 +17,6 @@ export type Tenant = { lob: string; product: string; tenantId: string; ticket: s
 export type AuditEntry = { at: string; text: string; by: string };
 
 export type BlockedPartner = {
-  stepOrder: StepOrderVariant;
   id: string;
   bpId: string;
   erpId: string;

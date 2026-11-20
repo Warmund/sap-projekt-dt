@@ -396,6 +396,23 @@ const english: Record<string, string> = {
   "· in GTS gesperrt am": "· blocked in GTS on",
   "Änderung wird gespeichert …": "Change is saved...",
   "Österreich": "Austria",
+  "Nach Freigabe automatisch abgeschlossen (Demo)": "Completed automatically upon approval (demo)",
+  "Ticketprüfung abgeschlossen und SHN aktiviert": "Ticket review completed and SHN enabled",
+  "Offene Support-Tickets schließen, danach SHN aktivieren": "Close open support tickets, then enable SHN",
+  "SHN auch aktivieren, wenn keine Tickets offen sind.": "Enable SHN even if there are no open tickets.",
+  "I7P Control Table Board bearbeitet": "I7P Control Table Board updated",
+  "I7P Control Table Board bearbeiten": "Update the I7P Control Table Board",
+  "IRDP-Flag setzen": "Set IRDP flag",
+  "IRDP-Flag gesetzt": "IRDP flag set",
+  "IRDP-Flag im Launchpad setzen": "Set the IRDP flag in Launchpad",
+  "ServiceNow-Schritt bestätigt": "ServiceNow step confirmed",
+  "ServiceNow-Schritt bearbeiten": "Process the ServiceNow step",
+  "BCP-Ticket": "BCP ticket",
+  "BCP-Ticket bestätigt": "BCP ticket confirmed",
+  "BCP-Ticket bearbeiten": "Process the BCP ticket",
+  "Sperrschritt (Demo)": "Blocking step (demo)",
+  "Ticketprüfung und SHN bestätigen": "Confirm ticket review and SHN",
+  "E-Mail an Account Executive und Landesverantwortliche vorbereiten": "Prepare an email to the Account Executive and country leads",
   "Überblick": "Overview"
 };
 
