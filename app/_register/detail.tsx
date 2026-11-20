@@ -26,6 +26,8 @@ import "@ui5/webcomponents-icons/dist/history.js";
 import { ETS_INFO } from "../../lib/register/mock-data";
 import { AUTO_RESULT, isManualStep, SCG_STEPS, STEP_ORDER, progress, overallStatus, stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
 import type { BlockedPartner } from "../../lib/register/types";
+import { partnersSheet, tenantsSheet } from "../../lib/register/excel";
+import { ExcelButton } from "./excel-button";
 import { useRegister } from "./store";
 import { Section, StatusBadge, StepBadge } from "./ui";
 
@@ -125,7 +127,7 @@ export function RegisterDetail() {
       </Tab>
       <Tab text={t("Stammdaten")} data-key="master" selected={tab === "master"}>
         {tab === "master" && <div className="rg-page">
-          <Section title={t("Stammdaten")}>
+          <Section title={t("Stammdaten")} actions={<ExcelButton fileBase={`${t("Stammdaten")}_${p.bpId}`} build={() => [partnersSheet([p], t), tenantsSheet([p], t)]} />}>
             <dl className="rg-facts">
               <dt>{t("BP-ID (GTS)")}</dt><dd>{p.bpId}</dd>
               <dt>{t("ERP-ID")}</dt><dd>{p.erpId}</dd>

@@ -22,6 +22,8 @@ import { TableCell } from "@ui5/webcomponents-react/TableCell";
 import "@ui5/webcomponents-icons/dist/search.js";
 import { formatDate, overallStatus } from "../../lib/register/workflow";
 import { matchesRegisterFilter, REGISTER_FILTERS } from "../../lib/register/dashboard";
+import { partnersSheet, tenantsSheet } from "../../lib/register/excel";
+import { ExcelButton } from "./excel-button";
 import { useRegister } from "./store";
 import { StatusBadge } from "./ui";
 
@@ -89,6 +91,8 @@ function RegisterResults() {
             {registerFilter !== "all" && <Link accessibleRole="Button" onClick={() => setRegisterFilter("all")}>{t("Alle Kunden anzeigen")}</Link>}
           </div>
           <div className="rg-actions">
+          <ExcelButton fileBase={t("Stammdaten")} disabled={!rows.length}
+            build={() => [partnersSheet(rows, t), tenantsSheet(rows, t)]} />
           <Label for="register-sort">{t("Sortieren nach")}</Label>
           <Select id="register-sort" accessibleName={t("Sortieren nach")} value={sort} onChange={(e) => setSort(e.target.value)}>
             <Option value="date-desc">{t("GTS-Sperre: neueste zuerst")}</Option>

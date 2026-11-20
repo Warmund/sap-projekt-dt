@@ -34,6 +34,8 @@ const english: Record<string, string> = {
   "Alle Kunden": "All customers",
   "Alle Kunden anzeigen": "View all customers",
   "Alle Tenants gesperrt": "All tenants blocked",
+  "Als Excel exportieren": "Export to Excel",
+  "Excel-Export fehlgeschlagen. Bitte erneut versuchen.": "Excel export failed. Please try again.",
   "An:": "To:",
   "Anmelden": "Sign in",
   "Anmeldung derzeit nicht verfügbar. Bitte versuche es später erneut.": "Registration not currently available. Please try again later.",

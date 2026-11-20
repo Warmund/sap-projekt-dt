@@ -17,6 +17,8 @@ import { TableCell } from "@ui5/webcomponents-react/TableCell";
 import "@ui5/webcomponents-icons/dist/edit.js";
 import { CONTACT_CHECK_INTERVAL_DAYS, daysSince } from "../../lib/register/workflow";
 import type { CountryContact } from "../../lib/register/types";
+import { contactsSheet } from "../../lib/register/excel";
+import { ExcelButton } from "./excel-button";
 import { useRegister } from "./store";
 
 export function RegisterContacts() {
@@ -39,6 +41,9 @@ export function RegisterContacts() {
         <MessageStrip hideCloseButton design="Information">{t("Kontakte werden manuell gepflegt. Für einen späteren Import müssen Datenquelle und Zugriff auf Personendaten geklärt sein.")}</MessageStrip>
         <MessageStrip hideCloseButton design="Critical">{t("Prüfung alle")} {CONTACT_CHECK_INTERVAL_DAYS} {t("Tage. Fällige Regionen erscheinen auf dem Dashboard. Intervall mit SAP bestätigen.")}</MessageStrip>
         <MessageStrip hideCloseButton design="Negative">{t("Nie den Kunden selbst kontaktieren. Bei Sanktionen kann schon die Erklärung der Sperre verboten sein.")}</MessageStrip>
+      </div>
+      <div className="rg-actions">
+        <ExcelButton fileBase={t("Länder-Kontakte")} disabled={!contacts.length} build={() => [contactsSheet(contacts, t)]} />
       </div>
       <Table accessibleName={t("Länder-Kontakte")} overflowMode="Popin"
         headerRow={<TableHeaderRow sticky>
