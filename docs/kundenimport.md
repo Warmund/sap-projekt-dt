@@ -55,7 +55,7 @@ Migration: `prisma/migrations/20261117000000_register/migration.sql`. Sie erstel
 
 Am 17.11.2026:
 
-- 50 Kunden, 14 Länder, 4 Regionen; davon 9 Cloud-Kunden, 7 SR-Kunden und 21 SPL-Kennzeichen.
+- 50 Kunden, 14 Länder, 4 Regionen; davon 9 Cloud-Kunden, 7 SR-Kunden und 21 Kunden mit SPL.
 - Alle 13 Quellspalten und alle 50 Datensätze gegen die gespeicherten Werte abgeglichen.
 - Zweiter Importlauf: 0 neue Kunden, 50 übersprungen; keine Duplikate und kein zurückgesetzter Workflow.
 - Bestandszahlen von User, Account und Session vor und nach Migration/Import identisch.
