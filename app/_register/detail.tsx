@@ -125,10 +125,6 @@ export function RegisterDetail() {
       </Tab>
       <Tab text={t("Stammdaten")} data-key="master" selected={tab === "master"}>
         {tab === "master" && <div className="rg-page">
-          <Section title="Tags">
-            <TagPicker key={p.id} ids={p.tags?.map((tag) => tag.id) ?? []}
-              onChange={canEditWorkspace(role) ? (ids) => setTags(p.id, ids) : undefined} />
-          </Section>
           <Section title={t("Stammdaten")}>
             <dl className="rg-facts">
               <dt>{t("BP-ID (GTS)")}</dt><dd>{p.bpId}</dd>
@@ -145,6 +141,10 @@ export function RegisterDetail() {
               {p.specialComment && <><dt>{t("Kommentar zur Sonderkategorie")}</dt><dd>{p.specialComment}</dd></>}
               <dt>{t("Kommentar")}</dt><dd>{p.comment === "Keine Anmerkungen." ? t(p.comment) : p.comment}</dd>
             </dl>
+          </Section>
+          <Section title="Tags">
+            <TagPicker key={p.id} ids={p.tags?.map((tag) => tag.id) ?? []}
+              onChange={canEditWorkspace(role) ? (ids) => setTags(p.id, ids) : undefined} />
           </Section>
           {p.cloudCustomer && <Section title={t("Cloud: zu sperrende Tenants")} sub={t("Quelle: [SAP-System, mit SAP klären]. Je LoB ein Ticket über einen einheitlichen Weg, die LoB bestätigt die Sperre im Register.")}>
             {!p.tenants.length && <MessageStrip hideCloseButton design="Critical">{t("Cloud-Kunde laut Quelldatei. Tenant-IDs, Produkte und LoB-Tickets sind noch nicht angegeben.")}</MessageStrip>}
