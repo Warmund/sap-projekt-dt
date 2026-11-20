@@ -20,7 +20,8 @@ async function main() {
       }
       await tx.registerPartner.create({ data: {
         ...row, sourceFile, enteredBy: "CSV-Import (EC-Mitarbeiter nicht angegeben)",
-        sanctionsList: "Nicht angegeben (CSV)",
+        sanctionsList: "Nicht angegeben (CSV)", sanctionsLists: ["Nicht angegeben (CSV)"],
+        tags: row.specialCategory === "SR" ? { connect: { id: "successroom" } } : undefined,
         audit: { create: { by: "CSV-Import", text: `Aus ${sourceFile}, Datensatz ${row.sourceRow} übernommen. CRM als BP-ID; Freigabe und Sperrschritte nicht in der Quelle enthalten.` } },
       } });
       inserted++;

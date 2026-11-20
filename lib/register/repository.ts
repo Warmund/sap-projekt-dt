@@ -6,12 +6,12 @@ import type { BlockedPartner, CountryContact, Decision, StepKey } from "./types"
 
 export class RegisterError extends Error {}
 
-const include = { tenants: true, steps: true, audit: { orderBy: { at: "asc" as const } } };
+const include = { tags: true, tenants: true, steps: true, audit: { orderBy: { at: "asc" as const } } };
 type PartnerRow = Prisma.RegisterPartnerGetPayload<{ include: typeof include }>;
 function partnerView(p: PartnerRow): BlockedPartner {
   return {
     id: p.id, bpId: p.bpId, erpId: p.erpId, name: p.name, country: p.country, region: p.region,
-    ets: p.ets, sanctionsList: p.sanctionsList, listReference: p.listReference ?? undefined,
+    ets: p.ets, sanctionsList: p.sanctionsList, sanctionsLists: p.sanctionsLists.length ? p.sanctionsLists : [p.sanctionsList].filter(Boolean), tags: p.tags, listReference: p.listReference ?? undefined,
     gtsBlockedAt: p.gtsBlockedAt.toISOString(), gtsDateOnly: p.gtsDateOnly, enteredBy: p.enteredBy,
     decidedBy: p.decidedBy ?? undefined, decidedAt: p.decidedAt?.toISOString(), decision: p.decision,
     decisionComment: p.decisionComment ?? undefined, cloudCustomer: p.cloudCustomer,
@@ -29,16 +29,19 @@ function partnerView(p: PartnerRow): BlockedPartner {
 }
 
 export async function readRegister() {
-  const [partners, contacts] = await Promise.all([
+  const [partners, contacts, tags] = await Promise.all([
     db.registerPartner.findMany({ include, orderBy: [{ gtsBlockedAt: "desc" }, { bpId: "asc" }] }),
     db.registerContact.findMany({ orderBy: { region: "asc" } }),
+    db.registerTag.findMany({ orderBy: { name: "asc" } }),
   ]);
-  return { partners: partners.map(partnerView), contacts: contacts.map((c) => ({ ...c, lastChecked: c.lastChecked?.toISOString() ?? null })) };
+  return { tags, partners: partners.map(partnerView), contacts: contacts.map((c) => ({ ...c, lastChecked: c.lastChecked?.toISOString() ?? null })) };
 }
 export type RegisterData = Awaited<ReturnType<typeof readRegister>>;
 export type RegisterCommand =
   | { kind: "create"; partner: BlockedPartner }
-  | { kind: "createFromGts"; bpId: string }
+  | { kind: "createFromGts"; bpId: string; tagIds: string[] }
+  | { kind: "createTag"; name: string }
+  | { kind: "setTags"; id: string; version: number; tagIds: string[] }
   | { kind: "decide"; id: string; version: number; decision: Exclude<Decision, "pending">; comment: string }
   | { kind: "complete"; id: string; version: number; step: StepKey; result?: string }
   | { kind: "confirmNotifications"; customers: { id: string; version: number }[] }
@@ -48,6 +51,13 @@ function text(value: unknown, max = 500, required = true): string {
   if (typeof value !== "string" || value.length > max || (required && !value.trim())) throw new RegisterError("Ungültige oder fehlende Textangabe.");
   return value.trim();
 }
+function validateTagIds(value: unknown): string[] {
+  if (!Array.isArray(value) || value.length > 100) throw new RegisterError("Ungültige Tag-Auswahl.");
+  const ids = value.map((id) => text(id, 100));
+  if (new Set(ids).size !== ids.length) throw new RegisterError("Ungültige Tag-Auswahl.");
+  return ids;
+}
+
 export async function lookupGtsPartner(value: string) {
   if (typeof value !== "string" || !value.trim() || value.length > 100) {
     throw new RegisterError("Gib eine Business Partner ID ein.");
@@ -62,6 +72,26 @@ export async function lookupGtsPartner(value: string) {
 
 export async function changeRegister(command: RegisterCommand, actor: { id: string; name: string }) {
   if (!command || typeof command !== "object") throw new RegisterError("Ungültige Registeraktion.");
+  if (command.kind === "createTag") {
+    const name = text(command.name, 100);
+    try { await db.registerTag.create({ data: { name } }); }
+    catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") throw new RegisterError("Dieses Tag existiert bereits.");
+      throw error;
+    }
+    return;
+  }
+  if (command.kind === "setTags") {
+    const id = text(command.id);
+    const tagIds = validateTagIds(command.tagIds);
+    await db.$transaction(async (tx) => {
+      if (await tx.registerTag.count({ where: { id: { in: tagIds } } }) !== tagIds.length) throw new RegisterError("Ein ausgewähltes Tag existiert nicht mehr.");
+      const changed = await tx.registerPartner.updateMany({ where: { id, version: command.version }, data: { version: { increment: 1 } } });
+      if (changed.count !== 1) throw new RegisterError("Datensatz wurde inzwischen geändert. Bitte neu laden.");
+      await tx.registerPartner.update({ where: { id }, data: { tags: { set: tagIds.map((id) => ({ id })) }, audit: { create: { by: actor.name, text: "Tags aktualisiert" } } } });
+    });
+    return;
+  }
   if (command.kind === "contact") {
     const c = command.contact;
     if (!c || !Array.isArray(c.countries) || c.countries.length > 250) throw new RegisterError("Ungültige Länderliste.");
@@ -76,13 +106,15 @@ export async function changeRegister(command: RegisterCommand, actor: { id: stri
     if (!p || !["ETS1", "ETR1", "ETS2", "ETS3", "ETS4", "ETS5", "ETS6"].includes(p.ets) ||
         ![null, "SR", "Sonstige"].includes(p.specialCategory) || typeof p.cloudCustomer !== "boolean" ||
         !Array.isArray(p.tenants) || p.tenants.length > 100) throw new RegisterError("Ungültiger Geschäftspartner.");
+    const tagIds = command.kind === "createFromGts" ? validateTagIds(command.tagIds) : [];
+    if (await db.registerTag.count({ where: { id: { in: tagIds } } }) !== tagIds.length) throw new RegisterError("Ein ausgewähltes Tag existiert nicht mehr.");
     const blockedAt = new Date(p.gtsBlockedAt);
     if (!Number.isFinite(blockedAt.getTime())) throw new RegisterError("Ungültiges Sperrdatum.");
     const bpId = text(p.bpId, 100);
     try {
       await db.registerPartner.create({ data: {
         bpId, erpId: text(p.erpId, 100), name: text(p.name, 300), country: text(p.country, 100), ets: p.ets,
-        sanctionsList: text(p.sanctionsList, 300), listReference: text(p.listReference ?? "", 1000, false),
+        sanctionsList: text(p.sanctionsList, 300), sanctionsLists: (p.sanctionsLists?.length ? p.sanctionsLists : [p.sanctionsList]).map((value) => text(value, 300)), tags: { connect: tagIds.map((id) => ({ id })) }, listReference: text(p.listReference ?? "", 1000, false),
         region: text(p.region ?? "", 100, false), gtsBlockedAt: blockedAt, gtsDateOnly: p.gtsDateOnly,
         spl: p.spl, ruItConsultancyBan: p.ruItConsultancyBan, ukraineCrisis: p.ukraineCrisis,
         comment: text(p.comment, 10_000, false), specialCategory: p.specialCategory,

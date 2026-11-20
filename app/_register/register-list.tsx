@@ -46,7 +46,7 @@ function RegisterResults() {
   const rows = scoped.filter((p) => {
     if (filters.country && p.country !== filters.country) return false;
     if (filters.ets && p.ets !== filters.ets) return false;
-    if (filters.list && p.sanctionsList !== filters.list) return false;
+    if (filters.list && !(p.sanctionsLists ?? [p.sanctionsList]).includes(filters.list)) return false;
     if (filters.cloud && p.cloudCustomer !== (filters.cloud === "Ja")) return false;
     if (filters.status && overallStatus(p) !== filters.status) return false;
     if (filters.from || filters.to) {
@@ -62,7 +62,7 @@ function RegisterResults() {
       name: [a.name, b.name],
       country: [t(a.country), t(b.country)],
       ets: [a.ets, b.ets],
-      list: [t(a.sanctionsList), t(b.sanctionsList)],
+      list: [(a.sanctionsLists ?? [a.sanctionsList]).map((value) => t(value)).join(", "), (b.sanctionsLists ?? [b.sanctionsList]).map((value) => t(value)).join(", ")],
       cloud: [t(a.cloudCustomer ? "Ja" : "Nein"), t(b.cloudCustomer ? "Ja" : "Nein")],
       date: [a.gtsBlockedAt, b.gtsBlockedAt],
       status: [t(overallStatus(a)), t(overallStatus(b))],
@@ -73,7 +73,7 @@ function RegisterResults() {
   const selectFilters = [
     { key: "country", label: t("Land"), options: unique(scoped.map((p) => p.country)) },
     { key: "ets", label: "ETS", options: unique(scoped.map((p) => p.ets)) },
-    { key: "list", label: t("Sanktionsliste"), options: unique(scoped.map((p) => p.sanctionsList)) },
+    { key: "list", label: t("Sanktionsliste"), options: unique(scoped.flatMap((p) => p.sanctionsLists ?? [p.sanctionsList])) },
     { key: "cloud", label: "Cloud", options: ["Ja", "Nein"] },
     { key: "status", label: t("Status"), options: unique(scoped.map(overallStatus)) },
   ] as const;
@@ -146,11 +146,11 @@ function RegisterResults() {
           {rows.map((p) => <TableRow key={p.id} rowKey={p.id} interactive>
             <TableCell><div className="rg-cell-stack">
               <Text className="rg-strong">{p.name}</Text>
-              <Text className="rg-muted">{t("BP")} {p.bpId} · ERP {p.erpId}{p.specialCategory ? ` · ${t(p.specialCategory === "SR" ? "SuccessRoom (SR)" : p.specialCategory)}` : ""}</Text>
+              <Text className="rg-muted">{t("BP")} {p.bpId} · ERP {p.erpId}{p.tags?.length ? ` · ${p.tags.map((tag) => tag.name).join(", ")}` : ""}</Text>
             </div></TableCell>
             <TableCell><Text>{t(p.country)}</Text></TableCell>
             <TableCell><Text>{p.ets}</Text></TableCell>
-            <TableCell><Text>{t(p.sanctionsList)}</Text></TableCell>
+            <TableCell><Text>{(p.sanctionsLists ?? [p.sanctionsList]).map((value) => t(value)).join(", ")}</Text></TableCell>
             <TableCell><Text>{p.cloudCustomer ? p.tenants.length ? t("Ja ({0})", p.tenants.length) : t("Ja (Tenants fehlen)") : t("Nein")}</Text></TableCell>
             <TableCell><Text>{date(p.gtsBlockedAt)}</Text></TableCell>
             <TableCell><StatusBadge status={overallStatus(p)} /></TableCell>

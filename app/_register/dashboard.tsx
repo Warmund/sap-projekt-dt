@@ -74,7 +74,7 @@ export function RegisterDashboard() {
           </div>
         </Section>
         <Section title={t("Nach Sanktionsliste")} sub={t("Fehlende Listen bleiben als nicht angegeben sichtbar")}>
-          <BarList label={t("Sperren nach Sanktionsliste")} rows={countBy(partners, (p) => p.sanctionsList)} />
+          <BarList label={t("Sperren nach Sanktionsliste")} rows={countBy(partners.flatMap((p) => p.sanctionsLists ?? [p.sanctionsList]), (list) => list)} />
         </Section>
       </div>
 

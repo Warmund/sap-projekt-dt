@@ -17,8 +17,16 @@ test("persistent lifecycle: two-person review, ordering, stale writes, audit, mi
     cloudCustomer: true, tenants: [], specialCategory: null, comment: "Temporary integration fixture", completed: {}, audit: [],
   };
   try {
+    const successRoom = await db.registerTag.findUniqueOrThrow({ where: { name: "SuccessRoom" } });
+    await changeRegister({ kind: "createTag", name: "Integration Tag" }, maker);
+    const newTag = await db.registerTag.findUniqueOrThrow({ where: { name: "Integration Tag" } });
+    await assert.rejects(changeRegister({ kind: "createTag", name: "integration tag" }, maker), /existiert bereits/);
     await changeRegister({ kind: "create", partner: input }, maker);
     let p = (await readRegister()).partners.find((p) => p.bpId === bpId)!;
+    await changeRegister({ kind: "setTags", id: p.id, version: p.version!, tagIds: [successRoom.id, newTag.id] }, maker);
+    p = (await readRegister()).partners.find((partner) => partner.id === p.id)!;
+    assert.deepEqual(p.tags?.map((tag) => tag.name).sort(), ["Integration Tag", "SuccessRoom"]);
+    assert.deepEqual(p.sanctionsLists, ["Test list"]);
     assert.equal(p.decision, "pending"); assert.equal(p.enteredBy, maker.name);
     assert.equal(p.gtsBlockedAt, input.gtsBlockedAt);
     await assert.rejects(changeRegister({ kind: "decide", id: p.id, version: p.version!, decision: "approved", comment: "" }, maker), /Vier-Augen/);
@@ -69,7 +77,7 @@ test("persistent lifecycle: two-person review, ordering, stale writes, audit, mi
     assert.equal(stepStatuses(p).scg, "done");
     assert.equal(stepStatuses(p).cloud, "running");
     await assert.rejects(changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "cloud" }, reviewer), /Cloud-Tenants fehlen/);
-    assert.equal(p.audit.length, 6);
+    assert.equal(p.audit.length, 7);
     assert.equal(p.decision, "approved");
     await db.registerPartner.update({ where: { id: p.id }, data: {
       tenants: { create: { lob: "Test LoB", product: "Test Product", tenantId: "test-tenant", ticket: "test-ticket" } },
@@ -79,6 +87,7 @@ test("persistent lifecycle: two-person review, ordering, stale writes, audit, mi
     assert.equal(p.completed.cloud?.by, reviewer.name);
   } finally {
     await db.registerPartner.deleteMany({ where: { bpId: { in: [bpId, bpId + "-other"] } } });
+    await db.registerTag.deleteMany({ where: { name: "Integration Tag" } });
     await db.$disconnect();
   }
 });

@@ -452,6 +452,16 @@ const english: Record<string, string> = {
   "Die simuliert übernommenen Daten sind schreibgeschützt.": "The simulated GTS data is read-only.",
   "Sanktionsdaten": "Sanctions data",
   "Cloud-Nutzung": "Cloud usage",
+  "Verfügbare Tags": "Available tags",
+  "Neues Tag": "New tag",
+  "Tag hinzufügen": "Add tag",
+  "Tags für Kunden verwalten": "Manage customer tags",
+  "Kunden auswählen": "Select customer",
+  "Tags speichern": "Save tags",
+  "Dieses Tag existiert bereits.": "This tag already exists.",
+  "Ein ausgewähltes Tag existiert nicht mehr.": "A selected tag no longer exists.",
+  "Ungültige Tag-Auswahl.": "Invalid tag selection.",
+  "Tags aktualisiert": "Tags updated",
   "Überblick": "Overview"
 };
 

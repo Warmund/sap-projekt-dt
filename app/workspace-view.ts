@@ -5,7 +5,7 @@ export type WorkspaceView = AdministrationView | RegisterView | "settings";
 
 const VIEWS: readonly WorkspaceView[] = [
   "rg-dashboard", "rg-register", "rg-new", "rg-detail", "rg-tasks", "rg-contacts",
-  "rg-notifications", "admin-imports", "admin-cloud", "users", "settings",
+  "rg-notifications", "admin-imports", "admin-cloud", "admin-tags", "users", "settings",
 ];
 
 export function readWorkspaceView(value: unknown): WorkspaceView {

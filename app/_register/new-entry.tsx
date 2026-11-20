@@ -6,6 +6,7 @@ import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
 import { Title } from "@ui5/webcomponents-react/Title";
 import { Text } from "@ui5/webcomponents-react/Text";
 import { Button } from "@ui5/webcomponents-react/Button";
+import { CheckBox } from "@ui5/webcomponents-react/CheckBox";
 import { Input } from "@ui5/webcomponents-react/Input";
 import { Label } from "@ui5/webcomponents-react/Label";
 import { Link } from "@ui5/webcomponents-react/Link";
@@ -23,7 +24,8 @@ import { Section } from "./ui";
 
 export function RegisterNewEntry() {
   const { t } = useLanguage();
-  const { addPartnerFromGts, open } = useRegister();
+  const { addPartnerFromGts, open, tags } = useRegister();
+  const [tagIds, setTagIds] = useState<string[]>([]);
   const [bpId, setBpId] = useState("");
   const [draft, setDraft] = useState<GtsPartner | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,6 +35,7 @@ export function RegisterNewEntry() {
   function changeId(value: string) {
     setBpId(value);
     setDraft(null);
+    setTagIds([]);
     setError("");
   }
 
@@ -45,7 +48,10 @@ export function RegisterNewEntry() {
     setLoading(true);
     try {
       const result = await loadGtsDraft(id);
-      if (result.data) setDraft(result.data);
+      if (result.data) {
+        setDraft(result.data);
+        setTagIds(result.data.specialCategory === "SR" ? tags.filter((tag) => tag.name === "SuccessRoom").map((tag) => tag.id) : []);
+      }
       else setError(result.error);
     } catch {
       setError("GTS-Daten konnten nicht geladen werden. Bitte versuche es erneut.");
@@ -58,7 +64,7 @@ export function RegisterNewEntry() {
     if (!draft || saving) return;
     setSaving(true);
     try {
-      const id = await addPartnerFromGts(draft.bpId);
+      const id = await addPartnerFromGts(draft.bpId, tagIds);
       if (id) open("rg-detail", id);
     } finally {
       setSaving(false);
@@ -90,7 +96,15 @@ export function RegisterNewEntry() {
         {error && <MessageStrip hideCloseButton design="Negative">{t(error)}</MessageStrip>}
       </Section>
 
-      {draft && <GtsPreview partner={draft} />}
+      {draft && <>
+        <GtsPreview partner={draft} />
+        <Section title="Tags">
+          <div className="rg-actions">
+            {tags.map((tag) => <CheckBox key={tag.id} text={tag.name} checked={tagIds.includes(tag.id)} disabled={saving}
+              onChange={(event) => { const checked = event.target.checked; setTagIds((current) => checked ? [...current, tag.id] : current.filter((id) => id !== tag.id)); }} />)}
+          </div>
+        </Section>
+      </>}
 
       <div className="rg-gts-footer">
         {draft && <Text className="rg-muted">{t("Nach dem Anlegen geht der Fall zur Vier-Augen-Freigabe.")}</Text>}
@@ -132,13 +146,11 @@ function GtsPreview({ partner }: { partner: GtsPartner }) {
       <Section title={t("Sanktionsdaten")}>
         <Facts fields={[
           [t("ETS-Kategorie"), partner.ets],
-          [t("Sanktionsliste"), t(partner.sanctionsList)],
+          [t("Sanktionsliste"), (partner.sanctionsLists ?? [partner.sanctionsList]).map((value) => t(value)).join(", ")],
           [t("Referenz auf Listeneintrag"), partner.listReference || missing],
           ["SPL", yesNo(partner.spl)],
           ["RU IT Consultancy Ban", yesNo(partner.ruItConsultancyBan)],
           [t("Ukraine Crisis"), yesNo(partner.ukraineCrisis)],
-          [t("Sonderkategorie"), t(partner.specialCategory === "SR" ? "SuccessRoom (SR)" : partner.specialCategory ?? "keine")],
-          [t("Kommentar zur Sonderkategorie"), partner.specialComment ? t(partner.specialComment) : missing],
           [t("Kommentar"), partner.comment || missing],
         ]} />
       </Section>

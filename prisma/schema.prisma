@@ -130,6 +130,7 @@ model RegisterPartner {
   spl                 Boolean?
   ruItConsultancyBan  Boolean?
   ukraineCrisis       Boolean?
+  sanctionsLists      String[]                 @default([])
   sanctionsList       String                   @default("")
   listReference       String?
   cloudCustomer       Boolean                  @default(false)
@@ -146,6 +147,7 @@ model RegisterPartner {
   version             Int                      @default(0)
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
+  tags                RegisterTag[]
   tenants             RegisterTenant[]
   steps               RegisterStep[]
   audit               RegisterAudit[]
@@ -198,4 +200,10 @@ model RegisterContact {
   legalHead          String    @default("")
   commercialDirector String    @default("")
   lastChecked        DateTime?
+}
+
+model RegisterTag {
+  id       String            @id @default(cuid())
+  name     String            @unique
+  partners RegisterPartner[]
 }

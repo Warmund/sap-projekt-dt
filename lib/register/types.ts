@@ -29,6 +29,8 @@ export type BlockedPartner = {
   version?: number;
   ets: EtsCategory;
   sanctionsList: string;
+  sanctionsLists?: string[];
+  tags?: { id: string; name: string }[];
   listReference?: string;
   /** Zeitpunkt der Sperre in SAP GTS (ISO). */
   gtsBlockedAt: string;

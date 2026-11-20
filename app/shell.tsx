@@ -91,6 +91,7 @@ export function Shell({ user, initialRegister, initialView, initialPartnerId }: 
       case "users":
       case "rg-contacts":
       case "admin-imports":
+      case "admin-tags":
       case "admin-cloud": return <Administration view={view} canEdit={canEdit} currentUserId={user.id} onSelect={navigate} />;
       case "rg-dashboard": return <RegisterDashboard />;
       case "rg-register": return <RegisterList />;

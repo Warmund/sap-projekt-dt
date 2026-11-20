@@ -32,7 +32,7 @@ test("authenticated register uses imported database rows after reload", async ({
     await page.getByRole("searchbox", { name: "Suche", exact: true }).or(page.getByRole("textbox", { name: "Suche", exact: true })).fill(partner.bpId);
     await expect(page.getByText(partner.name, { exact: true })).toBeVisible();
     if (partner.specialCategory === "SR") {
-      await expect(page.getByText(/SuccessRoom \(SR\)/)).toBeVisible();
+      await expect(page.getByText(/SuccessRoom/)).toBeVisible();
     }
     await page.getByText(partner.name, { exact: true }).click();
     await expect(page.getByText("Cloud-Kunde laut Quelldatei.", { exact: false })).toBeVisible();

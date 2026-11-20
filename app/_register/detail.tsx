@@ -48,7 +48,7 @@ export function RegisterDetail() {
     titleArea={<DynamicPageTitle
       breadcrumbs={<Link accessibleRole="Button" onClick={() => open("rg-register")}>{t("Register")}</Link>}
       heading={<div className="rg-title-row"><Title level="H1" size="H3">{p.name}</Title><StatusBadge status={status} />{p.cloudCustomer && <StatusBadgeCloud />}</div>}
-      subheading={<Text>{t("BP")} {p.bpId} · {t(p.country)} · {p.ets} · {t(p.sanctionsList)} {t("· in GTS gesperrt am")} {p.gtsDateOnly ? date(p.gtsBlockedAt) : dateTime(p.gtsBlockedAt)}</Text>} />}>
+      subheading={<Text>{t("BP")} {p.bpId} · {t(p.country)} · {p.ets} · {(p.sanctionsLists ?? [p.sanctionsList]).map((value) => t(value)).join(", ")} {t("· in GTS gesperrt am")} {p.gtsDateOnly ? date(p.gtsBlockedAt) : dateTime(p.gtsBlockedAt)}</Text>} />}>
     <div className="rg-page">
       <div className="rg-actions">
         <Button onClick={reset}>{t("Daten neu laden")}</Button>
@@ -134,10 +134,11 @@ export function RegisterDetail() {
               <dt>SPL</dt><dd>{p.spl == null ? t("Nicht angegeben") : p.spl ? t("Ja") : t("Nein")}</dd>
               <dt>RU IT Consultancy Ban</dt><dd>{p.ruItConsultancyBan == null ? t("Nicht angegeben") : p.ruItConsultancyBan ? t("Ja") : t("Nein")}</dd>
               <dt>{t("Ukraine Crisis")}</dt><dd>{p.ukraineCrisis == null ? t("Nicht angegeben") : p.ukraineCrisis ? t("Ja") : t("Nein")}</dd>
-              <dt>{t("Sanktionsliste")}</dt><dd>{t(p.sanctionsList)}</dd>
+              <dt>{t("Sanktionsliste")}</dt><dd>{(p.sanctionsLists ?? [p.sanctionsList]).map((value) => t(value)).join(", ")}</dd>
               {p.listReference && <><dt>{t("Referenz auf Listeneintrag")}</dt><dd>{p.listReference}</dd></>}
               <dt>{t("Cloud-Kunde")}</dt><dd>{p.cloudCustomer ? t("Ja, {0}", p.tenants.length ? t("{0} Tenants", p.tenants.length) : t("Tenant-Daten fehlen")) : t("Nein")}</dd>
-              <dt>{t("Sonderkategorie")}</dt><dd>{t(p.specialCategory === "SR" ? "SuccessRoom (SR)" : p.specialCategory ?? "keine")}{p.specialComment ? `, ${p.specialComment}` : ""}</dd>
+              <dt>Tags</dt><dd>{p.tags?.map((tag) => tag.name).join(", ") || t("keine")}</dd>
+              {p.specialComment && <><dt>{t("Kommentar zur Sonderkategorie")}</dt><dd>{p.specialComment}</dd></>}
               <dt>{t("Kommentar")}</dt><dd>{p.comment === "Keine Anmerkungen." ? t(p.comment) : p.comment}</dd>
             </dl>
           </Section>

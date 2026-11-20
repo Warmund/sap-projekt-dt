@@ -9,9 +9,10 @@ import { Title } from "@ui5/webcomponents-react/Title";
 import { RegisterContacts } from "./_register/contacts";
 import { useRegister } from "./_register/store";
 import { Section } from "./_register/ui";
+import { RegisterTags } from "./_register/tags";
 import { Users } from "./users";
 
-export type AdministrationView = "admin-imports" | "admin-cloud" | "rg-contacts" | "users";
+export type AdministrationView = "admin-imports" | "admin-cloud" | "admin-tags" | "rg-contacts" | "users";
 
 export function Administration({ view, canEdit, currentUserId, onSelect }: {
   view: AdministrationView;
@@ -27,7 +28,7 @@ export function Administration({ view, canEdit, currentUserId, onSelect }: {
     titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Administration</Title>} />}>
     <TabContainer onTabSelect={({ detail }) => {
       const key = detail.tab.dataset.key;
-      if (key === "admin-imports" || key === "admin-cloud" || key === "rg-contacts" || key === "users") onSelect(key);
+      if (key === "admin-imports" || key === "admin-cloud" || key === "rg-contacts" || key === "users" || key === "admin-tags") onSelect(key);
     }}>
       <Tab text={t("Sperrfälle")} data-key="admin-imports" selected={view === "admin-imports"}>
         <div className="rg-page">
@@ -47,6 +48,9 @@ export function Administration({ view, canEdit, currentUserId, onSelect }: {
       </Tab>
       <Tab text={t("Länder-Kontakte")} data-key="rg-contacts" selected={view === "rg-contacts"}>
         {view === "rg-contacts" && <RegisterContacts />}
+      </Tab>
+      <Tab text="Tags" data-key="admin-tags" selected={view === "admin-tags"}>
+        {view === "admin-tags" && <RegisterTags canEdit={canEdit} />}
       </Tab>
       <Tab text={t("Nutzer")} data-key="users" selected={view === "users"}>
         {view === "users" && <Users canEdit={canEdit} currentUserId={currentUserId} />}

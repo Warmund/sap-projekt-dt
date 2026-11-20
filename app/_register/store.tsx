@@ -12,6 +12,7 @@ import "./register.css";
 export type RegisterView = "rg-dashboard" | "rg-register" | "rg-new" | "rg-detail" | "rg-tasks" | "rg-contacts" | "rg-notifications";
 type RegisterState = {
   partners: BlockedPartner[];
+  tags: { id: string; name: string }[];
   contacts: CountryContact[];
   registerFilter: RegisterFilter;
   setRegisterFilter: (filter: RegisterFilter) => void;
@@ -23,7 +24,9 @@ type RegisterState = {
   decide: (id: string, decision: Exclude<Decision, "pending">, comment: string) => Promise<boolean>;
   completeStep: (id: string, step: StepKey, result?: string) => Promise<boolean>;
   confirmNotifications: (customers: { id: string; version: number }[]) => Promise<boolean>;
-  addPartnerFromGts: (bpId: string) => Promise<string | undefined>;
+  addPartnerFromGts: (bpId: string, tagIds: string[]) => Promise<string | undefined>;
+  createTag: (name: string) => Promise<boolean>;
+  setTags: (id: string, tagIds: string[]) => Promise<boolean>;
   updateContact: (c: CountryContact) => Promise<boolean>;
   reset: () => Promise<void>;
 };
@@ -57,10 +60,12 @@ export function RegisterProvider({ children, currentUser, role, onNavigate, init
     decide: async (id, decision, comment) => !!await run({ kind: "decide", id, version: version(id), decision, comment }),
     completeStep: async (id, step, result) => !!await run({ kind: "complete", id, version: version(id), step, result }),
     confirmNotifications: async (customers) => !!await run({ kind: "confirmNotifications", customers }),
-    addPartnerFromGts: async (bpId) => {
-      const fresh = await run({ kind: "createFromGts", bpId });
+    addPartnerFromGts: async (bpId, tagIds) => {
+      const fresh = await run({ kind: "createFromGts", bpId, tagIds });
       return fresh?.partners.find((p) => p.bpId === bpId)?.id;
     },
+    createTag: async (name) => !!await run({ kind: "createTag", name }),
+    setTags: async (id, tagIds) => !!await run({ kind: "setTags", id, version: version(id), tagIds }),
     updateContact: async (contact) => !!await run({ kind: "contact", contact }),
     reset: async () => {
       try { setData(await loadRegister()); setError(""); }
