@@ -24,7 +24,7 @@ type RegisterState = {
   decide: (id: string, decision: Exclude<Decision, "pending">, comment: string) => Promise<boolean>;
   completeStep: (id: string, step: StepKey, result?: string) => Promise<boolean>;
   confirmNotifications: (customers: { id: string; version: number }[]) => Promise<boolean>;
-  addPartnerFromGts: (bpId: string, tagIds: string[]) => Promise<string | undefined>;
+  addPartnerFromGts: (bpId: string, tagIds: string[], sanctionsLists: string[]) => Promise<string | undefined>;
   createTag: (name: string) => Promise<{ id: string; name: string } | undefined>;
   setTags: (id: string, tagIds: string[]) => Promise<boolean>;
   updateContact: (c: CountryContact) => Promise<boolean>;
@@ -60,8 +60,8 @@ export function RegisterProvider({ children, currentUser, role, onNavigate, init
     decide: async (id, decision, comment) => !!await run({ kind: "decide", id, version: version(id), decision, comment }),
     completeStep: async (id, step, result) => !!await run({ kind: "complete", id, version: version(id), step, result }),
     confirmNotifications: async (customers) => !!await run({ kind: "confirmNotifications", customers }),
-    addPartnerFromGts: async (bpId, tagIds) => {
-      const fresh = await run({ kind: "createFromGts", bpId, tagIds });
+    addPartnerFromGts: async (bpId, tagIds, sanctionsLists) => {
+      const fresh = await run({ kind: "createFromGts", bpId, tagIds, sanctionsLists });
       return fresh?.partners.find((p) => p.bpId === bpId)?.id;
     },
     createTag: async (name) => (await run({ kind: "createTag", name }))?.tags.find((tag) => tag.name === name.trim()),

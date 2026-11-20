@@ -39,7 +39,7 @@ export async function readRegister() {
 export type RegisterData = Awaited<ReturnType<typeof readRegister>>;
 export type RegisterCommand =
   | { kind: "create"; partner: BlockedPartner }
-  | { kind: "createFromGts"; bpId: string; tagIds: string[] }
+  | { kind: "createFromGts"; bpId: string; tagIds: string[]; sanctionsLists: string[] }
   | { kind: "createTag"; name: string }
   | { kind: "setTags"; id: string; version: number; tagIds: string[] }
   | { kind: "decide"; id: string; version: number; decision: Exclude<Decision, "pending">; comment: string }
@@ -108,13 +108,21 @@ export async function changeRegister(command: RegisterCommand, actor: { id: stri
         !Array.isArray(p.tenants) || p.tenants.length > 100) throw new RegisterError("Ungültiger Geschäftspartner.");
     const tagIds = command.kind === "createFromGts" ? validateTagIds(command.tagIds) : [];
     if (await db.registerTag.count({ where: { id: { in: tagIds } } }) !== tagIds.length) throw new RegisterError("Ein ausgewähltes Tag existiert nicht mehr.");
+    const sourceLists = p.sanctionsLists?.length ? p.sanctionsLists : [p.sanctionsList];
+    const requestedLists = command.kind === "createFromGts" ? command.sanctionsLists : sourceLists;
+    if (!Array.isArray(requestedLists) || !requestedLists.length || requestedLists.length > 100) {
+      throw new RegisterError("Gib mindestens eine Sanktionsliste an.");
+    }
+    const sanctionsLists = [...new Set(requestedLists.map((value) => text(value, 300)))];
+    const listReference = command.kind === "create" || sanctionsLists[0] === p.sanctionsList ? p.listReference : undefined;
     const blockedAt = new Date(p.gtsBlockedAt);
     if (!Number.isFinite(blockedAt.getTime())) throw new RegisterError("Ungültiges Sperrdatum.");
     const bpId = text(p.bpId, 100);
     try {
       await db.registerPartner.create({ data: {
         bpId, erpId: text(p.erpId, 100), name: text(p.name, 300), country: text(p.country, 100), ets: p.ets,
-        sanctionsList: text(p.sanctionsList, 300), sanctionsLists: (p.sanctionsLists?.length ? p.sanctionsLists : [p.sanctionsList]).map((value) => text(value, 300)), tags: { connect: tagIds.map((id) => ({ id })) }, listReference: text(p.listReference ?? "", 1000, false),
+        sanctionsList: sanctionsLists[0], sanctionsLists, listReference: text(listReference ?? "", 1000, false),
+        tags: { connect: tagIds.map((id) => ({ id })) },
         region: text(p.region ?? "", 100, false), gtsBlockedAt: blockedAt, gtsDateOnly: p.gtsDateOnly,
         spl: p.spl, ruItConsultancyBan: p.ruItConsultancyBan, ukraineCrisis: p.ukraineCrisis,
         comment: text(p.comment, 10_000, false), specialCategory: p.specialCategory,

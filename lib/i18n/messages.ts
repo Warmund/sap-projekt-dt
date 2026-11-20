@@ -471,6 +471,13 @@ const english: Record<string, string> = {
   "Tags bearbeiten": "Edit tags",
   "Keine Tags": "No tags",
   "Sperrablauf": "Blocking workflow",
+  "Sanktionslisten können vor dem Speichern angepasst werden.": "Sanctions lists can be edited before saving.",
+  "Sanktionslisten": "Sanctions lists",
+  "Sanktionsliste {0}": "Sanctions list {0}",
+  "Sanktionsliste {0} entfernen": "Remove sanctions list {0}",
+  "Sanktionsliste hinzufügen": "Add sanctions list",
+  "Entfernen": "Remove",
+  "Gib mindestens eine Sanktionsliste an.": "Enter at least one sanctions list.",
   "Überblick": "Overview"
 };
 

@@ -16,7 +16,7 @@ test("only Export Kontrolle can edit the workspace and SCG can confirm only IRDP
     { kind: "complete", ...record, step: "notify" },
     { kind: "complete", ...record, step: "rcsc" },
     { kind: "decide", ...record, decision: "approved", comment: "" },
-    { kind: "createFromGts", bpId: "1000611", tagIds: [] },
+    { kind: "createFromGts", bpId: "1000611", tagIds: [], sanctionsLists: ["EU"] },
     { kind: "createTag", name: "Example" },
     { kind: "setTags", ...record, tagIds: [] },
     { kind: "create", partner: MOCK_PARTNERS[0] },

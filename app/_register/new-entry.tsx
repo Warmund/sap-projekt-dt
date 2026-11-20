@@ -25,6 +25,7 @@ import { Section } from "./ui";
 export function RegisterNewEntry() {
   const { t } = useLanguage();
   const { addPartnerFromGts, open, tags } = useRegister();
+  const [lists, setLists] = useState<string[]>([]);
   const [tagIds, setTagIds] = useState<string[]>([]);
   const [bpId, setBpId] = useState("");
   const [draft, setDraft] = useState<GtsPartner | null>(null);
@@ -50,6 +51,7 @@ export function RegisterNewEntry() {
       const result = await loadGtsDraft(id);
       if (result.data) {
         setDraft(result.data);
+        setLists(result.data.sanctionsLists ?? [result.data.sanctionsList]);
         setTagIds(result.data.specialCategory === "SR" ? tags.filter((tag) => tag.name === "SuccessRoom").map((tag) => tag.id) : []);
       }
       else setError(result.error);
@@ -64,7 +66,7 @@ export function RegisterNewEntry() {
     if (!draft || saving) return;
     setSaving(true);
     try {
-      const id = await addPartnerFromGts(draft.bpId, tagIds);
+      const id = await addPartnerFromGts(draft.bpId, tagIds, lists.map((list) => list.trim()).filter(Boolean));
       if (id) open("rg-detail", id);
     } finally {
       setSaving(false);
@@ -97,7 +99,7 @@ export function RegisterNewEntry() {
       </Section>
 
       {draft && <>
-        <GtsPreview partner={draft} />
+        <GtsPreview partner={draft} lists={lists} onListsChange={setLists} saving={saving} />
         <Section title="Tags">
           <TagPicker ids={tagIds} onChange={setTagIds} disabled={saving} />
         </Section>
@@ -107,7 +109,7 @@ export function RegisterNewEntry() {
         {draft && <Text className="rg-muted">{t("Nach dem Anlegen geht der Fall zur Vier-Augen-Freigabe.")}</Text>}
         <div className="rg-actions rg-actions-end">
           <Button design="Transparent" disabled={saving} onClick={() => open("rg-register")}>{t("Abbrechen")}</Button>
-          {draft && <Button design="Emphasized" disabled={saving || loading} onClick={create}>
+          {draft && <Button design="Emphasized" disabled={saving || loading || !lists.some((list) => list.trim())} onClick={create}>
             {t("Datensatz anlegen, zur Freigabe")}
           </Button>}
         </div>
@@ -116,7 +118,12 @@ export function RegisterNewEntry() {
   </DynamicPage>;
 }
 
-function GtsPreview({ partner }: { partner: GtsPartner }) {
+function GtsPreview({ partner, lists, onListsChange, saving }: {
+  partner: GtsPartner;
+  lists: string[];
+  onListsChange: (lists: string[]) => void;
+  saving: boolean;
+}) {
   const { t, date, dateTime } = useLanguage();
   const { currentUser } = useRegister();
   const missing = t("Nicht angegeben");
@@ -125,7 +132,7 @@ function GtsPreview({ partner }: { partner: GtsPartner }) {
   return <>
     <div className="rg-gts-heading">
       <Title level="H2" size="H4">{t("Vorschau der GTS-Daten")}</Title>
-      <Text className="rg-muted">{t("Die simuliert übernommenen Daten sind schreibgeschützt.")}</Text>
+      <Text className="rg-muted">{t("Sanktionslisten können vor dem Speichern angepasst werden.")}</Text>
     </div>
 
     <div className="rg-gts-columns">
@@ -143,13 +150,22 @@ function GtsPreview({ partner }: { partner: GtsPartner }) {
       <Section title={t("Sanktionsdaten")}>
         <Facts fields={[
           [t("ETS-Kategorie"), partner.ets],
-          [t("Sanktionsliste"), (partner.sanctionsLists ?? [partner.sanctionsList]).map((value) => t(value)).join(", ")],
-          [t("Referenz auf Listeneintrag"), partner.listReference || missing],
+          [t("Referenz auf Listeneintrag"), (lists.map((list) => list.trim()).find(Boolean) === partner.sanctionsList && partner.listReference) || missing],
           ["SPL", yesNo(partner.spl)],
           ["RU IT Consultancy Ban", yesNo(partner.ruItConsultancyBan)],
           [t("Ukraine Crisis"), yesNo(partner.ukraineCrisis)],
           [t("Kommentar"), partner.comment || missing],
         ]} />
+        <Label>{t("Sanktionslisten")}</Label>
+        {lists.map((list, index) => <div className="rg-actions" key={index}>
+          <Input value={list} maxlength={300} disabled={saving} accessibleName={t("Sanktionsliste {0}", index + 1)}
+            onInput={(event) => onListsChange(lists.map((value, i) => i === index ? event.target.value : value))} />
+          <Button design="Transparent" disabled={saving} accessibleName={t("Sanktionsliste {0} entfernen", index + 1)}
+            onClick={() => onListsChange(lists.filter((_, i) => i !== index))}>{t("Entfernen")}</Button>
+        </div>)}
+        {!lists.some((list) => list.trim()) && <Text className="rg-muted">{t("Gib mindestens eine Sanktionsliste an.")}</Text>}
+        <div><Button design="Transparent" disabled={saving || lists.length >= 100}
+          onClick={() => onListsChange([...lists, ""])}>{t("Sanktionsliste hinzufügen")}</Button></div>
       </Section>
     </div>
 
