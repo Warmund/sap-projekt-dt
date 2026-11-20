@@ -2,6 +2,7 @@
 import { useLanguage } from "../language";
 import { createContext, useContext, useRef, useState, type ReactNode } from "react";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
+import type { WorkspaceRole } from "../../lib/roles";
 import { loadRegister, mutateRegister } from "./actions";
 import type { RegisterFilter } from "../../lib/register/dashboard";
 import type { RegisterCommand, RegisterData } from "../../lib/register/repository";
@@ -17,6 +18,7 @@ type RegisterState = {
   openRegister: (filter: RegisterFilter) => void;
   selected: BlockedPartner | undefined;
   currentUser: string;
+  role: WorkspaceRole;
   open: (view: RegisterView, partnerId?: string) => void;
   decide: (id: string, decision: Exclude<Decision, "pending">, comment: string) => Promise<boolean>;
   completeStep: (id: string, step: StepKey, result?: string) => Promise<boolean>;
@@ -28,7 +30,7 @@ type RegisterState = {
 const Ctx = createContext<RegisterState | null>(null);
 
 /** Database is authoritative; failed writes never become local success states. */
-export function RegisterProvider({ children, currentUser, onNavigate, initialData }: { children: ReactNode; currentUser: string; onNavigate: (view: RegisterView) => void; initialData: RegisterData }) {
+export function RegisterProvider({ children, currentUser, role, onNavigate, initialData }: { children: ReactNode; currentUser: string; role: WorkspaceRole; onNavigate: (view: RegisterView) => void; initialData: RegisterData }) {
   const { t } = useLanguage();
   const [data, setData] = useState(initialData);
   const [registerFilter, setRegisterFilter] = useState<RegisterFilter>("all");
@@ -49,7 +51,7 @@ export function RegisterProvider({ children, currentUser, onNavigate, initialDat
   };
   const version = (id: string) => data.partners.find((p) => p.id === id)?.version ?? -1;
   const value: RegisterState = {
-    ...data, currentUser, registerFilter, setRegisterFilter,
+    ...data, currentUser, role, registerFilter, setRegisterFilter,
     openRegister: (filter) => { setRegisterFilter(filter); onNavigate("rg-register"); }, selected: data.partners.find((p) => p.id === selectedId),
     open: (view, id) => { if (id) setSelectedId(id); onNavigate(view); },
     decide: async (id, decision, comment) => !!await run({ kind: "decide", id, version: version(id), decision, comment }),

@@ -439,6 +439,8 @@ const english: Record<string, string> = {
   "SCG inklusive BCG manuell bearbeiten": "Handle SCG including BCG manually",
   "Hier erscheinen freigegebene Kunden, deren E-Mail-Versand noch offen ist.": "Approved customers whose email is still pending appear here.",
   "Partner Teams bestätigen hier die manuellen Sperrschritte.": "Partner Teams confirm the manual blocking steps here.",
+  "Export Kontrolle": "Export Control",
+  "Deine Gruppe hat keine Berechtigung für diese Aktion.": "Your group does not have permission for this action.",
   "Überblick": "Overview"
 };
 

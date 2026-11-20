@@ -23,6 +23,7 @@ import "@ui5/webcomponents-icons/dist/contacts.js";
 import "@ui5/webcomponents-icons/dist/email.js";
 import "@ui5/webcomponents-icons/dist/people-connected.js";
 import type { RegisterData } from "../lib/register/repository";
+import { canEditWorkspace, workspaceRole } from "../lib/roles";
 import { authClient } from "../lib/auth-client";
 import { Administration, type AdministrationView } from "./administration";
 import { RegisterProvider, type RegisterView } from "./_register/store";
@@ -38,7 +39,7 @@ import "@ui5/webcomponents-icons/dist/action-settings.js";
 
 type View = AdministrationView | RegisterView | "settings";
 
-export function Shell({ user, initialRegister }: { user: { name: string; email: string; role: string }; initialRegister: RegisterData }) {
+export function Shell({ user, initialRegister }: { user: { id: string; name: string; email: string; role: string }; initialRegister: RegisterData }) {
   const { t } = useLanguage();
   const layoutRef = useRef<NavigationLayoutDomRef>(null);
   const [mode, setMode] = useState<"Auto" | "Collapsed" | "Expanded">("Auto");
@@ -56,17 +57,18 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
     } catch { setError("Abmelden derzeit nicht möglich. Bitte versuche es erneut."); }
   };
 
-  const isAdmin = user.role.split(",").includes("admin");
+  const role = workspaceRole(user.role);
+  const canEdit = canEditWorkspace(role);
   const content = () => {
     switch (view) {
       case "settings": return <Settings />;
       case "users":
       case "rg-contacts":
       case "admin-imports":
-      case "admin-cloud": return <Administration view={view} isAdmin={isAdmin} onSelect={setView} />;
+      case "admin-cloud": return <Administration view={view} canEdit={canEdit} currentUserId={user.id} onSelect={setView} />;
       case "rg-dashboard": return <RegisterDashboard />;
       case "rg-register": return <RegisterList />;
-      case "rg-new": return <RegisterNewEntry />;
+      case "rg-new": return canEdit ? <RegisterNewEntry /> : <RegisterDashboard />;
       case "rg-detail": return <RegisterDetail />;
       case "rg-notifications": return <RegisterNotifications />;
       case "rg-tasks": return <RegisterTasks />;
@@ -75,7 +77,7 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
   };
 
   return <ThemeProvider>
-    <RegisterProvider initialData={initialRegister} currentUser={user.name} onNavigate={setView}>
+    <RegisterProvider initialData={initialRegister} currentUser={user.name} role={role} onNavigate={setView}>
     <NavigationLayout ref={layoutRef} mode={mode} className="app-layout"
       header={<ShellBar
         startButton={<Button icon="menu2" design="Transparent" tooltip={t("Navigation ein-/ausblenden")} accessibleName={t("Navigation ein-/ausblenden")}
@@ -98,9 +100,9 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
           <SideNavigationItem text="Partner Teams" icon="people-connected" data-key="rg-tasks" selected={view === "rg-tasks"} />
           <SideNavigationItem text={t("Länder-Kontakte")} icon="contacts" data-key="rg-contacts" selected={view === "rg-contacts"} />
         </SideNavigationGroup>
-        <SideNavigationGroup text="Administration" expanded>
+        {canEdit && <SideNavigationGroup text="Administration" expanded>
           <SideNavigationItem text={t("Neuer Datensatz")} icon="add-document" data-key="rg-new" selected={view === "rg-new"} />
-        </SideNavigationGroup>
+        </SideNavigationGroup>}
         <SideNavigationItem text={t("Einstellungen")} icon="action-settings" data-key="settings" selected={view === "settings"} />
       </SideNavigation>}>
       <main className="app-content">
@@ -113,10 +115,10 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
       accounts={<UserMenuAccount titleText={user.name} subtitleText={user.email} avatarInitials={initials} selected />}
       onItemClick={({ detail }) => {
         setMenuOpener(null);
-        setView(detail.item.dataset.key === "users" && isAdmin ? "users" : "admin-imports");
+        setView(detail.item.dataset.key === "users" ? "users" : "admin-imports");
       }}>
       <UserMenuItem text="Administration" />
-      {isAdmin && <UserMenuItem text={t("Nutzer verwalten")} data-key="users" />}
+      <UserMenuItem text={t(canEdit ? "Nutzer verwalten" : "Nutzerliste")} data-key="users" />
     </UserMenu>
   </ThemeProvider>;
 }

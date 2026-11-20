@@ -13,9 +13,10 @@ import { Users } from "./users";
 
 export type AdministrationView = "admin-imports" | "admin-cloud" | "rg-contacts" | "users";
 
-export function Administration({ view, isAdmin, onSelect }: {
+export function Administration({ view, canEdit, currentUserId, onSelect }: {
   view: AdministrationView;
-  isAdmin: boolean;
+  canEdit: boolean;
+  currentUserId: string;
   onSelect: (view: AdministrationView) => void;
 }) {
   const { t } = useLanguage();
@@ -26,12 +27,12 @@ export function Administration({ view, isAdmin, onSelect }: {
     titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">Administration</Title>} />}>
     <TabContainer onTabSelect={({ detail }) => {
       const key = detail.tab.dataset.key;
-      if (key === "admin-imports" || key === "admin-cloud" || key === "rg-contacts" || (key === "users" && isAdmin)) onSelect(key);
+      if (key === "admin-imports" || key === "admin-cloud" || key === "rg-contacts" || key === "users") onSelect(key);
     }}>
       <Tab text={t("Sperrfälle")} data-key="admin-imports" selected={view === "admin-imports"}>
         <div className="rg-page">
           <Section title={t("Geschäftspartner und Sperrfälle")}
-            actions={<Button onClick={() => open("rg-new")}>{t("Datensatz manuell erfassen")}</Button>}>
+            actions={canEdit && <Button onClick={() => open("rg-new")}>{t("Datensatz manuell erfassen")}</Button>}>
             <Text>{t("Geplanter Import aus einem Datenprodukt für SAP GTS. Benötigt werden Geschäftspartner-ID, Sperrdatum, ETS-Kategorie und Sanktionsliste. Bis zur Anbindung stehen der CSV-Import und die simulierte Erfassung zur Verfügung.")}</Text>
           </Section>
         </div>
@@ -47,9 +48,9 @@ export function Administration({ view, isAdmin, onSelect }: {
       <Tab text={t("Länder-Kontakte")} data-key="rg-contacts" selected={view === "rg-contacts"}>
         {view === "rg-contacts" && <RegisterContacts />}
       </Tab>
-      {isAdmin && <Tab text={t("Nutzer")} data-key="users" selected={view === "users"}>
-        {view === "users" && <Users />}
-      </Tab>}
+      <Tab text={t("Nutzer")} data-key="users" selected={view === "users"}>
+        {view === "users" && <Users canEdit={canEdit} currentUserId={currentUserId} />}
+      </Tab>
     </TabContainer>
   </DynamicPage>;
 }

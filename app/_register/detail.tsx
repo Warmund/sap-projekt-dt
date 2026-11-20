@@ -1,5 +1,6 @@
 "use client";
 import { translateAudit, translateStepResult } from "../../lib/i18n/messages";
+import { canEditWorkspace } from "../../lib/roles";
 import { useLanguage } from "../language";
 import { useState } from "react";
 import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
@@ -27,7 +28,7 @@ import { Section, StatusBadge, StepBadge } from "./ui";
 
 export function RegisterDetail() {
   const { t, date, dateTime } = useLanguage();
-  const { selected: p, decide, open, reset } = useRegister();
+  const { selected: p, role, decide, open, reset } = useRegister();
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState(false);
 
@@ -52,7 +53,7 @@ export function RegisterDetail() {
       <div className="rg-actions">
         <Button onClick={reset}>{t("Daten neu laden")}</Button>
       </div>
-      {p.decision === "pending" && <section className="rg-approval" aria-labelledby="rg-approval-title">
+      {p.decision === "pending" && canEditWorkspace(role) && <section className="rg-approval" aria-labelledby="rg-approval-title">
         <div className="rg-approval-text">
           <Title id="rg-approval-title" level="H2" size="H5">{t("Vier-Augen-Freigabe durch EC Member 2")}</Title>
           <Text>{t("Erfasst von")} {p.enteredBy} {t("(EC Member 1). Mit der Freigabe starten die Sperrschritte.")}</Text>

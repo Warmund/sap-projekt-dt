@@ -19,12 +19,14 @@ import { TableHeaderRow } from "@ui5/webcomponents-react/TableHeaderRow";
 import { TableRow } from "@ui5/webcomponents-react/TableRow";
 import { Text } from "@ui5/webcomponents-react/Text";
 import { Title } from "@ui5/webcomponents-react/Title";
+import { listWorkspaceUsers } from "./_register/actions";
+import { isWorkspaceRole, ROLE_LABELS, workspaceRole } from "../lib/roles";
 import { authClient } from "../lib/auth-client";
 import "@ui5/webcomponents-icons/dist/delete.js";
 
 type User = { id: string; name: string; email: string; username?: string | null; role?: string | null };
 
-export function Users() {
+export function Users({ canEdit, currentUserId }: { canEdit: boolean; currentUserId: string }) {
   const { t } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState("");
@@ -34,14 +36,7 @@ export function Users() {
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
 
   async function loadUsers() {
-    const all: User[] = [];
-    for (;;) {
-      const result = await authClient.admin.listUsers({ query: { limit: 100, offset: all.length } });
-      if (result.error || !result.data) throw new Error("Nutzerliste nicht verfügbar");
-      all.push(...result.data.users);
-      if (!result.data.users.length || all.length >= result.data.total) break;
-    }
-    setUsers(all);
+    setUsers(await listWorkspaceUsers());
   }
 
   useEffect(() => {
@@ -58,6 +53,8 @@ export function Users() {
     const username = String(values.get("username"));
     const email = String(values.get("email"));
     const password = String(values.get("password"));
+    const role = values.get("role");
+    if (!isWorkspaceRole(role)) return;
     if (username.length < 3 || password.length < 8) {
       setError("Benutzername muss mindestens 3 Zeichen und Passwort mindestens 8 Zeichen enthalten.");
       return;
@@ -65,7 +62,7 @@ export function Users() {
     setError(""); setSuccess(""); setPending(true);
     try {
       const result = await authClient.admin.createUser({
-        name, email, password, role: values.get("role") === "admin" ? "admin" : "user",
+        name, email, password, role,
         data: { username },
       });
       if (result.error) { setError("Nutzer konnte nicht angelegt werden. Prüfe die Angaben und ob Benutzername und E-Mail bereits vergeben sind."); return; }
@@ -77,10 +74,12 @@ export function Users() {
   }
 
   async function updateRole(userId: string, role: string) {
+    if (!isWorkspaceRole(role)) return;
     setError(""); setSuccess(""); setUpdatingUserId(userId);
     try {
-      const result = await authClient.admin.updateUser({ userId, data: { role: role === "admin" ? "admin" : "user" } });
+      const result = await authClient.admin.setRole({ userId, role });
       if (result.error) { setError("Die Rolle konnte nicht geändert werden."); return; }
+      if (userId === currentUserId) { window.location.reload(); return; }
       setSuccess(t("Rolle wurde geändert."));
       await loadUsers();
     } catch { setError("Nutzerverwaltung ist derzeit nicht verfügbar."); }
@@ -96,6 +95,7 @@ export function Users() {
     try {
       const result = await authClient.admin.removeUser({ userId: user.id });
       if (result.error) { setError("Der Nutzer konnte nicht gelöscht werden."); return; }
+      if (user.id === currentUserId) { window.location.reload(); return; }
       setSuccess(t("Nutzer {0} wurde gelöscht.", user.name));
       await loadUsers();
     } catch { setError("Nutzerverwaltung ist derzeit nicht verfügbar."); }
@@ -110,7 +110,7 @@ export function Users() {
         <div className="user-admin-section-heading">
           <div>
             <Title id="user-list-title" level="H2" size="H4">{t("Nutzerliste")}</Title>
-            <Text>{t("Rollen und Zugriffsrechte direkt in der Liste verwalten.")}</Text>
+            {canEdit && <Text>{t("Rollen und Zugriffsrechte direkt in der Liste verwalten.")}</Text>}
           </div>
         </div>
         <Table accessibleName={t("Nutzerliste")} alternateRowColors overflowMode="Popin" noDataText={t("Noch keine Nutzer vorhanden.")}
@@ -118,28 +118,27 @@ export function Users() {
             <TableHeaderCell width="20%">{t("Name")}</TableHeaderCell>
             <TableHeaderCell width="20%" importance={2}>{t("Benutzername")}</TableHeaderCell>
             <TableHeaderCell width="35%" importance={1}>{t("E-Mail")}</TableHeaderCell>
-            <TableHeaderCell width="25%">{t("Rolle und Aktionen")}</TableHeaderCell>
+            <TableHeaderCell width="25%">{t(canEdit ? "Rolle und Aktionen" : "Rolle")}</TableHeaderCell>
           </TableHeaderRow>}>
           {users.map((user) => <TableRow key={user.id} rowKey={user.id}>
             <TableCell><Text>{user.name}</Text></TableCell>
             <TableCell><Text>{user.username || "—"}</Text></TableCell>
             <TableCell><Text>{user.email}</Text></TableCell>
             <TableCell>
-              <div className="user-row-actions">
-                <Select value={user.role === "admin" ? "admin" : "user"} disabled={updatingUserId === user.id}
+              {canEdit ? <div className="user-row-actions">
+                <Select value={workspaceRole(user.role)} disabled={updatingUserId === user.id}
                   accessibleName={t("Rolle von {0}", user.name)} onChange={(event) => void updateRole(user.id, event.target.value)}>
-                  <Option value="user">{t("Nutzer")}</Option>
-                  <Option value="admin">Admin</Option>
+                  {Object.entries(ROLE_LABELS).map(([role, label]) => <Option key={role} value={role}>{t(label)}</Option>)}
                 </Select>
                 <Button design="Negative" icon="delete" tooltip={t("{0} löschen", user.name)}
                   accessibleName={t("{0} löschen", user.name)} disabled={updatingUserId === user.id}
                   onClick={() => setDeletingUser(user)}>{t("Löschen")}</Button>
-              </div>
+              </div> : <Text>{t(ROLE_LABELS[workspaceRole(user.role)])}</Text>}
             </TableCell>
           </TableRow>)}
         </Table>
       </section>
-      <section className="user-admin-section" aria-labelledby="new-user-title">
+      {canEdit && <section className="user-admin-section" aria-labelledby="new-user-title">
         <div className="user-admin-section-heading">
           <div>
             <Title id="new-user-title" level="H2" size="H4">{t("Neuen Nutzer hinzufügen")}</Title>
@@ -154,7 +153,9 @@ export function Users() {
               <FormItem labelContent={<Label required>{t("E-Mail")}</Label>}><Input name="email" type="Email" required /></FormItem>
               <FormItem labelContent={<Label required>{t("Passwort")}</Label>}><Input name="password" type="Password" required /></FormItem>
               <FormItem labelContent={<Label>{t("Rolle")}</Label>}>
-                <Select name="role" value="user"><Option value="user">{t("Nutzer")}</Option><Option value="admin">Admin</Option></Select>
+                <Select name="role" value="display-only">
+                  {Object.entries(ROLE_LABELS).map(([role, label]) => <Option key={role} value={role}>{t(label)}</Option>)}
+                </Select>
               </FormItem>
             </FormGroup>
           </Form>
@@ -162,15 +163,15 @@ export function Users() {
             <Button type="Submit" design="Emphasized" disabled={pending}>{t("Nutzer hinzufügen")}</Button>
           </div>
         </form>
-      </section>
+      </section>}
     </div>
-    <MessageBox open={!!deletingUser} type="Confirm" titleText={t("Nutzer löschen")}
+    {canEdit && <MessageBox open={!!deletingUser} type="Confirm" titleText={t("Nutzer löschen")}
       actions={[
         <Button key="cancel" onClick={() => setDeletingUser(null)}>{t("Abbrechen")}</Button>,
         <Button key="delete" design="Emphasized" onClick={() => void deleteUser()}>{t("Löschen")}</Button>,
       ]}
       onClose={() => setDeletingUser(null)}>
       {deletingUser ? t("Möchtest du {0} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.", deletingUser.name) : ""}
-    </MessageBox>
+    </MessageBox>}
   </>;
 }

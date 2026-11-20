@@ -1,4 +1,5 @@
 "use client";
+import { canEditWorkspace } from "../../lib/roles";
 import { useLanguage } from "../language";
 import { useState } from "react";
 import { Text } from "@ui5/webcomponents-react/Text";
@@ -20,7 +21,8 @@ import { useRegister } from "./store";
 
 export function RegisterContacts() {
   const { t, date } = useLanguage();
-  const { contacts, updateContact } = useRegister();
+  const { contacts, role, updateContact } = useRegister();
+  const canEdit = canEditWorkspace(role);
   const [editing, setEditing] = useState<CountryContact | null>(null);
 
   const save = async () => {
@@ -47,7 +49,7 @@ export function RegisterContacts() {
           <TableHeaderCell importance={1}>Commercial Director</TableHeaderCell>
           <TableHeaderCell importance={1}>{t("Geprüft am")}</TableHeaderCell>
           <TableHeaderCell>{t("Status")}</TableHeaderCell>
-          <TableHeaderCell><span className="rg-sr-only">{t("Aktion")}</span></TableHeaderCell>
+          {canEdit && <TableHeaderCell><span className="rg-sr-only">{t("Aktion")}</span></TableHeaderCell>}
         </TableHeaderRow>}>
         {contacts.map((c) => {
           const due = !c.lastChecked || daysSince(c.lastChecked) >= CONTACT_CHECK_INTERVAL_DAYS;
@@ -59,7 +61,7 @@ export function RegisterContacts() {
             <TableCell><Text>{c.commercialDirector || t("[offen]")}</Text></TableCell>
             <TableCell><Text>{c.lastChecked ? date(c.lastChecked) : t("Noch nicht geprüft")}</Text></TableCell>
             <TableCell><ObjectStatus inverted state={due ? "Critical" : "Positive"}>{due ? t("Prüfung fällig") : t("Aktuell")}</ObjectStatus></TableCell>
-            <TableCell><Button icon="edit" design="Transparent" accessibleName={t("{0} bearbeiten", c.region)} onClick={() => setEditing(c)}>{t("Bearbeiten")}</Button></TableCell>
+            {canEdit && <TableCell><Button icon="edit" design="Transparent" accessibleName={t("{0} bearbeiten", c.region)} onClick={() => setEditing(c)}>{t("Bearbeiten")}</Button></TableCell>}
           </TableRow>;
         })}
       </Table>

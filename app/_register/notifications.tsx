@@ -14,6 +14,7 @@ import { TableHeaderRow } from "@ui5/webcomponents-react/TableHeaderRow";
 import { TableRow } from "@ui5/webcomponents-react/TableRow";
 import { Text } from "@ui5/webcomponents-react/Text";
 import { Title } from "@ui5/webcomponents-react/Title";
+import { canEditWorkspace } from "../../lib/roles";
 import { notificationPending } from "../../lib/register/workflow";
 import { useLanguage } from "../language";
 import { useRegister } from "./store";
@@ -30,12 +31,13 @@ type Draft = {
 
 export function RegisterNotifications() {
   const { t } = useLanguage();
-  const { partners, confirmNotifications, reset } = useRegister();
+  const { partners, role, confirmNotifications, reset } = useRegister();
   const [selectedIds, setSelectedIds] = useState(new Set<string>());
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [confirmError, setConfirmError] = useState(false);
+  const canEdit = canEditWorkspace(role);
   const open = partners.filter(notificationPending);
   const selected = open.filter((p) => selectedIds.has(p.id));
 
@@ -84,15 +86,15 @@ export function RegisterNotifications() {
         <Table accessibleName={t("Kunden mit offener Benachrichtigung")} overflowMode="Popin"
           noDataText={t("Keine Kunden zur Benachrichtigung.")}
           headerRow={<TableHeaderRow>
-            <TableHeaderCell width="3.5rem" aria-label={t("Auswahl")} />
+            {canEdit && <TableHeaderCell width="3.5rem" aria-label={t("Auswahl")} />}
             <TableHeaderCell>{t("Geschäftspartner")}</TableHeaderCell>
             <TableHeaderCell>{t("BP-ID (GTS)")}</TableHeaderCell>
             <TableHeaderCell importance={1}>{t("Land")}</TableHeaderCell>
           </TableHeaderRow>}>
-          {open.map((p) => <TableRow key={p.id} rowKey={p.id} className="rg-selectable-row" onClick={() => toggleCustomer(p.id)}>
-            <TableCell onClick={(event) => event.stopPropagation()}>
+          {open.map((p) => <TableRow key={p.id} rowKey={p.id} className={canEdit ? "rg-selectable-row" : undefined} onClick={canEdit ? () => toggleCustomer(p.id) : undefined}>
+            {canEdit && <TableCell onClick={(event) => event.stopPropagation()}>
               <CheckBox accessibleName={t("{0} auswählen", p.name)} checked={selectedIds.has(p.id)} onChange={() => toggleCustomer(p.id)} />
-            </TableCell>
+            </TableCell>}
             <TableCell><Text>{p.name}</Text></TableCell>
             <TableCell><Text>{p.bpId}</Text></TableCell>
             <TableCell><Text>{t(p.country)}</Text></TableCell>
@@ -102,21 +104,21 @@ export function RegisterNotifications() {
 
       <Section title={t("Empfänger")}>
         <div className="rg-actions">
-          {RECIPIENTS.map((address) => <CheckBox key={address} text={address} checked={recipients.includes(address)}
+          {RECIPIENTS.map((address) => canEdit ? <CheckBox key={address} text={address} checked={recipients.includes(address)}
             onChange={(event) => {
               const checked = event.target.checked;
               setRecipients((current) => checked ? [...current, address] : current.filter((item) => item !== address));
-            }} />)}
+            }} /> : <Text key={address}>{address}</Text>)}
         </div>
       </Section>
-      <div className="rg-actions">
+      {canEdit && <div className="rg-actions">
         <Button design="Emphasized" disabled={!selected.length || !recipients.length} onClick={createDraft}>
           {t("Entwurf erstellen")}
         </Button>
-      </div>
+      </div>}
     </div>
 
-    {draft && <Dialog open headerText={t("E-Mail-Entwurf")} onClose={() => { if (!confirming) setDraft(null); }}
+    {canEdit && draft && <Dialog open headerText={t("E-Mail-Entwurf")} onClose={() => { if (!confirming) setDraft(null); }}
       footer={<div className="rg-dialog-footer">
         <Button disabled={confirming} onClick={() => setDraft(null)}>{t("Schließen")}</Button>
         <Button design="Emphasized" disabled={confirming} onClick={() => confirm(draft)}>{t("Versand bestätigen")}</Button>

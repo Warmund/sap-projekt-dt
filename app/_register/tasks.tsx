@@ -1,4 +1,5 @@
 "use client";
+import { canCompleteStep } from "../../lib/roles";
 import { useState } from "react";
 import { Select } from "@ui5/webcomponents-react/Select";
 import { Option } from "@ui5/webcomponents-react/Option";
@@ -17,7 +18,7 @@ import { Section, StepBadge } from "./ui";
 /** Sicht einer Nachbarabteilung: nur eigene Schritte, nur Erledigung bestätigen. */
 export function RegisterTasks() {
   const { t, date } = useLanguage();
-  const { partners, completeStep, open } = useRegister();
+  const { partners, role, completeStep, open } = useRegister();
 
   const [group, setGroup] = useState<"scg" | "cloud">("scg");
   const steps = group === "scg" ? SCG_STEPS : ["cloud"] as const;
@@ -54,7 +55,7 @@ export function RegisterTasks() {
               <Text>{t(definition.runningText)}{step === "cloud" && p.tenants.length > 0 && ` · ${p.tenants.map((tenant) => `${tenant.tenantId} (${tenant.product})`).join(", ")}`}</Text>
               <Text className="rg-muted">{status === "waiting" ? t("Wartet auf vorherige Sperrschritte") : t("Freigegeben am {0}", date(p.decidedAt!))}</Text>
             </div>
-            {status === "running" && <div className="rg-actions">
+            {status === "running" && canCompleteStep(role, step) && <div className="rg-actions">
               <Button design="Transparent">{t("Rückfrage an Export Control")}</Button>
               <Button design="Positive" onClick={() => completeStep(p.id, step)}>{t("Erledigung bestätigen")}</Button>
             </div>}
