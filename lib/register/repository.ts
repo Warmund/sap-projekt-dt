@@ -1,5 +1,6 @@
+import { findGtsPartner } from "./gts";
 import { db } from "../db";
-import type { Prisma } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import { completeStep, decide, notificationPending, stepStatuses, AUTO_RESULT, PERSISTED_STEPS, STEP_DEFS } from "./workflow";
 import type { BlockedPartner, CountryContact, Decision, StepKey } from "./types";
 
@@ -37,6 +38,7 @@ export async function readRegister() {
 export type RegisterData = Awaited<ReturnType<typeof readRegister>>;
 export type RegisterCommand =
   | { kind: "create"; partner: BlockedPartner }
+  | { kind: "createFromGts"; bpId: string }
   | { kind: "decide"; id: string; version: number; decision: Exclude<Decision, "pending">; comment: string }
   | { kind: "complete"; id: string; version: number; step: StepKey; result?: string }
   | { kind: "confirmNotifications"; customers: { id: string; version: number }[] }
@@ -46,6 +48,18 @@ function text(value: unknown, max = 500, required = true): string {
   if (typeof value !== "string" || value.length > max || (required && !value.trim())) throw new RegisterError("Ungültige oder fehlende Textangabe.");
   return value.trim();
 }
+export async function lookupGtsPartner(value: string) {
+  if (typeof value !== "string" || !value.trim() || value.length > 100) {
+    throw new RegisterError("Gib eine Business Partner ID ein.");
+  }
+  const partner = findGtsPartner(value.trim());
+  if (!partner) throw new RegisterError("Für diese Business Partner ID sind keine Demo-Daten verfügbar.");
+  if (await db.registerPartner.findUnique({ where: { bpId: partner.bpId }, select: { id: true } })) {
+    throw new RegisterError("Diese Business Partner ID ist bereits im Register.");
+  }
+  return partner;
+}
+
 export async function changeRegister(command: RegisterCommand, actor: { id: string; name: string }) {
   if (!command || typeof command !== "object") throw new RegisterError("Ungültige Registeraktion.");
   if (command.kind === "contact") {
@@ -57,23 +71,32 @@ export async function changeRegister(command: RegisterCommand, actor: { id: stri
     } });
     return;
   }
-  if (command.kind === "create") {
-    const p = command.partner;
+  if (command.kind === "create" || command.kind === "createFromGts") {
+    const p = command.kind === "createFromGts" ? await lookupGtsPartner(command.bpId) : command.partner;
     if (!p || !["ETS1", "ETR1", "ETS2", "ETS3", "ETS4", "ETS5", "ETS6"].includes(p.ets) ||
         ![null, "SR", "Sonstige"].includes(p.specialCategory) || typeof p.cloudCustomer !== "boolean" ||
         !Array.isArray(p.tenants) || p.tenants.length > 100) throw new RegisterError("Ungültiger Geschäftspartner.");
     const blockedAt = new Date(p.gtsBlockedAt);
     if (!Number.isFinite(blockedAt.getTime())) throw new RegisterError("Ungültiges Sperrdatum.");
     const bpId = text(p.bpId, 100);
-    await db.registerPartner.create({ data: {
-      bpId, erpId: text(p.erpId, 100), name: text(p.name, 300), country: text(p.country, 100), ets: p.ets,
-      sanctionsList: text(p.sanctionsList, 300), listReference: text(p.listReference ?? "", 1000, false),
-      gtsBlockedAt: blockedAt, comment: text(p.comment, 10_000, false), specialCategory: p.specialCategory,
-      specialComment: text(p.specialComment ?? "", 2000, false), cloudCustomer: p.cloudCustomer,
-      enteredBy: actor.name, enteredByUserId: actor.id,
-      tenants: { create: p.tenants.map((t) => ({ lob: text(t.lob, 200), product: text(t.product, 200), tenantId: text(t.tenantId, 200), ticket: text(t.ticket, 500, false) })) },
-      audit: { create: { by: actor.name, text: "Datensatz angelegt (simulierter GTS-Eingang); zur Vier-Augen-Prüfung." } },
-    } });
+    try {
+      await db.registerPartner.create({ data: {
+        bpId, erpId: text(p.erpId, 100), name: text(p.name, 300), country: text(p.country, 100), ets: p.ets,
+        sanctionsList: text(p.sanctionsList, 300), listReference: text(p.listReference ?? "", 1000, false),
+        region: text(p.region ?? "", 100, false), gtsBlockedAt: blockedAt, gtsDateOnly: p.gtsDateOnly,
+        spl: p.spl, ruItConsultancyBan: p.ruItConsultancyBan, ukraineCrisis: p.ukraineCrisis,
+        comment: text(p.comment, 10_000, false), specialCategory: p.specialCategory,
+        specialComment: text(p.specialComment ?? "", 2000, false), cloudCustomer: p.cloudCustomer,
+        enteredBy: actor.name, enteredByUserId: actor.id,
+        tenants: { create: p.tenants.map((t) => ({ lob: text(t.lob, 200), product: text(t.product, 200), tenantId: text(t.tenantId, 200), ticket: text(t.ticket, 500, false) })) },
+        audit: { create: { by: actor.name, text: "Datensatz angelegt (simulierter GTS-Eingang); zur Vier-Augen-Prüfung." } },
+      } });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        throw new RegisterError("Diese Business Partner ID ist bereits im Register.");
+      }
+      throw error;
+    }
     return;
   }
   if (command.kind === "confirmNotifications") {

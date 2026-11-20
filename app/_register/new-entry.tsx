@@ -1,6 +1,6 @@
 "use client";
-import { useLanguage } from "../language";
-import { useState } from "react";
+
+import { useState, type FormEvent } from "react";
 import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
 import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
 import { Title } from "@ui5/webcomponents-react/Title";
@@ -8,10 +8,6 @@ import { Text } from "@ui5/webcomponents-react/Text";
 import { Button } from "@ui5/webcomponents-react/Button";
 import { Input } from "@ui5/webcomponents-react/Input";
 import { Label } from "@ui5/webcomponents-react/Label";
-import { Select } from "@ui5/webcomponents-react/Select";
-import { Option } from "@ui5/webcomponents-react/Option";
-import { TextArea } from "@ui5/webcomponents-react/TextArea";
-import { CheckBox } from "@ui5/webcomponents-react/CheckBox";
 import { Link } from "@ui5/webcomponents-react/Link";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
 import { Table } from "@ui5/webcomponents-react/Table";
@@ -19,150 +15,155 @@ import { TableHeaderRow } from "@ui5/webcomponents-react/TableHeaderRow";
 import { TableHeaderCell } from "@ui5/webcomponents-react/TableHeaderCell";
 import { TableRow } from "@ui5/webcomponents-react/TableRow";
 import { TableCell } from "@ui5/webcomponents-react/TableCell";
-import { GTS_SAMPLE, SANCTIONS_LISTS } from "../../lib/register/mock-data";
-import { STEP_ORDER, STEP_DEFS, SCG_STEPS } from "../../lib/register/workflow";
-import type { BlockedPartner, Tenant } from "../../lib/register/types";
+import { GTS_DEMO_IDS, type GtsPartner } from "../../lib/register/gts";
+import { useLanguage } from "../language";
+import { loadGtsDraft } from "./actions";
 import { useRegister } from "./store";
 import { Section } from "./ui";
 
 export function RegisterNewEntry() {
   const { t } = useLanguage();
-  const { addPartner, open, currentUser } = useRegister();
-  const [filled, setFilled] = useState(false);
-  const [tenants, setTenants] = useState<Tenant[] | null>(null);
-  const [list, setList] = useState(GTS_SAMPLE.list);
-  const [reference, setReference] = useState("");
-  const [sr, setSr] = useState(false);
-  const [other, setOther] = useState(false);
-  const [specialComment, setSpecialComment] = useState("");
-  const [comment, setComment] = useState("");
+  const { addPartnerFromGts, open } = useRegister();
+  const [bpId, setBpId] = useState("");
+  const [draft, setDraft] = useState<GtsPartner | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const g = filled ? GTS_SAMPLE : null;
+  function changeId(value: string) {
+    setBpId(value);
+    setDraft(null);
+    setError("");
+  }
 
-  const create = async () => {
-    if (!g) { setError("Bitte zuerst die Daten aus GTS übernehmen (im Prototyp simuliert)."); return; }
-    const now = new Date().toISOString();
-    const partner: BlockedPartner = {
-      id: `neu-${Date.now()}`, bpId: g.bpId, erpId: g.erpId, name: g.name, country: g.country, ets: g.ets,
-      sanctionsList: list, listReference: reference || undefined, gtsBlockedAt: now, enteredBy: currentUser,
-      decision: "pending", cloudCustomer: !!tenants?.length, tenants: tenants ?? [],
-      specialCategory: sr ? "SR" : other ? "Sonstige" : null, specialComment: specialComment || undefined,
-      comment: comment || "Keine Anmerkungen.", completed: {},
-      audit: [
-        { at: now, by: `${currentUser} (EC Member 1)`, text: "In SAP GTS gesperrt (simuliert)" },
-        { at: now, by: t("System"), text: "Datensatz im Register angelegt" },
-      ],
-    };
-    const id = await addPartner(partner);
-    if (id) open("rg-detail", id);
-  };
+  async function lookup(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const id = bpId.trim();
+    if (!id || loading || saving) return;
+    setDraft(null);
+    setError("");
+    setLoading(true);
+    try {
+      const result = await loadGtsDraft(id);
+      if (result.data) setDraft(result.data);
+      else setError(result.error);
+    } catch {
+      setError("GTS-Daten konnten nicht geladen werden. Bitte versuche es erneut.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function create() {
+    if (!draft || saving) return;
+    setSaving(true);
+    try {
+      const id = await addPartnerFromGts(draft.bpId);
+      if (id) open("rg-detail", id);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return <DynamicPage hidePinButton className="app-page"
     titleArea={<DynamicPageTitle breadcrumbs={<Link accessibleRole="Button" onClick={() => open("rg-register")}>{t("Register")}</Link>}
       heading={<Title level="H1" size="H3">{t("Neuer Datensatz aus GTS")}</Title>}
-      subheading={<Text>{t("Zielbild: entsteht automatisch, sobald EC Member 1 in SAP GTS sperrt. Im Prototyp von Hand.")}</Text>} />}>
-    <div className="rg-page">
-      <MessageStrip hideCloseButton design="Information">
-        {t("Im Prototyp werden die GTS-Daten simuliert. Der Button füllt einen erfundenen Beispieldatensatz ein.")}{" "}
-        <Button design="Transparent" onClick={() => { setFilled(true); setError(""); }}>{t("Aus GTS übernehmen (simuliert)")}</Button>
-      </MessageStrip>
-      {error && <MessageStrip design="Negative" onClose={() => setError("")}>{t(error)}</MessageStrip>}
-
-      <div className="rg-detail-grid">
-        <div className="rg-detail-main">
-          <Section title={t("1 Geschäftspartner (aus GTS)")}>
-            <div className="rg-form-grid">
-              <ReadOnly id="f-bp" label={t("Business-Partner-ID")} value={g?.bpId} />
-              <ReadOnly id="f-name" label={t("Name")} value={g?.name} />
-              <ReadOnly id="f-erp" label={t("ERP-ID")} value={g?.erpId} />
-              <ReadOnly id="f-land" label={t("Land")} value={g?.country} />
-              <ReadOnly id="f-date" label={t("Gesperrt in GTS am")} value={g ? t("beim Anlegen") : undefined} />
-              <ReadOnly id="f-ec1" label={t("Gesperrt von (EC Member 1)")} value={g ? currentUser : undefined} />
-            </div>
-          </Section>
-
-          <Section title={t("2 Sanktion")} sub={t("Der Listentyp bestimmt die Kategorie, z. B. US-SDN-Liste ergibt ETS4. Kunden aus Russland kommen automatisch in ETS6.")}>
-            <div className="rg-form-grid">
-              <ReadOnly id="f-ets" label={t("ETS-Kategorie (aus GTS)")} value={g?.ets} />
-              <div className="rg-field">
-                <Label for="f-list" required>{t("Sanktionsliste")}</Label>
-                <Select id="f-list" value={list} onChange={(e) => setList(e.target.value)}>
-                  {SANCTIONS_LISTS.map((l) => <Option key={l} value={l}>{t(l)}</Option>)}
-                </Select>
-                <Text className="rg-muted">{t("Auswahlliste, pflegbar durch berechtigte Nutzer")}</Text>
-              </div>
-              <div className="rg-field">
-                <Label for="f-ref">{t("Referenz auf Listeneintrag")}</Label>
-                <Input id="f-ref" value={reference} placeholder={t("[Referenz aus der Sanktionsliste]")} onInput={(e) => setReference(e.target.value)} />
-              </div>
-            </div>
-          </Section>
-
-          <Section title={t("3 Cloud-Kunde")} sub={t("Ob der Kunde Cloud-Produkte nutzt, kommt im Zielbild aus einem SAP-System. Welches System, ist noch mit SAP zu klären.")}
-            actions={<Button disabled={!g} onClick={() => setTenants(GTS_SAMPLE.tenants)}>{t("Cloud-Status prüfen (simuliert)")}</Button>}>
-            {tenants && <>
-              <Text className="rg-strong">{t("Cloud-Kunde: Ja ·")} {tenants.length} Tenants</Text>
-              <Table accessibleName={t("Gefundene Tenants")} overflowMode="Popin"
-                headerRow={<TableHeaderRow><TableHeaderCell>Line of Business</TableHeaderCell><TableHeaderCell>{t("Produkt")}</TableHeaderCell><TableHeaderCell>{t("Tenant-ID")}</TableHeaderCell></TableHeaderRow>}>
-                {tenants.map((t) => <TableRow key={t.tenantId} rowKey={t.tenantId}>
-                  <TableCell><Text>{t.lob}</Text></TableCell><TableCell><Text>{t.product}</Text></TableCell><TableCell><Text>{t.tenantId}</Text></TableCell>
-                </TableRow>)}
-              </Table>
-            </>}
-          </Section>
-
-          <Section title={t("4 Sonderkategorie")} sub={t("SR-Kunden bekommen eine eigene Kachel im Dashboard. Bedeutung von SR mit SAP bestätigen.")}>
-            <div className="rg-actions">
-              <CheckBox text={t("SR-Kunde")} checked={sr} onChange={(e) => setSr(e.target.checked)} />
-              <CheckBox text={t("Sonstige Sonderkategorie")} checked={other} onChange={(e) => setOther(e.target.checked)} />
-            </div>
-            <div className="rg-field">
-              <Label for="f-special">{t("Kommentar zur Sonderkategorie")}</Label>
-              <Input id="f-special" value={specialComment} onInput={(e) => setSpecialComment(e.target.value)} />
-            </div>
-          </Section>
-
-          <Section title={t("5 Kommentar")}>
-            <div className="rg-field">
-              <Label for="f-comment">{t("Begründung, Verlauf, Besonderheiten")}</Label>
-              <TextArea id="f-comment" rows={4} value={comment} onInput={(e) => setComment(e.target.value)} />
-            </div>
-          </Section>
-
-          <div className="rg-actions rg-actions-end">
-            <Button design="Transparent" onClick={() => open("rg-register")}>{t("Abbrechen")}</Button>
-            <Button design="Emphasized" onClick={create}>{t("Datensatz anlegen, zur Freigabe")}</Button>
+      subheading={<Text>{t("Suche den Geschäftspartner anhand seiner ID und prüfe die Daten vor dem Anlegen.")}</Text>} />}>
+    <div className="rg-page rg-narrow rg-gts-page">
+      <Section title={t("Geschäftspartner suchen")}>
+        <form onSubmit={lookup} className="rg-gts-lookup" aria-busy={loading}>
+          <div className="rg-field">
+            <Label for="f-bp" required>{t("Business-Partner-ID")}</Label>
+            <Input id="f-bp" value={bpId} required maxlength={100} disabled={loading || saving}
+              accessibleName={t("Business-Partner-ID")} valueState={error ? "Negative" : "None"}
+              onInput={(event) => changeId(event.target.value)} />
           </div>
+          <Button type="Submit" design={draft ? "Default" : "Emphasized"} disabled={!bpId.trim() || loading || saving}>
+            {t(loading ? "GTS-Daten werden geladen …" : "GTS-Daten laden")}
+          </Button>
+        </form>
+        <div className="rg-actions">
+          <Text className="rg-muted">{t("Simulierter Abruf · Beispiel-IDs")}</Text>
+          {GTS_DEMO_IDS.map((id) => <Button key={id} design="Transparent" disabled={loading || saving}
+            onClick={() => changeId(id)}>{id}</Button>)}
         </div>
+        {error && <MessageStrip hideCloseButton design="Negative">{t(error)}</MessageStrip>}
+      </Section>
 
-        <aside className="rg-detail-side">
-          <Section title={t("Sperrschritte nach der Freigabe")}>
-            <ol className="rg-mini-steps">
-              {STEP_ORDER.map((key, i) => <li key={key}>
-                <span className="rg-step-nr" aria-hidden="true">{i + 3}</span>
-                <div><Text className="rg-strong">{t(STEP_DEFS[key].label)}</Text><br /><Text className="rg-muted">{key === "scg" ? SCG_STEPS.map((step) => t(STEP_DEFS[step].label)).join(" · ") : t(STEP_DEFS[key].system)}</Text></div>
-              </li>)}
-            </ol>
-          </Section>
-          <Section title={t("So geht es weiter")}>
-            <ol className="rg-plain-list">
-              <li>{t("Datensatz zählt auf der Dashboard-Kachel „Zur Freigabe“, keine E-Mail")}</li>
-              <li>{t("EC Member 2 entscheidet: freigeben, sanktioniert ohne Sperre oder ablehnen")}</li>
-              <li>{t("Bei Freigabe laufen die Sperrschritte, jeder meldet seinen Status ins Register")}</li>
-              <li>{t("E-Mail unter „Benachrichtigungen“ vorbereiten")}</li>
-            </ol>
-          </Section>
-        </aside>
+      {draft && <GtsPreview partner={draft} />}
+
+      <div className="rg-gts-footer">
+        {draft && <Text className="rg-muted">{t("Nach dem Anlegen geht der Fall zur Vier-Augen-Freigabe.")}</Text>}
+        <div className="rg-actions rg-actions-end">
+          <Button design="Transparent" disabled={saving} onClick={() => open("rg-register")}>{t("Abbrechen")}</Button>
+          {draft && <Button design="Emphasized" disabled={saving || loading} onClick={create}>
+            {t("Datensatz anlegen, zur Freigabe")}
+          </Button>}
+        </div>
       </div>
     </div>
   </DynamicPage>;
 }
 
-function ReadOnly({ id, label, value }: { id: string; label: string; value?: string }) {
-  const { t } = useLanguage();
-  return <div className="rg-field">
-    <Label for={id}>{label}</Label>
-    <Input id={id} readonly value={value ?? ""} placeholder={t("aus GTS")} />
-  </div>;
+function GtsPreview({ partner }: { partner: GtsPartner }) {
+  const { t, date, dateTime } = useLanguage();
+  const { currentUser } = useRegister();
+  const missing = t("Nicht angegeben");
+  const yesNo = (value: boolean | null | undefined) => value == null ? missing : t(value ? "Ja" : "Nein");
+
+  return <>
+    <div className="rg-gts-heading">
+      <Title level="H2" size="H4">{t("Vorschau der GTS-Daten")}</Title>
+      <Text className="rg-muted">{t("Die simuliert übernommenen Daten sind schreibgeschützt.")}</Text>
+    </div>
+
+    <div className="rg-gts-columns">
+      <Section title={t("Geschäftspartner")}>
+        <Facts fields={[
+          [t("Name"), partner.name],
+          [t("Business-Partner-ID"), partner.bpId],
+          [t("ERP-ID"), partner.erpId],
+          [t("Land"), t(partner.country)],
+          [t("Region"), partner.region || missing],
+          [t("Gesperrt in GTS am"), partner.gtsDateOnly ? date(partner.gtsBlockedAt) : dateTime(partner.gtsBlockedAt)],
+          [t("Erfasst von"), currentUser],
+        ]} />
+      </Section>
+      <Section title={t("Sanktionsdaten")}>
+        <Facts fields={[
+          [t("ETS-Kategorie"), partner.ets],
+          [t("Sanktionsliste"), t(partner.sanctionsList)],
+          [t("Referenz auf Listeneintrag"), partner.listReference || missing],
+          ["SPL", yesNo(partner.spl)],
+          ["RU IT Consultancy Ban", yesNo(partner.ruItConsultancyBan)],
+          [t("Ukraine Crisis"), yesNo(partner.ukraineCrisis)],
+          [t("Sonderkategorie"), partner.specialCategory ? t(partner.specialCategory) : t("keine")],
+          [t("Kommentar zur Sonderkategorie"), partner.specialComment ? t(partner.specialComment) : missing],
+          [t("Kommentar"), partner.comment || missing],
+        ]} />
+      </Section>
+    </div>
+
+    <Section title={t("Cloud-Nutzung")}>
+      <Facts fields={[[t("Cloud-Kunde"), yesNo(partner.cloudCustomer)]]} />
+      {partner.tenants.length > 0 && <Table accessibleName={t("Gefundene Tenants")} overflowMode="Popin"
+        headerRow={<TableHeaderRow>
+          <TableHeaderCell>Line of Business</TableHeaderCell>
+          <TableHeaderCell importance={1}>{t("Produkt")}</TableHeaderCell>
+          <TableHeaderCell>{t("Tenant-ID")}</TableHeaderCell>
+        </TableHeaderRow>}>
+        {partner.tenants.map((tenant) => <TableRow key={tenant.tenantId} rowKey={tenant.tenantId}>
+          <TableCell><Text>{tenant.lob}</Text></TableCell>
+          <TableCell><Text>{tenant.product}</Text></TableCell>
+          <TableCell><Text>{tenant.tenantId}</Text></TableCell>
+        </TableRow>)}
+      </Table>}
+    </Section>
+  </>;
+}
+
+function Facts({ fields }: { fields: [string, string][] }) {
+  return <dl className="rg-facts">
+    {fields.map(([label, value]) => <div className="rg-gts-fact" key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+  </dl>;
 }

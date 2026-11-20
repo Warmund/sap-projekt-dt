@@ -442,6 +442,21 @@ const english: Record<string, string> = {
   "Export Kontrolle": "Export Control",
   "Deine Gruppe hat keine Berechtigung für diese Aktion.": "Your group does not have permission for this action.",
   "Anwendung wird geladen": "Loading application",
+  "Suche den Geschäftspartner anhand seiner ID und prüfe die Daten vor dem Anlegen.": "Find the business partner by ID and review the data before creating the record.",
+  "Geschäftspartner suchen": "Find business partner",
+  "GTS-Daten laden": "Load GTS data",
+  "GTS-Daten werden geladen …": "Loading GTS data…",
+  "Simulierter Abruf · Beispiel-IDs": "Simulated lookup · Sample IDs",
+  "Gib eine Business Partner ID ein.": "Enter a business partner ID.",
+  "Für diese Business Partner ID sind keine Demo-Daten verfügbar.": "No demo data is available for this business partner ID.",
+  "Diese Business Partner ID ist bereits im Register.": "This business partner ID is already in the register.",
+  "GTS-Daten konnten nicht geladen werden. Bitte versuche es erneut.": "Could not load GTS data. Please try again.",
+  "Nach dem Anlegen geht der Fall zur Vier-Augen-Freigabe.": "The case goes to four-eyes approval after creation.",
+  "Vorschau der GTS-Daten": "GTS data preview",
+  "Die simuliert übernommenen Daten sind schreibgeschützt.": "The simulated GTS data is read-only.",
+  "Sanktionsdaten": "Sanctions data",
+  "Cloud-Nutzung": "Cloud usage",
+  "Demo-Sonderkategorie": "Demo special category",
   "Überblick": "Overview"
 };
 

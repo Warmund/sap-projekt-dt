@@ -110,7 +110,6 @@ export function mockContacts(): CountryContact[] {
   ];
 }
 
-export const SANCTIONS_LISTS = ["US-SDN-Liste", "EU-Sanktionsliste", "UK-HMT-Liste", "UN-Sanktionsliste", "US-Sanktionsprogramm", "Länderentscheidung SAP", "Embargoland", "Untersuchung"];
 
 export const ETS_INFO: Record<EtsCategory, string> = {
   ETS1: "Land oder Region nicht erlaubt",
@@ -120,13 +119,4 @@ export const ETS_INFO: Record<EtsCategory, string> = {
   ETS4: "Auf Sanktionsliste",
   ETS5: "Handelsbeschränkungen, Freigabe unter Auflagen",
   ETS6: "Kritisches Land, z. B. Russland",
-};
-
-/** Beispieldatensatz für die simulierte Übernahme aus GTS. */
-export const GTS_SAMPLE = {
-  name: "Seidenstraße Components Co., Ltd.", country: "China", ets: "ETS4" as EtsCategory, list: "US-SDN-Liste", erpId: "4912-CN", bpId: "1000611",
-  tenants: [
-    { lob: "SuccessFactors", product: "Employee Central", tenantId: "TEN-9921", ticket: "noch nicht angelegt" },
-    { lob: "Cloud ERP", product: "S/4HANA Cloud", tenantId: "TEN-9930", ticket: "noch nicht angelegt" },
-  ],
 };

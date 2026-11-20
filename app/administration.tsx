@@ -32,7 +32,7 @@ export function Administration({ view, canEdit, currentUserId, onSelect }: {
       <Tab text={t("Sperrfälle")} data-key="admin-imports" selected={view === "admin-imports"}>
         <div className="rg-page">
           <Section title={t("Geschäftspartner und Sperrfälle")}
-            actions={canEdit && <Button onClick={() => open("rg-new")}>{t("Datensatz manuell erfassen")}</Button>}>
+            actions={canEdit && <Button onClick={() => open("rg-new")}>{t("Neuer Datensatz aus GTS")}</Button>}>
             <Text>{t("Geplanter Import aus einem Datenprodukt für SAP GTS. Benötigt werden Geschäftspartner-ID, Sperrdatum, ETS-Kategorie und Sanktionsliste. Bis zur Anbindung stehen der CSV-Import und die simulierte Erfassung zur Verfügung.")}</Text>
           </Section>
         </div>
