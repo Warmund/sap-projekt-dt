@@ -25,7 +25,7 @@ type RegisterState = {
   completeStep: (id: string, step: StepKey, result?: string) => Promise<boolean>;
   confirmNotifications: (customers: { id: string; version: number }[]) => Promise<boolean>;
   addPartnerFromGts: (bpId: string, tagIds: string[]) => Promise<string | undefined>;
-  createTag: (name: string) => Promise<boolean>;
+  createTag: (name: string) => Promise<{ id: string; name: string } | undefined>;
   setTags: (id: string, tagIds: string[]) => Promise<boolean>;
   updateContact: (c: CountryContact) => Promise<boolean>;
   reset: () => Promise<void>;
@@ -64,7 +64,7 @@ export function RegisterProvider({ children, currentUser, role, onNavigate, init
       const fresh = await run({ kind: "createFromGts", bpId, tagIds });
       return fresh?.partners.find((p) => p.bpId === bpId)?.id;
     },
-    createTag: async (name) => !!await run({ kind: "createTag", name }),
+    createTag: async (name) => (await run({ kind: "createTag", name }))?.tags.find((tag) => tag.name === name.trim()),
     setTags: async (id, tagIds) => !!await run({ kind: "setTags", id, version: version(id), tagIds }),
     updateContact: async (contact) => !!await run({ kind: "contact", contact }),
     reset: async () => {

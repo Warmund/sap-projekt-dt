@@ -2,6 +2,9 @@
 import { translateAudit, translateStepResult } from "../../lib/i18n/messages";
 import { canEditWorkspace } from "../../lib/roles";
 import { useLanguage } from "../language";
+import { Tab } from "@ui5/webcomponents-react/Tab";
+import { TabContainer } from "@ui5/webcomponents-react/TabContainer";
+import { TagPicker } from "./tag-picker";
 import { useState } from "react";
 import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
 import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
@@ -28,7 +31,8 @@ import { Section, StatusBadge, StepBadge } from "./ui";
 
 export function RegisterDetail() {
   const { t, date, dateTime } = useLanguage();
-  const { selected: p, role, decide, open, reset } = useRegister();
+  const { selected: p, role, decide, open, reset, setTags } = useRegister();
+  const [tab, setTab] = useState<"workflow" | "master">("workflow");
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState(false);
 
@@ -49,35 +53,35 @@ export function RegisterDetail() {
       breadcrumbs={<Link accessibleRole="Button" onClick={() => open("rg-register")}>{t("Register")}</Link>}
       heading={<div className="rg-title-row"><Title level="H1" size="H3">{p.name}</Title><StatusBadge status={status} />{p.cloudCustomer && <StatusBadgeCloud />}</div>}
       subheading={<Text>{t("BP")} {p.bpId} · {t(p.country)} · {p.ets} · {(p.sanctionsLists ?? [p.sanctionsList]).map((value) => t(value)).join(", ")} {t("· in GTS gesperrt am")} {p.gtsDateOnly ? date(p.gtsBlockedAt) : dateTime(p.gtsBlockedAt)}</Text>} />}>
-    <div className="rg-page">
-      <div className="rg-actions">
-        <Button onClick={reset}>{t("Daten neu laden")}</Button>
-      </div>
-      {p.decision === "pending" && canEditWorkspace(role) && <section className="rg-approval" aria-labelledby="rg-approval-title">
-        <div className="rg-approval-text">
-          <Title id="rg-approval-title" level="H2" size="H5">{t("Vier-Augen-Freigabe durch EC Member 2")}</Title>
-          <Text>{t("Erfasst von")} {p.enteredBy} {t("(EC Member 1). Mit der Freigabe starten die Sperrschritte.")}</Text>
-          <Label for="rg-decision-comment" required={commentError}>{t("Kommentar zur Entscheidung")}</Label>
-          <Input id="rg-decision-comment" value={comment} valueState={commentError ? "Negative" : "None"}
-            placeholder={t("z. B. nur Zahlungsbeschränkungen, keine Sperre nötig")} onInput={(e) => { setComment(e.target.value); setCommentError(false); }} />
-          <Text className="rg-muted">{t("Bei „Sanktioniert ohne Sperre“ und „Ablehnen“ ist ein Kommentar erforderlich.")}</Text>
-          {commentError && <MessageStrip design="Negative" hideCloseButton>{t("Gib einen Kommentar ein und wähle die Entscheidung erneut.")}</MessageStrip>}
-        </div>
-        <div className="rg-approval-buttons">
-          <Button design="Positive" onClick={() => submit("approved")}>{t("Freigeben, Sperrschritte starten")}</Button>
-          <Button design="Attention" onClick={() => submit("sanctionedNoBlock")}>{t("Sanktioniert ohne Sperre")}</Button>
-          <Button design="Negative" onClick={() => submit("declined")}>{t("Ablehnen")}</Button>
-        </div>
-      </section>}
-      {p.decision === "sanctionedNoBlock" && <MessageStrip hideCloseButton design="Critical">
-        {t("Sanktioniert ohne Sperre: Der Kunde bleibt im Register unter „Sanktioniert ohne Sperre“ sichtbar. Es laufen keine Sperrschritte.")}
-      </MessageStrip>}
-      {p.decision === "declined" && <MessageStrip hideCloseButton design="Information">
-        {t("Abgelehnt: keine Sperrschritte. Die Entscheidung steht nur im Audit-Trail (Umgang mit SAP final klären).")}
-      </MessageStrip>}
+    <TabContainer onTabSelect={({ detail }) => setTab(detail.tab.dataset.key === "master" ? "master" : "workflow")}>
+      <Tab text={t("Sperrablauf")} data-key="workflow" selected={tab === "workflow"}>
+        {tab === "workflow" && <div className="rg-page">
+          <div className="rg-actions">
+            <Button onClick={reset}>{t("Daten neu laden")}</Button>
+          </div>
+          {p.decision === "pending" && canEditWorkspace(role) && <section className="rg-approval" aria-labelledby="rg-approval-title">
+            <div className="rg-approval-text">
+              <Title id="rg-approval-title" level="H2" size="H5">{t("Vier-Augen-Freigabe durch EC Member 2")}</Title>
+              <Text>{t("Erfasst von")} {p.enteredBy} {t("(EC Member 1). Mit der Freigabe starten die Sperrschritte.")}</Text>
+              <Label for="rg-decision-comment" required={commentError}>{t("Kommentar zur Entscheidung")}</Label>
+              <Input id="rg-decision-comment" value={comment} valueState={commentError ? "Negative" : "None"}
+                placeholder={t("z. B. nur Zahlungsbeschränkungen, keine Sperre nötig")} onInput={(e) => { setComment(e.target.value); setCommentError(false); }} />
+              <Text className="rg-muted">{t("Bei „Sanktioniert ohne Sperre“ und „Ablehnen“ ist ein Kommentar erforderlich.")}</Text>
+              {commentError && <MessageStrip design="Negative" hideCloseButton>{t("Gib einen Kommentar ein und wähle die Entscheidung erneut.")}</MessageStrip>}
+            </div>
+            <div className="rg-approval-buttons">
+              <Button design="Positive" onClick={() => submit("approved")}>{t("Freigeben, Sperrschritte starten")}</Button>
+              <Button design="Attention" onClick={() => submit("sanctionedNoBlock")}>{t("Sanktioniert ohne Sperre")}</Button>
+              <Button design="Negative" onClick={() => submit("declined")}>{t("Ablehnen")}</Button>
+            </div>
+          </section>}
+          {p.decision === "sanctionedNoBlock" && <MessageStrip hideCloseButton design="Critical">
+            {t("Sanktioniert ohne Sperre: Der Kunde bleibt im Register unter „Sanktioniert ohne Sperre“ sichtbar. Es laufen keine Sperrschritte.")}
+          </MessageStrip>}
+          {p.decision === "declined" && <MessageStrip hideCloseButton design="Information">
+            {t("Abgelehnt: keine Sperrschritte. Die Entscheidung steht nur im Audit-Trail (Umgang mit SAP final klären).")}
+          </MessageStrip>}
 
-      <div className="rg-detail-grid">
-        <div className="rg-detail-main">
           <Section title={t("Sperrschritte mit Status")}
             actions={<>
               <Text className="rg-muted">{p.decision === "approved" ? t("{0} von {1} erledigt", pr.done, pr.total) : p.decision === "pending" ? t("starten nach der Freigabe") : t("keine Sperrschritte")}</Text>
@@ -105,6 +109,43 @@ export function RegisterDetail() {
             </ol>
           </Section>
 
+          <Section title={t("Freigabe-Nachweis")}>
+            <dl className="rg-facts">
+              <dt>EC Member 1</dt><dd>{p.enteredBy} · {p.gtsDateOnly ? date(p.gtsBlockedAt) : dateTime(p.gtsBlockedAt)} (GTS)</dd>
+              <dt>EC Member 2</dt><dd>{p.decidedBy ? `${p.decidedBy} · ${dateTime(p.decidedAt!)}` : t("offen")}</dd>
+              <dt>{t("Entscheidung")}</dt><dd>{decisionText(p, t)}</dd>
+            </dl>
+          </Section>
+          <Section title={t("Verlauf (Audit-Trail)")}>
+            <Timeline accessibleName={t("Audit-Trail")}>
+              {[...p.audit].reverse().map((e, i) => <TimelineItem key={i} icon="history" titleText={translateAudit(e.text, t)} subtitleText={`${dateTime(e.at)} · ${t(e.by)}`} />)}
+            </Timeline>
+          </Section>
+        </div>}
+      </Tab>
+      <Tab text={t("Stammdaten")} data-key="master" selected={tab === "master"}>
+        {tab === "master" && <div className="rg-page">
+          <Section title="Tags">
+            <TagPicker key={p.id} ids={p.tags?.map((tag) => tag.id) ?? []}
+              onChange={canEditWorkspace(role) ? (ids) => setTags(p.id, ids) : undefined} />
+          </Section>
+          <Section title={t("Stammdaten")}>
+            <dl className="rg-facts">
+              <dt>{t("BP-ID (GTS)")}</dt><dd>{p.bpId}</dd>
+              <dt>{t("ERP-ID")}</dt><dd>{p.erpId}</dd>
+              <dt>{t("Land")}</dt><dd>{t(p.country)}</dd>
+              <dt>{t("ETS-Kategorie")}</dt><dd>{p.ets} ({t(ETS_INFO[p.ets])})</dd>
+              <dt>{t("Region")}</dt><dd>{p.region || t("Nicht angegeben")}</dd>
+              <dt>SPL</dt><dd>{p.spl == null ? t("Nicht angegeben") : p.spl ? t("Ja") : t("Nein")}</dd>
+              <dt>RU IT Consultancy Ban</dt><dd>{p.ruItConsultancyBan == null ? t("Nicht angegeben") : p.ruItConsultancyBan ? t("Ja") : t("Nein")}</dd>
+              <dt>{t("Ukraine Crisis")}</dt><dd>{p.ukraineCrisis == null ? t("Nicht angegeben") : p.ukraineCrisis ? t("Ja") : t("Nein")}</dd>
+              <dt>{t("Sanktionsliste")}</dt><dd>{(p.sanctionsLists ?? [p.sanctionsList]).map((value) => t(value)).join(", ")}</dd>
+              {p.listReference && <><dt>{t("Referenz auf Listeneintrag")}</dt><dd>{p.listReference}</dd></>}
+              <dt>{t("Cloud-Kunde")}</dt><dd>{p.cloudCustomer ? t("Ja, {0}", p.tenants.length ? t("{0} Tenants", p.tenants.length) : t("Tenant-Daten fehlen")) : t("Nein")}</dd>
+              {p.specialComment && <><dt>{t("Kommentar zur Sonderkategorie")}</dt><dd>{p.specialComment}</dd></>}
+              <dt>{t("Kommentar")}</dt><dd>{p.comment === "Keine Anmerkungen." ? t(p.comment) : p.comment}</dd>
+            </dl>
+          </Section>
           {p.cloudCustomer && <Section title={t("Cloud: zu sperrende Tenants")} sub={t("Quelle: [SAP-System, mit SAP klären]. Je LoB ein Ticket über einen einheitlichen Weg, die LoB bestätigt die Sperre im Register.")}>
             {!p.tenants.length && <MessageStrip hideCloseButton design="Critical">{t("Cloud-Kunde laut Quelldatei. Tenant-IDs, Produkte und LoB-Tickets sind noch nicht angegeben.")}</MessageStrip>}
             <Table accessibleName={t("Cloud-Tenants")} overflowMode="Popin"
@@ -121,42 +162,9 @@ export function RegisterDetail() {
             </Table>
           </Section>}
 
-        </div>
-
-        <aside className="rg-detail-side">
-          <Section title={t("Stammdaten")}>
-            <dl className="rg-facts">
-              <dt>{t("BP-ID (GTS)")}</dt><dd>{p.bpId}</dd>
-              <dt>{t("ERP-ID")}</dt><dd>{p.erpId}</dd>
-              <dt>{t("Land")}</dt><dd>{t(p.country)}</dd>
-              <dt>{t("ETS-Kategorie")}</dt><dd>{p.ets} ({t(ETS_INFO[p.ets])})</dd>
-              <dt>{t("Region")}</dt><dd>{p.region || t("Nicht angegeben")}</dd>
-              <dt>SPL</dt><dd>{p.spl == null ? t("Nicht angegeben") : p.spl ? t("Ja") : t("Nein")}</dd>
-              <dt>RU IT Consultancy Ban</dt><dd>{p.ruItConsultancyBan == null ? t("Nicht angegeben") : p.ruItConsultancyBan ? t("Ja") : t("Nein")}</dd>
-              <dt>{t("Ukraine Crisis")}</dt><dd>{p.ukraineCrisis == null ? t("Nicht angegeben") : p.ukraineCrisis ? t("Ja") : t("Nein")}</dd>
-              <dt>{t("Sanktionsliste")}</dt><dd>{(p.sanctionsLists ?? [p.sanctionsList]).map((value) => t(value)).join(", ")}</dd>
-              {p.listReference && <><dt>{t("Referenz auf Listeneintrag")}</dt><dd>{p.listReference}</dd></>}
-              <dt>{t("Cloud-Kunde")}</dt><dd>{p.cloudCustomer ? t("Ja, {0}", p.tenants.length ? t("{0} Tenants", p.tenants.length) : t("Tenant-Daten fehlen")) : t("Nein")}</dd>
-              <dt>Tags</dt><dd>{p.tags?.map((tag) => tag.name).join(", ") || t("keine")}</dd>
-              {p.specialComment && <><dt>{t("Kommentar zur Sonderkategorie")}</dt><dd>{p.specialComment}</dd></>}
-              <dt>{t("Kommentar")}</dt><dd>{p.comment === "Keine Anmerkungen." ? t(p.comment) : p.comment}</dd>
-            </dl>
-          </Section>
-          <Section title={t("Freigabe-Nachweis")}>
-            <dl className="rg-facts">
-              <dt>EC Member 1</dt><dd>{p.enteredBy} · {p.gtsDateOnly ? date(p.gtsBlockedAt) : dateTime(p.gtsBlockedAt)} (GTS)</dd>
-              <dt>EC Member 2</dt><dd>{p.decidedBy ? `${p.decidedBy} · ${dateTime(p.decidedAt!)}` : t("offen")}</dd>
-              <dt>{t("Entscheidung")}</dt><dd>{decisionText(p, t)}</dd>
-            </dl>
-          </Section>
-          <Section title={t("Verlauf (Audit-Trail)")}>
-            <Timeline accessibleName={t("Audit-Trail")}>
-              {[...p.audit].reverse().map((e, i) => <TimelineItem key={i} icon="history" titleText={translateAudit(e.text, t)} subtitleText={`${dateTime(e.at)} · ${t(e.by)}`} />)}
-            </Timeline>
-          </Section>
-        </aside>
-      </div>
-    </div>
+        </div>}
+      </Tab>
+    </TabContainer>
 
   </DynamicPage>;
 }

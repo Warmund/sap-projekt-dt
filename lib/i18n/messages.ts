@@ -466,6 +466,9 @@ const english: Record<string, string> = {
   "Ein ausgewähltes Tag existiert nicht mehr.": "A selected tag no longer exists.",
   "Ungültige Tag-Auswahl.": "Invalid tag selection.",
   "Tags aktualisiert": "Tags updated",
+  "Tags bearbeiten": "Edit tags",
+  "Keine Tags": "No tags",
+  "Sperrablauf": "Blocking workflow",
   "Überblick": "Overview"
 };
 

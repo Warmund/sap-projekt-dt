@@ -6,7 +6,6 @@ import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
 import { Title } from "@ui5/webcomponents-react/Title";
 import { Text } from "@ui5/webcomponents-react/Text";
 import { Button } from "@ui5/webcomponents-react/Button";
-import { CheckBox } from "@ui5/webcomponents-react/CheckBox";
 import { Input } from "@ui5/webcomponents-react/Input";
 import { Label } from "@ui5/webcomponents-react/Label";
 import { Link } from "@ui5/webcomponents-react/Link";
@@ -20,6 +19,7 @@ import { GTS_DEMO_IDS, type GtsPartner } from "../../lib/register/gts";
 import { useLanguage } from "../language";
 import { loadGtsDraft } from "./actions";
 import { useRegister } from "./store";
+import { TagPicker } from "./tag-picker";
 import { Section } from "./ui";
 
 export function RegisterNewEntry() {
@@ -99,10 +99,7 @@ export function RegisterNewEntry() {
       {draft && <>
         <GtsPreview partner={draft} />
         <Section title="Tags">
-          <div className="rg-actions">
-            {tags.map((tag) => <CheckBox key={tag.id} text={tag.name} checked={tagIds.includes(tag.id)} disabled={saving}
-              onChange={(event) => { const checked = event.target.checked; setTagIds((current) => checked ? [...current, tag.id] : current.filter((id) => id !== tag.id)); }} />)}
-          </div>
+          <TagPicker ids={tagIds} onChange={setTagIds} disabled={saving} />
         </Section>
       </>}
 

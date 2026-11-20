@@ -104,3 +104,6 @@ html[data-theme="dark"] .rg-bar-track { background: color-mix(in srgb, var(--sap
   .rg-gts-page { padding-inline: 0.75rem; }
   .rg-gts-page .rg-facts { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
 }
+
+.rg-tag-menu { display: grid; gap: 0.75rem; padding: 0.75rem; }
+.rg-tag-options { display: grid; max-height: 14rem; overflow-y: auto; }
