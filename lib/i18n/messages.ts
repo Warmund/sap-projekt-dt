@@ -432,6 +432,11 @@ const english: Record<string, string> = {
   "Wähle mindestens einen Kunden aus.": "Select at least one customer.",
   "Auswahl": "Selection",
   "{0} auswählen": "Select {0}",
+  "SCG inklusive BCG": "SCG including BCG",
+  "SCG inklusive BCG bestätigt": "SCG including BCG confirmed",
+  "SCG inklusive BCG manuell bearbeiten": "Handle SCG including BCG manually",
+  "Hier erscheinen freigegebene Kunden, deren E-Mail-Versand noch offen ist.": "Approved customers whose email is still pending appear here.",
+  "Partner Teams bestätigen hier die manuellen Sperrschritte.": "Partner Teams confirm the manual blocking steps here.",
   "Überblick": "Overview"
 };
 

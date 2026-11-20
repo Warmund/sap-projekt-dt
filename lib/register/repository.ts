@@ -1,6 +1,6 @@
 import { db } from "../db";
 import type { Prisma } from "../generated/prisma/client";
-import { advance, completeStep, decide, stepStatuses, STEP_DEFS, STEP_ORDER } from "./workflow";
+import { completeStep, decide, notificationPending, stepStatuses, STEP_DEFS, STEP_ORDER } from "./workflow";
 import type { BlockedPartner, CountryContact, Decision, StepKey } from "./types";
 
 export class RegisterError extends Error {}
@@ -35,7 +35,6 @@ export type RegisterCommand =
   | { kind: "create"; partner: BlockedPartner }
   | { kind: "decide"; id: string; version: number; decision: Exclude<Decision, "pending">; comment: string }
   | { kind: "complete"; id: string; version: number; step: StepKey; result?: string }
-  | { kind: "advance"; id: string; version: number }
   | { kind: "confirmNotifications"; customers: { id: string; version: number }[] }
   | { kind: "contact"; contact: CountryContact };
 
@@ -84,12 +83,12 @@ export async function changeRegister(command: RegisterCommand, actor: { id: stri
     }, { timeout: 30_000 });
     return;
   }
-  if (!["decide", "complete", "advance"].includes(command.kind)) throw new RegisterError("Unbekannte Registeraktion.");
+  if (!["decide", "complete"].includes(command.kind)) throw new RegisterError("Unbekannte Registeraktion.");
   if (command.kind === "complete" && command.step === "notify") throw new RegisterError("Bestätige den Versand unter „Benachrichtigungen“.");
   await db.$transaction((tx) => changePartner(tx, command, actor));
 }
 
-type PartnerCommand = Extract<RegisterCommand, { kind: "decide" | "complete" | "advance" }>;
+type PartnerCommand = Extract<RegisterCommand, { kind: "decide" | "complete" }>;
 
 async function changePartner(tx: Prisma.TransactionClient, command: PartnerCommand, actor: { id: string; name: string }) {
   const id = text(command.id);
@@ -105,19 +104,11 @@ async function changePartner(tx: Prisma.TransactionClient, command: PartnerComma
     if (p.decision !== "pending") throw new RegisterError("Dieser Datensatz wurde bereits entschieden.");
     next = decide(p, command.decision, actor.name, comment);
   } else {
-    if (command.kind === "complete") {
-      if (!STEP_ORDER.includes(command.step)) throw new RegisterError("Ungültiger Sperrschritt.");
-      if (stepStatuses(p)[command.step] !== "running") throw new RegisterError("Dieser Schritt ist noch nicht freigegeben oder bereits erledigt.");
-      if (command.step === "cloud" && !p.tenants.length) throw new RegisterError("Cloud-Tenants fehlen. Cloud-Sperre kann nicht als erledigt bestätigt werden.");
-      const result = text(command.result ?? STEP_DEFS[command.step].doneText, 2000);
-      next = completeStep(p, command.step, actor.name, result);
-    } else {
-      // The prototype simulation is recorded explicitly; it never operates external systems.
-      if (stepStatuses(p).notify === "running") throw new RegisterError("Bestätige den Versand unter „Benachrichtigungen“.");
-      if (stepStatuses(p).cloud === "running" && !p.tenants.length) throw new RegisterError("Cloud-Tenants fehlen; keine simulierte Cloud-Erledigung möglich.");
-      next = advance(p);
-      next.audit = next.audit.map((entry, i) => i < p.audit.length ? entry : { ...entry, by: actor.name, text: `SIMULIERT: ${entry.text}` });
-    }
+    if (!STEP_ORDER.includes(command.step)) throw new RegisterError("Ungültiger Sperrschritt.");
+    if (command.step === "notify" ? !notificationPending(p) : stepStatuses(p)[command.step] !== "running") throw new RegisterError("Dieser Schritt ist noch nicht freigegeben oder bereits erledigt.");
+    if (command.step === "cloud" && !p.tenants.length) throw new RegisterError("Cloud-Tenants fehlen. Cloud-Sperre kann nicht als erledigt bestätigt werden.");
+    const result = text(command.result ?? STEP_DEFS[command.step].doneText, 2000);
+    next = completeStep(p, command.step, actor.name, result);
   }
   const changed = await tx.registerPartner.updateMany({ where: { id, version: command.version }, data: {
     version: { increment: 1 }, decision: next.decision, decidedBy: next.decidedBy,
@@ -130,7 +121,7 @@ async function changePartner(tx: Prisma.TransactionClient, command: PartnerComma
     if (key === "notify") {
       await tx.registerStep.deleteMany({ where: { partnerId: id, key, result: { startsWith: "SIMULIERT: " } } });
     }
-    await tx.registerStep.create({ data: { partnerId: id, key, at: new Date(step.at), by: command.kind === "advance" ? actor.name : step.by, result: command.kind === "advance" ? `SIMULIERT: ${step.result}` : step.result } });
+    await tx.registerStep.create({ data: { partnerId: id, key, at: new Date(step.at), by: step.by, result: step.result } });
   }
   await tx.registerAudit.createMany({ data: next.audit.slice(p.audit.length).map((entry) => ({ partnerId: id, at: new Date(entry.at), by: entry.by, text: entry.text })) });
 }

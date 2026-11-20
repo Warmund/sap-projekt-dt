@@ -12,18 +12,16 @@ import { Select } from "@ui5/webcomponents-react/Select";
 import { Option } from "@ui5/webcomponents-react/Option";
 import { IllustratedMessage } from "@ui5/webcomponents-react/IllustratedMessage";
 import "@ui5/webcomponents-fiori/dist/illustrations/NoTasks.js";
-import { stepStatuses, STEP_DEFS, STEP_ORDER } from "../../lib/register/workflow";
+import { stepStatuses, STEP_DEFS, MANUAL_STEPS } from "../../lib/register/workflow";
 import type { StepKey } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { StepBadge } from "./ui";
-
-const TASK_STEPS = STEP_ORDER.filter((key) => key !== "suser" && key !== "notify");
 
 /** Sicht einer Nachbarabteilung: nur eigene Schritte, nur Erledigung bestätigen. */
 export function RegisterTasks() {
   const { t, date } = useLanguage();
   const { partners, completeStep, open } = useRegister();
-  const [team, setTeam] = useState<StepKey>("cloud");
+  const [team, setTeam] = useState<StepKey>("scg");
 
   const tasks = partners
     .filter((p) => p.decision === "approved")
@@ -32,14 +30,14 @@ export function RegisterTasks() {
 
   return <DynamicPage hidePinButton className="app-page"
     titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">{t("Meine Sperrschritte")}</Title>}
-      subheading={<Text>{t("Sicht einer Nachbarabteilung ·")} {t(STEP_DEFS[team].team)}</Text>} />}>
+      subheading={<Text>{t(STEP_DEFS[team].team)}</Text>} />}>
     <div className="rg-page rg-narrow">
       <MessageStrip hideCloseButton design="Information">
-        {t("Eingeschränkte Rolle: Nachbarabteilungen sehen nur ihre eigenen Schritte und bestätigen deren Erledigung. Stammdaten, Freigaben und Schritte anderer Teams sind nicht änderbar.")}
+        {t("Partner Teams bestätigen hier die manuellen Sperrschritte.")}
       </MessageStrip>
       <Select accessibleName={t("Sperrschritt (Demo)")} value={team}
         onChange={(event) => setTeam(event.target.value as StepKey)}>
-        {TASK_STEPS.map((step) => <Option key={step} value={step}>{t(STEP_DEFS[step].label)}</Option>)}
+        {MANUAL_STEPS.map((step) => <Option key={step} value={step}>{t(STEP_DEFS[step].label)}</Option>)}
       </Select>
 
       {tasks.length === 0
@@ -52,7 +50,7 @@ export function RegisterTasks() {
           </div>
           {status === "running" && <div className="rg-actions">
             <Button design="Transparent">{t("Rückfrage an Export Control")}</Button>
-            <Button design="Positive" onClick={() => completeStep(p.id, team)}>{t(team === "ticketsShn" ? "Ticketprüfung und SHN bestätigen" : "Erledigung bestätigen")}</Button>
+            <Button design="Positive" onClick={() => completeStep(p.id, team)}>{t("Erledigung bestätigen")}</Button>
           </div>}
         </article>)}
 

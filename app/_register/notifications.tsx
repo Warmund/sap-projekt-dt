@@ -14,7 +14,7 @@ import { TableHeaderRow } from "@ui5/webcomponents-react/TableHeaderRow";
 import { TableRow } from "@ui5/webcomponents-react/TableRow";
 import { Text } from "@ui5/webcomponents-react/Text";
 import { Title } from "@ui5/webcomponents-react/Title";
-import { stepStatuses } from "../../lib/register/workflow";
+import { notificationPending } from "../../lib/register/workflow";
 import { useLanguage } from "../language";
 import { useRegister } from "./store";
 import { Section } from "./ui";
@@ -36,7 +36,7 @@ export function RegisterNotifications() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [confirmError, setConfirmError] = useState(false);
-  const open = partners.filter((p) => stepStatuses(p).notify === "running");
+  const open = partners.filter(notificationPending);
   const selected = open.filter((p) => selectedIds.has(p.id));
 
   function toggleCustomer(id: string) {
@@ -79,7 +79,7 @@ export function RegisterNotifications() {
     titleArea={<DynamicPageTitle heading={<Title level="H1" size="H3">{t("Benachrichtigungen")}</Title>} />}>
     <div className="rg-page">
       <Section title={t("Kunden mit offener Benachrichtigung")}
-        sub={t("Hier erscheinen Kunden, sobald der Benachrichtigungsschritt an der Reihe ist.")}
+        sub={t("Hier erscheinen freigegebene Kunden, deren E-Mail-Versand noch offen ist.")}
         actions={<Button design="Transparent" onClick={reset}>{t("Daten aktualisieren")}</Button>}>
         <Table accessibleName={t("Kunden mit offener Benachrichtigung")} overflowMode="Popin"
           noDataText={t("Keine Kunden zur Benachrichtigung.")}

@@ -95,7 +95,7 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
         <SideNavigationGroup text={t("Sanktionsregister")} expanded>
           <SideNavigationItem text={t("Register")} icon="list" data-key="rg-register" selected={view === "rg-register" || view === "rg-detail"} />
           <SideNavigationItem text={t("Benachrichtigungen")} icon="email" data-key="rg-notifications" selected={view === "rg-notifications"} />
-          <SideNavigationItem text={t("Nachbarabteilung")} icon="people-connected" data-key="rg-tasks" selected={view === "rg-tasks"} />
+          <SideNavigationItem text="Partner Teams" icon="people-connected" data-key="rg-tasks" selected={view === "rg-tasks"} />
           <SideNavigationItem text={t("Länder-Kontakte")} icon="contacts" data-key="rg-contacts" selected={view === "rg-contacts"} />
         </SideNavigationGroup>
         <SideNavigationGroup text="Administration" expanded>

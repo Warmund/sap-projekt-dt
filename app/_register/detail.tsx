@@ -20,14 +20,14 @@ import { TableRow } from "@ui5/webcomponents-react/TableRow";
 import { TableCell } from "@ui5/webcomponents-react/TableCell";
 import "@ui5/webcomponents-icons/dist/history.js";
 import { ETS_INFO } from "../../lib/register/mock-data";
-import { STEP_ORDER, progress, overallStatus, stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
+import { AUTO_RESULT, isManualStep, STEP_ORDER, progress, overallStatus, stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
 import type { BlockedPartner } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { Section, StatusBadge, StepBadge } from "./ui";
 
 export function RegisterDetail() {
   const { t, date, dateTime } = useLanguage();
-  const { selected: p, decide, advance, open, reset } = useRegister();
+  const { selected: p, decide, open, reset } = useRegister();
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState(false);
 
@@ -36,7 +36,6 @@ export function RegisterDetail() {
   const status = overallStatus(p);
   const st = stepStatuses(p);
   const pr = progress(p);
-  const canAdvance = p.decision === "approved" && pr.done < pr.total && st.notify !== "running";
 
   const submit = async (decision: "approved" | "sanctionedNoBlock" | "declined") => {
     if (decision !== "approved" && !comment.trim()) { setCommentError(true); return; }
@@ -81,7 +80,6 @@ export function RegisterDetail() {
           <Section title={t("Sperrschritte mit Status")}
             actions={<>
               <Text className="rg-muted">{p.decision === "approved" ? t("{0} von {1} erledigt", pr.done, pr.total) : p.decision === "pending" ? t("starten nach der Freigabe") : t("keine Sperrschritte")}</Text>
-              {canAdvance && <Button onClick={() => advance(p.id)}>{t("Rückmeldung simulieren")}</Button>}
             </>}>
             <ol className="rg-steps">
               <StepRow nr="0" title={t("Sperre in SAP GTS")} system="GTS" status="done" result={`${p.enteredBy} (EC Member 1), ${p.gtsDateOnly ? date(p.gtsBlockedAt) : dateTime(p.gtsBlockedAt)}`} />
@@ -94,7 +92,7 @@ export function RegisterDetail() {
                   <span className="rg-step-nr" aria-hidden="true">{index + 3}</span>
                   <div className="rg-step-body">
                     <StepCard title={t(step.label)} system={t(step.system)} status={st[key]}
-                      result={p.completed[key]?.result ?? (st[key] === "running" ? step.runningText : key === "suser" && st[key] === "done" ? step.doneText : undefined)}
+                      result={p.completed[key]?.result ?? (st[key] === "running" ? step.runningText : !isManualStep(key) && st[key] === "done" ? AUTO_RESULT : undefined)}
                       note={step.note && t(step.note)} />
                   </div>
                 </li>;

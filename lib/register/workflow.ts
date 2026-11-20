@@ -5,13 +5,25 @@ export const STEP_DEFS: Record<StepKey, { label: string; system: string; team: s
   suser: { label: "S-User sperren", system: "W7", team: "S-User-Team", doneText: "Nach Freigabe automatisch abgeschlossen (Demo)", runningText: "" },
   ticketsShn: { label: "Offene Support-Tickets in ServiceNow schließen", system: "ServiceNow", team: "Support", doneText: "Ticketprüfung abgeschlossen und SHN aktiviert", runningText: "Offene Support-Tickets in ServiceNow schließen, danach SHN aktivieren", note: "SHN auch aktivieren, wenn keine Tickets offen sind." },
   rcsc: { label: "I7P Control Table Board", system: "RCSC", team: "Remote-Support", doneText: "I7P Control Table Board bearbeitet", runningText: "I7P Control Table Board bearbeiten" },
-  cloud: { label: "Cloud-Sperre je LoB", system: "Ticket je Line of Business", team: "Cloud-LoB", doneText: "Alle Tenants gesperrt", runningText: "Tenants werden von den LoBs gesperrt" },
+  scg: { label: "SCG inklusive BCG", system: "Partner Teams", team: "Partner Teams", doneText: "SCG inklusive BCG bestätigt", runningText: "SCG inklusive BCG manuell bearbeiten" },
+  cloud: { label: "Cloud-Sperre je LoB", system: "Ticket je Line of Business", team: "Partner Teams", doneText: "Alle Tenants gesperrt", runningText: "Tenants werden von den LoBs gesperrt" },
   notify: { label: "Benachrichtigung", system: "E-Mail", team: "Export Control", doneText: "E-Mail-Versand bestätigt", runningText: "E-Mail unter „Benachrichtigungen“ vorbereiten" },
   irdp: { label: "IRDP-Flag setzen", system: "Launchpad", team: "Export Control", doneText: "IRDP-Flag gesetzt", runningText: "IRDP-Flag im Launchpad setzen" },
   bcp: { label: "BCP-Ticket", system: "BCP", team: "Support", doneText: "BCP-Ticket bestätigt", runningText: "BCP-Ticket bearbeiten" },
 };
 
-export const STEP_ORDER: readonly StepKey[] = ["suser", "ticketsShn", "rcsc", "notify", "irdp", "bcp", "cloud"];
+export const STEP_ORDER: readonly StepKey[] = ["suser", "ticketsShn", "rcsc", "notify", "irdp", "bcp", "scg", "cloud"];
+
+export const MANUAL_STEPS = ["scg", "cloud"] as const;
+export const AUTO_RESULT = "Nach Freigabe automatisch abgeschlossen (Demo)";
+
+export function isManualStep(step: StepKey) {
+  return MANUAL_STEPS.some((manual) => manual === step);
+}
+
+export function notificationPending(p: BlockedPartner) {
+  return p.decision === "approved" && !p.completed.notify;
+}
 
 export function isApplicable(p: BlockedPartner, step: StepKey) {
   return step !== "cloud" || p.cloudCustomer;
@@ -26,7 +38,7 @@ export function stepStatuses(p: BlockedPartner): Record<StepKey, StepStatus> {
     if (p.decision === "pending") { result[step] = "pendingApproval"; continue; }
     if (p.decision !== "approved") { result[step] = "skipped"; continue; }
     // Older approvals predate the automatic demo completion record.
-    if (p.completed[step] || step === "suser") { result[step] = "done"; continue; }
+    if (p.completed[step] || !isManualStep(step)) { result[step] = "done"; continue; }
     result[step] = blocked ? "waiting" : "running";
     blocked = true;
   }
@@ -55,19 +67,26 @@ const DECISION_TEXT: Record<Exclude<Decision, "pending">, string> = {
 export function decide(p: BlockedPartner, decision: Exclude<Decision, "pending">, by: string, comment: string, now = new Date()): BlockedPartner {
   if (p.decision !== "pending") return p;
   const at = now.toISOString();
-  const automatic = decision === "approved" && !p.completed.suser;
-  const result = STEP_DEFS.suser.doneText;
+  const automatic = decision === "approved";
+  const completed = { ...p.completed };
+  if (automatic) {
+    for (const step of STEP_ORDER) {
+      if (step !== "notify" && !isManualStep(step) && !completed[step]) {
+        completed[step] = { at, by: "System", result: AUTO_RESULT };
+      }
+    }
+  }
   return {
     ...p, decision, decidedBy: by, decidedAt: at, decisionComment: comment || undefined,
-    completed: automatic ? { ...p.completed, suser: { at, by: "System", result } } : p.completed,
+    completed,
     audit: [...p.audit, { at, by: `${by} (EC Member 2)`, text: DECISION_TEXT[decision] + (comment ? `: ${comment}` : "") },
-      ...(automatic ? [{ at, by: "System", text: result }] : [])],
+      ...(automatic ? [{ at, by: "System", text: AUTO_RESULT }] : [])],
   };
 }
 
 /** Rückmeldung eines Schritts. Nur Schritte im Status „läuft“ können erledigt werden. */
 export function completeStep(p: BlockedPartner, step: StepKey, by: string, result?: string, now = new Date()): BlockedPartner {
-  if (stepStatuses(p)[step] !== "running") return p;
+  if (step === "notify" ? !notificationPending(p) : stepStatuses(p)[step] !== "running") return p;
   const at = now.toISOString();
   const text = result || defaultResult(p, step);
   return {
@@ -75,14 +94,6 @@ export function completeStep(p: BlockedPartner, step: StepKey, by: string, resul
     completed: { ...p.completed, [step]: { at, by, result: text } },
     audit: [...p.audit, { at, by, text: `${STEP_DEFS[step].label}: ${text}` }],
   };
-}
-
-/** Demo-Hilfe: alle laufenden Schritte zurückmelden. */
-export function advance(p: BlockedPartner, now = new Date()): BlockedPartner {
-  const statuses = stepStatuses(p);
-  return (Object.keys(statuses) as StepKey[])
-    .filter((s) => statuses[s] === "running" && s !== "notify")
-    .reduce((acc, s) => completeStep(acc, s, `Rückmeldung ${STEP_DEFS[s].system}`, undefined, now), p);
 }
 
 function defaultResult(p: BlockedPartner, step: StepKey) {

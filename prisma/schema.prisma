@@ -102,6 +102,7 @@ enum RegisterStepKey {
   irdp
   serviceNow
   bcp
+  scg
 }
 
 enum RegisterSpecialCategory {
