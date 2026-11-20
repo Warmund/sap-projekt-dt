@@ -1,6 +1,6 @@
 import { db } from "../db";
 import type { Prisma } from "../generated/prisma/client";
-import { completeStep, decide, notificationPending, stepStatuses, STEP_DEFS, STEP_ORDER } from "./workflow";
+import { completeStep, decide, notificationPending, stepStatuses, AUTO_RESULT, PERSISTED_STEPS, STEP_DEFS } from "./workflow";
 import type { BlockedPartner, CountryContact, Decision, StepKey } from "./types";
 
 export class RegisterError extends Error {}
@@ -16,8 +16,12 @@ function partnerView(p: PartnerRow): BlockedPartner {
     decisionComment: p.decisionComment ?? undefined, cloudCustomer: p.cloudCustomer,
     tenants: p.tenants.map(({ lob, product, tenantId, ticket }) => ({ lob, product, tenantId, ticket })),
     specialCategory: p.specialCategory, specialComment: p.specialComment ?? undefined, comment: p.comment,
-    completed: Object.fromEntries(p.steps.flatMap(({ key, at, by, result }) =>
-      key === "tickets" || key === "remote" || key === "serviceNow" || (key === "notify" && result.startsWith("SIMULIERT: ")) ? [] : [[key, { at: at.toISOString(), by, result }]])),
+    completed: Object.fromEntries(p.steps.flatMap(({ key, at, by, result }) => {
+      if (key === "tickets" || key === "remote" || key === "serviceNow" || key === "scg") return [];
+      if ((key === "irdp" || key === "bcp") && (result === AUTO_RESULT || result.startsWith("SIMULIERT: "))) return [];
+      if (key === "notify" && result.startsWith("SIMULIERT: ")) return [];
+      return [[key, { at: at.toISOString(), by, result }]];
+    })),
     audit: p.audit.map(({ at, by, text }) => ({ at: at.toISOString(), by, text })),
     spl: p.spl, ruItConsultancyBan: p.ruItConsultancyBan, ukraineCrisis: p.ukraineCrisis, version: p.version,
   };
@@ -104,7 +108,7 @@ async function changePartner(tx: Prisma.TransactionClient, command: PartnerComma
     if (p.decision !== "pending") throw new RegisterError("Dieser Datensatz wurde bereits entschieden.");
     next = decide(p, command.decision, actor.name, comment);
   } else {
-    if (!STEP_ORDER.includes(command.step)) throw new RegisterError("Ungültiger Sperrschritt.");
+    if (!PERSISTED_STEPS.some((step) => step === command.step)) throw new RegisterError("Ungültiger Sperrschritt.");
     if (command.step === "notify" ? !notificationPending(p) : stepStatuses(p)[command.step] !== "running") throw new RegisterError("Dieser Schritt ist noch nicht freigegeben oder bereits erledigt.");
     if (command.step === "cloud" && !p.tenants.length) throw new RegisterError("Cloud-Tenants fehlen. Cloud-Sperre kann nicht als erledigt bestätigt werden.");
     const result = text(command.result ?? STEP_DEFS[command.step].doneText, 2000);
@@ -115,13 +119,15 @@ async function changePartner(tx: Prisma.TransactionClient, command: PartnerComma
     decidedAt: next.decidedAt ? new Date(next.decidedAt) : undefined, decisionComment: next.decisionComment,
   } });
   if (changed.count !== 1) throw new RegisterError("Datensatz wurde inzwischen geändert. Bitte neu laden.");
-  for (const key of STEP_ORDER) {
+  for (const key of PERSISTED_STEPS) {
     const step = next.completed[key];
     if (!step || p.completed[key]) continue;
-    if (key === "notify") {
-      await tx.registerStep.deleteMany({ where: { partnerId: id, key, result: { startsWith: "SIMULIERT: " } } });
-    }
-    await tx.registerStep.create({ data: { partnerId: id, key, at: new Date(step.at), by: step.by, result: step.result } });
+    const data = { at: new Date(step.at), by: step.by, result: step.result };
+    await tx.registerStep.upsert({
+      where: { partnerId_key: { partnerId: id, key } },
+      create: { partnerId: id, key, ...data },
+      update: data,
+    });
   }
   await tx.registerAudit.createMany({ data: next.audit.slice(p.audit.length).map((entry) => ({ partnerId: id, at: new Date(entry.at), by: entry.by, text: entry.text })) });
 }

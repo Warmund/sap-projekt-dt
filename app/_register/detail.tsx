@@ -20,7 +20,7 @@ import { TableRow } from "@ui5/webcomponents-react/TableRow";
 import { TableCell } from "@ui5/webcomponents-react/TableCell";
 import "@ui5/webcomponents-icons/dist/history.js";
 import { ETS_INFO } from "../../lib/register/mock-data";
-import { AUTO_RESULT, isManualStep, STEP_ORDER, progress, overallStatus, stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
+import { AUTO_RESULT, isManualStep, SCG_STEPS, STEP_ORDER, progress, overallStatus, stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
 import type { BlockedPartner } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { Section, StatusBadge, StepBadge } from "./ui";
@@ -94,6 +94,10 @@ export function RegisterDetail() {
                     <StepCard title={t(step.label)} system={t(step.system)} status={st[key]}
                       result={p.completed[key]?.result ?? (st[key] === "running" ? step.runningText : !isManualStep(key) && st[key] === "done" ? AUTO_RESULT : undefined)}
                       note={step.note && t(step.note)} />
+                    {key === "scg" && <div className="rg-step-cards">
+                      {SCG_STEPS.map((child) => <StepCard key={child} title={t(STEP_DEFS[child].label)}
+                        system={t(STEP_DEFS[child].system)} status={st[child]} result={p.completed[child]?.result} />)}
+                    </div>}
                   </div>
                 </li>;
               })}

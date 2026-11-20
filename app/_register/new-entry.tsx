@@ -20,7 +20,7 @@ import { TableHeaderCell } from "@ui5/webcomponents-react/TableHeaderCell";
 import { TableRow } from "@ui5/webcomponents-react/TableRow";
 import { TableCell } from "@ui5/webcomponents-react/TableCell";
 import { GTS_SAMPLE, SANCTIONS_LISTS } from "../../lib/register/mock-data";
-import { STEP_ORDER, STEP_DEFS } from "../../lib/register/workflow";
+import { STEP_ORDER, STEP_DEFS, SCG_STEPS } from "../../lib/register/workflow";
 import type { BlockedPartner, Tenant } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { Section } from "./ui";
@@ -140,7 +140,7 @@ export function RegisterNewEntry() {
             <ol className="rg-mini-steps">
               {STEP_ORDER.map((key, i) => <li key={key}>
                 <span className="rg-step-nr" aria-hidden="true">{i + 3}</span>
-                <div><Text className="rg-strong">{t(STEP_DEFS[key].label)}</Text><br /><Text className="rg-muted">{t(STEP_DEFS[key].system)}</Text></div>
+                <div><Text className="rg-strong">{t(STEP_DEFS[key].label)}</Text><br /><Text className="rg-muted">{key === "scg" ? SCG_STEPS.map((step) => t(STEP_DEFS[step].label)).join(" · ") : t(STEP_DEFS[key].system)}</Text></div>
               </li>)}
             </ol>
           </Section>

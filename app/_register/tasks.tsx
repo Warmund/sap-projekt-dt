@@ -1,4 +1,7 @@
 "use client";
+import { useState } from "react";
+import { Select } from "@ui5/webcomponents-react/Select";
+import { Option } from "@ui5/webcomponents-react/Option";
 import { useLanguage } from "../language";
 import { DynamicPage } from "@ui5/webcomponents-react/DynamicPage";
 import { DynamicPageTitle } from "@ui5/webcomponents-react/DynamicPageTitle";
@@ -7,7 +10,7 @@ import { Text } from "@ui5/webcomponents-react/Text";
 import { Button } from "@ui5/webcomponents-react/Button";
 import { Link } from "@ui5/webcomponents-react/Link";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
-import { stepStatuses, STEP_DEFS, MANUAL_STEPS } from "../../lib/register/workflow";
+import { stepStatuses, STEP_DEFS, MANUAL_STEPS, SCG_STEPS } from "../../lib/register/workflow";
 import { useRegister } from "./store";
 import { Section, StepBadge } from "./ui";
 
@@ -15,6 +18,9 @@ import { Section, StepBadge } from "./ui";
 export function RegisterTasks() {
   const { t, date } = useLanguage();
   const { partners, completeStep, open } = useRegister();
+
+  const [group, setGroup] = useState<"scg" | "cloud">("scg");
+  const steps = group === "scg" ? SCG_STEPS : ["cloud"] as const;
 
   const tasks = partners
     .filter((p) => p.decision === "approved")
@@ -27,7 +33,11 @@ export function RegisterTasks() {
       <MessageStrip hideCloseButton design="Information">
         {t("Partner Teams bestätigen hier die manuellen Sperrschritte.")}
       </MessageStrip>
-      {MANUAL_STEPS.map((step) => {
+      <Select accessibleName={t("Sperrschritt (Demo)")} value={group}
+        onChange={(event) => setGroup(event.target.value === "cloud" ? "cloud" : "scg")}>
+        {MANUAL_STEPS.map((step) => <Option key={step} value={step}>{t(STEP_DEFS[step].label)}</Option>)}
+      </Select>
+      {steps.map((step) => {
         const definition = STEP_DEFS[step];
         const openTasks = tasks
           .map(({ p, statuses }) => ({ p, status: statuses[step] }))

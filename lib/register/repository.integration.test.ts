@@ -1,4 +1,4 @@
-import { stepStatuses } from "./workflow";
+import { AUTO_RESULT, stepStatuses } from "./workflow";
 import "dotenv/config";
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -33,9 +33,11 @@ test("persistent lifecycle: two-person review, ordering, stale writes, audit, mi
     await assert.rejects(changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "suser" }, reviewer), /noch nicht freigegeben/);
     assert.deepEqual(stepStatuses(p), {
       suser: "done", ticketsShn: "done", rcsc: "done", notify: "done",
-      irdp: "done", bcp: "done", scg: "running", cloud: "waiting",
+      irdp: "running", bcp: "running", scg: "running", cloud: "waiting",
     });
-    assert.equal(p.completed.bcp?.by, "System");
+    assert.equal(p.completed.bcp, undefined);
+    await db.registerStep.create({ data: { partnerId: p.id, key: "bcp", at: new Date(), by: "System", result: AUTO_RESULT } });
+    assert.equal(stepStatuses((await readRegister()).partners.find((partner) => partner.id === p.id)!).bcp, "running");
     await db.registerStep.create({ data: { partnerId: p.id, key: "notify", at: new Date(), by: reviewer.name, result: "SIMULIERT: Test" } });
     assert.equal((await readRegister()).partners.find((p) => p.bpId === bpId)?.completed.notify, undefined);
 
@@ -54,11 +56,20 @@ test("persistent lifecycle: two-person review, ordering, stale writes, audit, mi
     for (const partner of notified) assert.equal(partner.completed.notify?.result, "E-Mail-Versand bestätigt");
     p = notified.find((partner) => partner.bpId === bpId)!;
 
-    await changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "scg" }, reviewer);
+    await assert.rejects(changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "scg" }, reviewer), /Ungültiger Sperrschritt/);
+    await changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "bcp" }, reviewer);
     p = (await readRegister()).partners.find((partner) => partner.bpId === bpId)!;
-    assert.equal(p.completed.scg?.by, reviewer.name);
+    assert.equal(p.completed.bcp?.by, reviewer.name);
+    assert.equal(stepStatuses(p).scg, "running");
+    assert.equal(stepStatuses(p).cloud, "waiting");
+    await assert.rejects(changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "cloud" }, reviewer), /noch nicht freigegeben/);
+    await changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "irdp" }, reviewer);
+    p = (await readRegister()).partners.find((partner) => partner.bpId === bpId)!;
+    assert.equal(p.completed.irdp?.by, reviewer.name);
+    assert.equal(stepStatuses(p).scg, "done");
+    assert.equal(stepStatuses(p).cloud, "running");
     await assert.rejects(changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "cloud" }, reviewer), /Cloud-Tenants fehlen/);
-    assert.equal(p.audit.length, 5);
+    assert.equal(p.audit.length, 6);
     assert.equal(p.decision, "approved");
     await db.registerPartner.update({ where: { id: p.id }, data: {
       tenants: { create: { lob: "Test LoB", product: "Test Product", tenantId: "test-tenant", ticket: "test-ticket" } },

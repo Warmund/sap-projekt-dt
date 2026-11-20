@@ -1,7 +1,7 @@
 // Synthetische Mock-Daten. Alle Namen, IDs und Personen sind frei erfunden.
 import type { BlockedPartner, CountryContact, Decision, EtsCategory, SpecialCategory, StepKey, Tenant } from "./types";
 
-import { STEP_DEFS, STEP_ORDER } from "./workflow";
+import { STEP_DEFS, PERSISTED_STEPS } from "./workflow";
 
 type Seed = {
   id: string; name: string; country: string; ets: EtsCategory; list: string; gts: string;
@@ -51,7 +51,7 @@ function build(s: Seed, index: number): BlockedPartner {
   };
 }
 
-const ALL = [...STEP_ORDER];
+const ALL = [...PERSISTED_STEPS];
 
 const SEEDS: Seed[] = [
   { id: "muster-trading", name: "Muster Trading Co., Ltd.", country: "China", ets: "ETS4", list: "US-SDN-Liste", gts: "2026-11-05T07:52:00Z", decision: "pending",

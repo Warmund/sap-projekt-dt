@@ -8,17 +8,19 @@ export const STEP_DEFS: Record<StepKey, { label: string; system: string; team: s
   scg: { label: "SCG", system: "Partner Teams", team: "Partner Teams", doneText: "SCG bestätigt", runningText: "SCG manuell bearbeiten" },
   cloud: { label: "Cloud-Sperre je LoB", system: "Ticket je Line of Business", team: "Partner Teams", doneText: "Alle Tenants gesperrt", runningText: "Tenants werden von den LoBs gesperrt" },
   notify: { label: "Benachrichtigung", system: "E-Mail", team: "Export Control", doneText: "E-Mail-Versand bestätigt", runningText: "E-Mail unter „Benachrichtigungen“ vorbereiten" },
-  irdp: { label: "IRDP-Flag setzen", system: "Launchpad", team: "Export Control", doneText: "IRDP-Flag gesetzt", runningText: "IRDP-Flag im Launchpad setzen" },
-  bcp: { label: "BCP-Ticket", system: "BCP", team: "Support", doneText: "BCP-Ticket bestätigt", runningText: "BCP-Ticket bearbeiten" },
+  irdp: { label: "IRDP-Flag setzen", system: "Launchpad", team: "Partner Teams", doneText: "IRDP-Flag gesetzt", runningText: "IRDP-Flag im Launchpad setzen" },
+  bcp: { label: "BCP-Ticket", system: "BCP", team: "Partner Teams", doneText: "BCP-Ticket bestätigt", runningText: "BCP-Ticket bearbeiten" },
 };
 
-export const STEP_ORDER: readonly StepKey[] = ["suser", "ticketsShn", "rcsc", "notify", "irdp", "bcp", "scg", "cloud"];
+export const STEP_ORDER: readonly StepKey[] = ["suser", "ticketsShn", "rcsc", "notify", "scg", "cloud"];
 
+export const SCG_STEPS = ["irdp", "bcp"] as const;
 export const MANUAL_STEPS = ["scg", "cloud"] as const;
+export const PERSISTED_STEPS = STEP_ORDER.flatMap((step) => step === "scg" ? [...SCG_STEPS] : [step]);
 export const AUTO_RESULT = "Nach Freigabe automatisch abgeschlossen (Demo)";
 
 export function isManualStep(step: StepKey) {
-  return MANUAL_STEPS.some((manual) => manual === step);
+  return MANUAL_STEPS.some((manual) => manual === step) || SCG_STEPS.some((child) => child === step);
 }
 
 export function notificationPending(p: BlockedPartner) {
@@ -37,16 +39,26 @@ export function stepStatuses(p: BlockedPartner): Record<StepKey, StepStatus> {
     if (!isApplicable(p, step)) { result[step] = "notApplicable"; continue; }
     if (p.decision === "pending") { result[step] = "pendingApproval"; continue; }
     if (p.decision !== "approved") { result[step] = "skipped"; continue; }
+    if (step === "scg") {
+      for (const child of SCG_STEPS) result[child] = p.completed[child] ? "done" : "running";
+      result.scg = SCG_STEPS.every((child) => result[child] === "done") ? "done" : "running";
+      blocked = result.scg !== "done";
+      continue;
+    }
     // Older approvals predate the automatic demo completion record.
     if (p.completed[step] || !isManualStep(step)) { result[step] = "done"; continue; }
     result[step] = blocked ? "waiting" : "running";
     blocked = true;
   }
+  if (p.decision !== "approved") {
+    for (const child of SCG_STEPS) result[child] = result.scg;
+  }
   return result;
 }
 
 export function progress(p: BlockedPartner) {
-  const statuses = Object.values(stepStatuses(p)).filter((s) => s !== "notApplicable");
+  const statusesByStep = stepStatuses(p);
+  const statuses = STEP_ORDER.map((step) => statusesByStep[step]).filter((s) => s !== "notApplicable");
   return { done: statuses.filter((s) => s === "done").length, total: statuses.length };
 }
 
@@ -86,6 +98,7 @@ export function decide(p: BlockedPartner, decision: Exclude<Decision, "pending">
 
 /** Rückmeldung eines Schritts. Nur Schritte im Status „läuft“ können erledigt werden. */
 export function completeStep(p: BlockedPartner, step: StepKey, by: string, result?: string, now = new Date()): BlockedPartner {
+  if (step === "scg") return p;
   if (step === "notify" ? !notificationPending(p) : stepStatuses(p)[step] !== "running") return p;
   const at = now.toISOString();
   const text = result || defaultResult(p, step);
