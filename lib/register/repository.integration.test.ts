@@ -30,7 +30,36 @@ test("persistent lifecycle: two-person review, ordering, stale writes, audit, mi
     assert.equal(p.completed.suser?.at, p.decidedAt);
     await assert.rejects(changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "rcsc" }, reviewer), /noch nicht freigegeben/);
     await assert.rejects(changeRegister({ kind: "complete", id: p.id, version: p.version!, step: "suser" }, reviewer), /noch nicht freigegeben/);
-    for (const step of ["ticketsShn", "rcsc", "notify", "irdp", "serviceNow", "bcp"] as const) {
+    for (const step of ["ticketsShn", "rcsc"] as const) {
+      await changeRegister({ kind: "complete", id: p.id, version: p.version!, step }, reviewer);
+      p = (await readRegister()).partners.find((p) => p.bpId === bpId)!;
+    }
+    await assert.rejects(changeRegister({ kind: "advance", id: p.id, version: p.version! }, reviewer), /Versand/);
+    await db.registerStep.create({ data: { partnerId: p.id, key: "notify", at: new Date(), by: reviewer.name, result: "SIMULIERT: Test" } });
+    assert.equal((await readRegister()).partners.find((p) => p.bpId === bpId)?.completed.notify, undefined);
+
+    const otherBpId = bpId + "-other";
+    await changeRegister({ kind: "create", partner: { ...input, bpId: otherBpId } }, maker);
+    let other = (await readRegister()).partners.find((partner) => partner.bpId === otherBpId)!;
+    for (const command of [
+      { kind: "decide", decision: "approved", comment: "" },
+      { kind: "complete", step: "ticketsShn" },
+      { kind: "complete", step: "rcsc" },
+    ] as const) {
+      await changeRegister({ ...command, id: other.id, version: other.version! }, reviewer);
+      other = (await readRegister()).partners.find((partner) => partner.bpId === otherBpId)!;
+    }
+    const customers = [p, other].map(({ id, version }) => ({ id, version: version! })).sort((a, b) => a.id.localeCompare(b.id));
+    const stale = [customers[0], { ...customers[1], version: customers[1].version - 1 }];
+    await assert.rejects(changeRegister({ kind: "confirmNotifications", customers: stale }, reviewer), /inzwischen geändert/);
+    assert.equal((await readRegister()).partners.find((partner) => partner.id === customers[0].id)?.completed.notify, undefined);
+    await changeRegister({ kind: "confirmNotifications", customers }, reviewer);
+    const notified = (await readRegister()).partners.filter((partner) => customers.some(({ id }) => id === partner.id));
+    assert.equal(notified.length, 2);
+    for (const partner of notified) assert.equal(partner.completed.notify?.result, "E-Mail-Versand bestätigt");
+    p = notified.find((partner) => partner.bpId === bpId)!;
+
+    for (const step of ["irdp", "serviceNow", "bcp"] as const) {
       await changeRegister({ kind: "complete", id: p.id, version: p.version!, step, result: "Confirmed by test" }, reviewer);
       p = (await readRegister()).partners.find((p) => p.bpId === bpId)!;
       assert.equal(p.completed[step]?.by, reviewer.name);
@@ -45,7 +74,7 @@ test("persistent lifecycle: two-person review, ordering, stale writes, audit, mi
     p = (await readRegister()).partners.find((p) => p.bpId === bpId)!;
     assert.equal(p.completed.cloud?.by, reviewer.name);
   } finally {
-    await db.registerPartner.deleteMany({ where: { bpId } });
+    await db.registerPartner.deleteMany({ where: { bpId: { in: [bpId, bpId + "-other"] } } });
     await db.$disconnect();
   }
 });

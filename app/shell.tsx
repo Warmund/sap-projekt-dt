@@ -20,6 +20,7 @@ import "@ui5/webcomponents-icons/dist/bar-chart.js";
 import "@ui5/webcomponents-icons/dist/list.js";
 import "@ui5/webcomponents-icons/dist/add-document.js";
 import "@ui5/webcomponents-icons/dist/contacts.js";
+import "@ui5/webcomponents-icons/dist/email.js";
 import "@ui5/webcomponents-icons/dist/people-connected.js";
 import type { RegisterData } from "../lib/register/repository";
 import { authClient } from "../lib/auth-client";
@@ -29,6 +30,7 @@ import { RegisterDashboard } from "./_register/dashboard";
 import { RegisterList } from "./_register/register-list";
 import { RegisterNewEntry } from "./_register/new-entry";
 import { RegisterDetail } from "./_register/detail";
+import { RegisterNotifications } from "./_register/notifications";
 import { RegisterTasks } from "./_register/tasks";
 
 import { Settings } from "./settings";
@@ -66,6 +68,7 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
       case "rg-register": return <RegisterList />;
       case "rg-new": return <RegisterNewEntry />;
       case "rg-detail": return <RegisterDetail />;
+      case "rg-notifications": return <RegisterNotifications />;
       case "rg-tasks": return <RegisterTasks />;
       default: return <RegisterDashboard />;
     }
@@ -91,6 +94,7 @@ export function Shell({ user, initialRegister }: { user: { name: string; email: 
         <SideNavigationItem text="Dashboard" icon="bar-chart" data-key="rg-dashboard" selected={view === "rg-dashboard"} />
         <SideNavigationGroup text={t("Sanktionsregister")} expanded>
           <SideNavigationItem text={t("Register")} icon="list" data-key="rg-register" selected={view === "rg-register" || view === "rg-detail"} />
+          <SideNavigationItem text={t("Benachrichtigungen")} icon="email" data-key="rg-notifications" selected={view === "rg-notifications"} />
           <SideNavigationItem text={t("Nachbarabteilung")} icon="people-connected" data-key="rg-tasks" selected={view === "rg-tasks"} />
           <SideNavigationItem text={t("Länder-Kontakte")} icon="contacts" data-key="rg-contacts" selected={view === "rg-contacts"} />
         </SideNavigationGroup>

@@ -17,7 +17,7 @@ function partnerView(p: PartnerRow): BlockedPartner {
     tenants: p.tenants.map(({ lob, product, tenantId, ticket }) => ({ lob, product, tenantId, ticket })),
     specialCategory: p.specialCategory, specialComment: p.specialComment ?? undefined, comment: p.comment,
     completed: Object.fromEntries(p.steps.flatMap(({ key, at, by, result }) =>
-      key === "tickets" || key === "remote" ? [] : [[key, { at: at.toISOString(), by, result }]])),
+      key === "tickets" || key === "remote" || (key === "notify" && result.startsWith("SIMULIERT: ")) ? [] : [[key, { at: at.toISOString(), by, result }]])),
     audit: p.audit.map(({ at, by, text }) => ({ at: at.toISOString(), by, text })),
     spl: p.spl, ruItConsultancyBan: p.ruItConsultancyBan, ukraineCrisis: p.ukraineCrisis, version: p.version,
   };
@@ -36,6 +36,7 @@ export type RegisterCommand =
   | { kind: "decide"; id: string; version: number; decision: Exclude<Decision, "pending">; comment: string }
   | { kind: "complete"; id: string; version: number; step: StepKey; result?: string }
   | { kind: "advance"; id: string; version: number }
+  | { kind: "confirmNotifications"; customers: { id: string; version: number }[] }
   | { kind: "contact"; contact: CountryContact };
 
 function text(value: unknown, max = 500, required = true): string {
@@ -72,43 +73,64 @@ export async function changeRegister(command: RegisterCommand, actor: { id: stri
     } });
     return;
   }
+  if (command.kind === "confirmNotifications") {
+    if (!Array.isArray(command.customers) || !command.customers.length) throw new RegisterError("Wähle mindestens einen Kunden aus.");
+    const customers = command.customers.map((customer) => ({ id: text(customer?.id), version: customer?.version }));
+    if (new Set(customers.map(({ id }) => id)).size !== customers.length) throw new RegisterError("Ungültige Registeraktion.");
+    // Lock customers in the same order for overlapping batches.
+    customers.sort((a, b) => a.id.localeCompare(b.id));
+    await db.$transaction(async (tx) => {
+      for (const customer of customers) await changePartner(tx, { kind: "complete", ...customer, step: "notify" }, actor);
+    }, { timeout: 30_000 });
+    return;
+  }
   if (!["decide", "complete", "advance"].includes(command.kind)) throw new RegisterError("Unbekannte Registeraktion.");
+  if (command.kind === "complete" && command.step === "notify") throw new RegisterError("Bestätige den Versand unter „Benachrichtigungen“.");
+  await db.$transaction((tx) => changePartner(tx, command, actor));
+}
+
+type PartnerCommand = Extract<RegisterCommand, { kind: "decide" | "complete" | "advance" }>;
+
+async function changePartner(tx: Prisma.TransactionClient, command: PartnerCommand, actor: { id: string; name: string }) {
   const id = text(command.id);
   if (!Number.isSafeInteger(command.version) || command.version < 0) throw new RegisterError("Ungültige Datensatzversion.");
-  await db.$transaction(async (tx) => {
-    const row = await tx.registerPartner.findUniqueOrThrow({ where: { id }, include });
-    if (row.version !== command.version) throw new RegisterError("Datensatz wurde inzwischen geändert. Bitte neu laden.");
-    const p = partnerView(row);
-    let next: BlockedPartner;
-    if (command.kind === "decide") {
-      if (!["approved", "sanctionedNoBlock", "declined"].includes(command.decision)) throw new RegisterError("Ungültige Entscheidung.");
-      const comment = text(command.comment, 2000, command.decision !== "approved");
-      if (row.enteredByUserId === actor.id) throw new RegisterError("Vier-Augen-Prinzip: Eine andere Person muss entscheiden.");
-      if (p.decision !== "pending") throw new RegisterError("Dieser Datensatz wurde bereits entschieden.");
-      next = decide(p, command.decision, actor.name, comment);
+  const row = await tx.registerPartner.findUniqueOrThrow({ where: { id }, include });
+  if (row.version !== command.version) throw new RegisterError("Datensatz wurde inzwischen geändert. Bitte neu laden.");
+  const p = partnerView(row);
+  let next: BlockedPartner;
+  if (command.kind === "decide") {
+    if (!["approved", "sanctionedNoBlock", "declined"].includes(command.decision)) throw new RegisterError("Ungültige Entscheidung.");
+    const comment = text(command.comment, 2000, command.decision !== "approved");
+    if (row.enteredByUserId === actor.id) throw new RegisterError("Vier-Augen-Prinzip: Eine andere Person muss entscheiden.");
+    if (p.decision !== "pending") throw new RegisterError("Dieser Datensatz wurde bereits entschieden.");
+    next = decide(p, command.decision, actor.name, comment);
+  } else {
+    if (command.kind === "complete") {
+      if (!STEP_ORDER.includes(command.step)) throw new RegisterError("Ungültiger Sperrschritt.");
+      if (stepStatuses(p)[command.step] !== "running") throw new RegisterError("Dieser Schritt ist noch nicht freigegeben oder bereits erledigt.");
+      if (command.step === "cloud" && !p.tenants.length) throw new RegisterError("Cloud-Tenants fehlen. Cloud-Sperre kann nicht als erledigt bestätigt werden.");
+      const result = text(command.result ?? STEP_DEFS[command.step].doneText, 2000);
+      next = completeStep(p, command.step, actor.name, result);
     } else {
-      if (command.kind === "complete") {
-        if (!STEP_ORDER.includes(command.step)) throw new RegisterError("Ungültiger Sperrschritt.");
-        if (stepStatuses(p)[command.step] !== "running") throw new RegisterError("Dieser Schritt ist noch nicht freigegeben oder bereits erledigt.");
-        if (command.step === "cloud" && !p.tenants.length) throw new RegisterError("Cloud-Tenants fehlen. Cloud-Sperre kann nicht als erledigt bestätigt werden.");
-        const result = text(command.result ?? STEP_DEFS[command.step].doneText, 2000);
-        next = completeStep(p, command.step, actor.name, result);
-      } else {
-        // The prototype simulation is recorded explicitly; it never operates external systems.
-        if (stepStatuses(p).cloud === "running" && !p.tenants.length) throw new RegisterError("Cloud-Tenants fehlen; keine simulierte Cloud-Erledigung möglich.");
-        next = advance(p);
-        next.audit = next.audit.map((entry, i) => i < p.audit.length ? entry : { ...entry, by: actor.name, text: `SIMULIERT: ${entry.text}` });
-      }
+      // The prototype simulation is recorded explicitly; it never operates external systems.
+      if (stepStatuses(p).notify === "running") throw new RegisterError("Bestätige den Versand unter „Benachrichtigungen“.");
+      if (stepStatuses(p).cloud === "running" && !p.tenants.length) throw new RegisterError("Cloud-Tenants fehlen; keine simulierte Cloud-Erledigung möglich.");
+      next = advance(p);
+      next.audit = next.audit.map((entry, i) => i < p.audit.length ? entry : { ...entry, by: actor.name, text: `SIMULIERT: ${entry.text}` });
     }
-    const changed = await tx.registerPartner.updateMany({ where: { id, version: command.version }, data: {
-      version: { increment: 1 }, decision: next.decision, decidedBy: next.decidedBy,
-      decidedAt: next.decidedAt ? new Date(next.decidedAt) : undefined, decisionComment: next.decisionComment,
-    } });
-    if (changed.count !== 1) throw new RegisterError("Datensatz wurde inzwischen geändert. Bitte neu laden.");
-    for (const key of STEP_ORDER) {
-      const step = next.completed[key];
-      if (step && !p.completed[key]) await tx.registerStep.create({ data: { partnerId: id, key, at: new Date(step.at), by: command.kind === "advance" ? actor.name : step.by, result: command.kind === "advance" ? `SIMULIERT: ${step.result}` : step.result } });
+  }
+  const changed = await tx.registerPartner.updateMany({ where: { id, version: command.version }, data: {
+    version: { increment: 1 }, decision: next.decision, decidedBy: next.decidedBy,
+    decidedAt: next.decidedAt ? new Date(next.decidedAt) : undefined, decisionComment: next.decisionComment,
+  } });
+  if (changed.count !== 1) throw new RegisterError("Datensatz wurde inzwischen geändert. Bitte neu laden.");
+  for (const key of STEP_ORDER) {
+    const step = next.completed[key];
+    if (!step || p.completed[key]) continue;
+    if (key === "notify") {
+      await tx.registerStep.deleteMany({ where: { partnerId: id, key, result: { startsWith: "SIMULIERT: " } } });
     }
-    await tx.registerAudit.createMany({ data: next.audit.slice(p.audit.length).map((entry) => ({ partnerId: id, at: new Date(entry.at), by: entry.by, text: entry.text })) });
-  });
+    await tx.registerStep.create({ data: { partnerId: id, key, at: new Date(step.at), by: command.kind === "advance" ? actor.name : step.by, result: command.kind === "advance" ? `SIMULIERT: ${step.result}` : step.result } });
+  }
+  await tx.registerAudit.createMany({ data: next.audit.slice(p.audit.length).map((entry) => ({ partnerId: id, at: new Date(entry.at), by: entry.by, text: entry.text })) });
 }

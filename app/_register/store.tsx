@@ -8,7 +8,7 @@ import type { RegisterCommand, RegisterData } from "../../lib/register/repositor
 import type { BlockedPartner, CountryContact, Decision, StepKey } from "../../lib/register/types";
 import "./register.css";
 
-export type RegisterView = "rg-dashboard" | "rg-register" | "rg-new" | "rg-detail" | "rg-tasks" | "rg-contacts";
+export type RegisterView = "rg-dashboard" | "rg-register" | "rg-new" | "rg-detail" | "rg-tasks" | "rg-contacts" | "rg-notifications";
 type RegisterState = {
   partners: BlockedPartner[];
   contacts: CountryContact[];
@@ -20,6 +20,7 @@ type RegisterState = {
   open: (view: RegisterView, partnerId?: string) => void;
   decide: (id: string, decision: Exclude<Decision, "pending">, comment: string) => Promise<boolean>;
   completeStep: (id: string, step: StepKey, result?: string) => Promise<boolean>;
+  confirmNotifications: (customers: { id: string; version: number }[]) => Promise<boolean>;
   advance: (id: string) => Promise<boolean>;
   addPartner: (p: BlockedPartner) => Promise<boolean>;
   updateContact: (c: CountryContact) => Promise<boolean>;
@@ -54,6 +55,7 @@ export function RegisterProvider({ children, currentUser, onNavigate, initialDat
     open: (view, id) => { if (id) setSelectedId(id); onNavigate(view); },
     decide: async (id, decision, comment) => !!await run({ kind: "decide", id, version: version(id), decision, comment }),
     completeStep: async (id, step, result) => !!await run({ kind: "complete", id, version: version(id), step, result }),
+    confirmNotifications: async (customers) => !!await run({ kind: "confirmNotifications", customers }),
     advance: async (id) => !!await run({ kind: "advance", id, version: version(id) }),
     addPartner: async (partner) => {
       const fresh = await run({ kind: "create", partner });

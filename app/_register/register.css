@@ -64,8 +64,6 @@
 .rg-step-card { flex: 1 1 16rem; min-width: 0; display: grid; gap: 0.25rem; padding: 0.75rem 0.875rem; border: 1px solid var(--sapList_BorderColor, #e5e5e5); border-radius: 0.625rem; }
 .rg-step-running { border-color: var(--sapInformativeColor, #0070f2); }
 .rg-step-card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem; }
-.rg-recipients { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.5rem; }
-.rg-recipient { display: grid; gap: 0.125rem; padding: 0.625rem 0.75rem; border-radius: 0.5rem; background: var(--sapNeutralBackgroundColor, #f5f6f7); }
 .rg-facts { display: grid; grid-template-columns: 9rem 1fr; gap: 0.5rem 0.75rem; margin: 0; font-size: var(--sapFontSize); }
 .rg-facts dt { color: var(--sapContent_LabelColor); }
 .rg-facts dd { margin: 0; overflow-wrap: anywhere; }
@@ -76,6 +74,7 @@
 .rg-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 0.75rem; }
 .rg-dialog-footer { display: flex; justify-content: flex-end; gap: 0.5rem; width: 100%; padding: 0.5rem 0; }
 .rg-dialog-form { display: grid; gap: 0.75rem; min-width: min(28rem, 80vw); }
+.rg-selectable-row { cursor: pointer; }
 .rg-mail { display: grid; gap: 0.5rem; max-width: 36rem; }
 .rg-pre { white-space: pre-line; }
 

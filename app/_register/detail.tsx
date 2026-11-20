@@ -11,7 +11,6 @@ import { Button } from "@ui5/webcomponents-react/Button";
 import { Input } from "@ui5/webcomponents-react/Input";
 import { Link } from "@ui5/webcomponents-react/Link";
 import { MessageStrip } from "@ui5/webcomponents-react/MessageStrip";
-import { Dialog } from "@ui5/webcomponents-react/Dialog";
 import { Timeline } from "@ui5/webcomponents-react/Timeline";
 import { TimelineItem } from "@ui5/webcomponents-react/TimelineItem";
 import { Table } from "@ui5/webcomponents-react/Table";
@@ -19,7 +18,6 @@ import { TableHeaderRow } from "@ui5/webcomponents-react/TableHeaderRow";
 import { TableHeaderCell } from "@ui5/webcomponents-react/TableHeaderCell";
 import { TableRow } from "@ui5/webcomponents-react/TableRow";
 import { TableCell } from "@ui5/webcomponents-react/TableCell";
-import "@ui5/webcomponents-icons/dist/email.js";
 import "@ui5/webcomponents-icons/dist/history.js";
 import { ETS_INFO } from "../../lib/register/mock-data";
 import { STEP_ORDER, progress, overallStatus, stepStatuses, STEP_DEFS } from "../../lib/register/workflow";
@@ -29,31 +27,22 @@ import { Section, StatusBadge, StepBadge } from "./ui";
 
 export function RegisterDetail() {
   const { t, date, dateTime } = useLanguage();
-  const { selected: p, decide, advance, contacts, open, reset } = useRegister();
+  const { selected: p, decide, advance, open, reset } = useRegister();
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState(false);
-  const [mailOpen, setMailOpen] = useState(false);
 
   if (!p) return <DynamicPage hidePinButton className="app-page"><MessageStrip hideCloseButton>{t("Kein Datensatz ausgewählt.")}</MessageStrip></DynamicPage>;
 
   const status = overallStatus(p);
   const st = stepStatuses(p);
   const pr = progress(p);
-  const canAdvance = p.decision === "approved" && pr.done < pr.total;
-  const contact = contacts.find((c) => c.countries.includes(p.country));
+  const canAdvance = p.decision === "approved" && pr.done < pr.total && st.notify !== "running";
 
   const submit = async (decision: "approved" | "sanctionedNoBlock" | "declined") => {
     if (decision !== "approved" && !comment.trim()) { setCommentError(true); return; }
     if (!await decide(p.id, decision, comment.trim())) return;
     setComment(""); setCommentError(false);
   };
-
-  const recipients = [
-    { role: "Account Executive", name: t("[Name aus CRM bzw. ONE360, offen]") },
-    { role: `General Director ${contact?.region ?? p.country}`, name: contact?.generalDirector || t("[nicht gepflegt]") },
-    { role: `Legal Head ${contact?.region ?? p.country}`, name: contact?.legalHead || t("[nicht gepflegt]") },
-    { role: `Commercial Director ${contact?.region ?? p.country}`, name: contact?.commercialDirector || t("[nicht gepflegt]") },
-  ];
 
   return <DynamicPage hidePinButton className="app-page"
     titleArea={<DynamicPageTitle
@@ -129,13 +118,6 @@ export function RegisterDetail() {
             </Table>
           </Section>}
 
-          <Section title={t("Benachrichtigung")} actions={<Button icon="email" onClick={() => setMailOpen(true)}>{t("E-Mail-Entwurf öffnen")}</Button>}>
-            <div className="rg-recipients">
-              {recipients.map((r) => <div key={r.role} className="rg-recipient"><Text className="rg-strong">{t(r.role)}</Text><Text>{r.name}</Text></div>)}
-            </div>
-            <MessageStrip hideCloseButton design="Negative">{t("Kein Kontakt mit dem Kunden selbst. Bei Sanktionen kann schon die Erklärung der Sperre verboten sein.")}</MessageStrip>
-            <Link accessibleRole="Button" onClick={() => open("rg-contacts")}>{t("Länder-Kontakte pflegen")}</Link>
-          </Section>
         </div>
 
         <aside className="rg-detail-side">
@@ -171,18 +153,6 @@ export function RegisterDetail() {
       </div>
     </div>
 
-    <Dialog open={mailOpen} headerText={t("E-Mail-Entwurf (Platzhalter, kein Versand)")} onClose={() => setMailOpen(false)}
-      footer={<div className="rg-dialog-footer">
-        <Button design="Emphasized" onClick={() => { window.location.href = mailto(p, recipients, t); }}>{t("Im E-Mail-Programm öffnen")}</Button>
-        <Button design="Transparent" onClick={() => setMailOpen(false)}>{t("Schließen")}</Button>
-      </div>}>
-      <div className="rg-mail">
-        <Text><b>{t("An:")}</b> {recipients.slice(0, 3).map((r) => `[${t(r.role)}]`).join("; ")}</Text>
-        <Text><b>{t("Cc:")}</b> [{t(recipients[3].role)}], Export Control</Text>
-        <Text><b>{t("Betreff:")}</b> {mailSubject(p, t)}</Text>
-        <Text className="rg-pre">{mailBody(p, t)}</Text>
-      </div>
-    </Dialog>
   </DynamicPage>;
 }
 
@@ -208,21 +178,4 @@ function StepCard({ title, system, status, result, note }: { title: string; syst
 function decisionText(p: BlockedPartner, t: ReturnType<typeof useLanguage>["t"]) {
   return t({ pending: "ausstehend", approved: "Freigegeben", sanctionedNoBlock: "Sanktioniert ohne Sperre", declined: "Abgelehnt" }[p.decision])
     + (p.decisionComment ? `: ${p.decisionComment}` : "");
-}
-
-type Translator = ReturnType<typeof useLanguage>["t"];
-
-const mailSubject = (p: BlockedPartner, t: Translator) => t("Information: Geschäftspartner {0} (BP {1}) gesperrt", p.name, p.bpId);
-const mailBody = (p: BlockedPartner, t: Translator) => t(`Hallo zusammen,
-
-der Geschäftspartner {0} (BP {1}, {2}) wurde von Export Control gesperrt. Die Sperrschritte sind im Sanktionsregister dokumentiert.
-Bitte nehmt zu diesem Thema keinen Kontakt mit dem Kunden auf und leitet Anfragen an Export Control weiter.
-
-Viele Grüße
-Export Control`, p.name, p.bpId, t(p.country));
-
-/** Öffnet das E-Mail-Programm mit Platzhaltern statt echter Adressen. */
-function mailto(p: BlockedPartner, recipients: { role: string }[], t: Translator) {
-  const to = `${t("An:")} ${recipients.slice(0, 3).map((r) => `[${t(r.role)}]`).join("; ")}\n\n`;
-  return `mailto:?subject=${encodeURIComponent(mailSubject(p, t))}&body=${encodeURIComponent(to + mailBody(p, t))}`;
 }

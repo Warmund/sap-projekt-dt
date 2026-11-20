@@ -6,7 +6,7 @@ export const STEP_DEFS: Record<StepKey, { label: string; system: string; team: s
   ticketsShn: { label: "Offene Support-Tickets schließen", system: "Support", team: "Support", doneText: "Ticketprüfung abgeschlossen und SHN aktiviert", runningText: "Offene Support-Tickets schließen, danach SHN aktivieren", note: "SHN auch aktivieren, wenn keine Tickets offen sind." },
   rcsc: { label: "I7P Control Table Board", system: "RCSC", team: "Remote-Support", doneText: "I7P Control Table Board bearbeitet", runningText: "I7P Control Table Board bearbeiten" },
   cloud: { label: "Cloud-Sperre je LoB", system: "Ticket je Line of Business", team: "Cloud-LoB", doneText: "Alle Tenants gesperrt", runningText: "Tenants werden von den LoBs gesperrt" },
-  notify: { label: "Benachrichtigung", system: "E-Mail an AE und Landesverantwortliche", team: "Export Control", doneText: "Account Executive und Landesverantwortliche informiert", runningText: "E-Mail-Entwurf bereit" },
+  notify: { label: "Benachrichtigung", system: "E-Mail", team: "Export Control", doneText: "E-Mail-Versand bestätigt", runningText: "E-Mail unter „Benachrichtigungen“ vorbereiten" },
   irdp: { label: "IRDP-Flag setzen", system: "Launchpad", team: "Export Control", doneText: "IRDP-Flag gesetzt", runningText: "IRDP-Flag im Launchpad setzen" },
   serviceNow: { label: "ServiceNow", system: "ServiceNow", team: "Support", doneText: "ServiceNow-Schritt bestätigt", runningText: "ServiceNow-Schritt bearbeiten" },
   bcp: { label: "BCP-Ticket", system: "BCP", team: "Support", doneText: "BCP-Ticket bestätigt", runningText: "BCP-Ticket bearbeiten" },
@@ -82,7 +82,7 @@ export function completeStep(p: BlockedPartner, step: StepKey, by: string, resul
 export function advance(p: BlockedPartner, now = new Date()): BlockedPartner {
   const statuses = stepStatuses(p);
   return (Object.keys(statuses) as StepKey[])
-    .filter((s) => statuses[s] === "running")
+    .filter((s) => statuses[s] === "running" && s !== "notify")
     .reduce((acc, s) => completeStep(acc, s, `Rückmeldung ${STEP_DEFS[s].system}`, undefined, now), p);
 }
 

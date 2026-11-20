@@ -149,7 +149,7 @@ export function RegisterNewEntry() {
               <li>{t("Datensatz zählt auf der Dashboard-Kachel „Zur Freigabe“, keine E-Mail")}</li>
               <li>{t("EC Member 2 entscheidet: freigeben, sanktioniert ohne Sperre oder ablehnen")}</li>
               <li>{t("Bei Freigabe laufen die Sperrschritte, jeder meldet seinen Status ins Register")}</li>
-              <li>{t("E-Mail an Account Executive und Landesverantwortliche vorbereiten")}</li>
+              <li>{t("E-Mail unter „Benachrichtigungen“ vorbereiten")}</li>
             </ol>
           </Section>
         </aside>

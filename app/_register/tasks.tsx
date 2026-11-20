@@ -17,7 +17,7 @@ import type { StepKey } from "../../lib/register/types";
 import { useRegister } from "./store";
 import { StepBadge } from "./ui";
 
-const TASK_STEPS = STEP_ORDER.filter((key) => key !== "suser");
+const TASK_STEPS = STEP_ORDER.filter((key) => key !== "suser" && key !== "notify");
 
 /** Sicht einer Nachbarabteilung: nur eigene Schritte, nur Erledigung bestätigen. */
 export function RegisterTasks() {
