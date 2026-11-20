@@ -41,6 +41,7 @@
     "lint": "eslint .",
     "test": "playwright test",
     "import:customers": "tsx scripts/import-customers.ts",
-    "test:register": "tsx --test lib/register/*.test.ts"
+    "test:register": "tsx --test lib/register/*.test.ts",
+    "demo:values": "tsx scripts/demo-values.ts"
   }
 }
