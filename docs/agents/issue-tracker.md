@@ -2,6 +2,12 @@
 
 Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
+## Issue lifecycle
+
+1. Before starting any substantial implementation, open a GitHub issue or use an existing issue that covers the work.
+2. For each issue the pull request fully resolves, add `Closes #<number>` to the PR description so GitHub can close it on merge.
+3. Close every issue once its work is complete. For work delivered through a PR, verify after merge that the issue is closed. If GitHub leaves it open, close it manually and reference the merged PR.
+
 ## Conventions
 
 - **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.

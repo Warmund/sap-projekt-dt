@@ -8,7 +8,7 @@
 
 ### Issue tracker
 
-Issues live in GitHub Issues of `patrick-pag/sap-projekt-dt` (via `gh` CLI). See `docs/agents/issue-tracker.md`.
+Follow the [issue tracker workflow](docs/agents/issue-tracker.md) before starting substantial work and when completing any work tracked by an issue.
 
 ### Triage labels
 

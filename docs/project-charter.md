@@ -10,6 +10,7 @@
 
 | Author | Date | Change | Version |
 | --- | --- | --- | --- |
+| Agent | 26.11.2026 | GitHub-Issue für jede größere Umsetzung und Schließen aller erledigten Issues vereinbart. | 5.17 |
 | Agent | 20.11.2026 | Aus GTS übernommene Sanktionslisten können vor dem Anlegen manuell angepasst werden. | 5.16 |
 | Agent | 20.11.2026 | Kundenansicht in Sperrablauf und Stammdaten aufgeteilt. Tags lassen sich bei der Erfassung und in den Stammdaten auswählen und anlegen. | 5.15 |
 | Agent | 20.11.2026 | Verwaltbare Tags für Kunden eingeführt und mehrere Sanktionslisten je Geschäftspartner vorgesehen | 5.14 |
@@ -252,6 +253,7 @@ Belastbare FTE-Angaben und Einsatzzeiträume liegen nicht vor.
 
 - Zentrale konsolidierte Informationsbasis ist `docs/projektkonzept.md`.
 - GitHub Issues im Repository `patrick-pag/sap-projekt-dt` dienen als Issue- und Spezifikationsablage.
+- Jede größere Umsetzung wird vor Beginn in einem GitHub-Issue erfasst. Erledigte Issues werden bei Abschluss geschlossen, bei Umsetzung per Pull Request nach dessen Merge. Details stehen in [der Anleitung zum Issue-Tracker](agents/issue-tracker.md).
 - Das GitHub-Projekt `patrick-pag/projects/1` ist die operative PI-/Sprint-Planung: PI 1 enthält die sechs Sprints SPR-01 bis SPR-06. Einträge, die in SAP-Calls fachlich geklärt werden müssen, tragen das Label `fachliche-frage`.
 - Ausführliche technische Planung bleibt in `docs/infrastructure.md` dokumentiert.
 - Hostingoptionen und Preisstände sind in `docs/research/hosting-mvp-2026-10-25.md` dokumentiert.
